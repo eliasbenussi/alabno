@@ -1,0 +1,6 @@
+METHODS
+
+    The project will be developed by the team following an Agile philosophy. In particular, we have decided to follow the practices suggested by Extreme Programming.
+    We chose Extreme Programming because we think it adapts very well to the kind of project we are undertaking and the amount of time we have for it.
+    We will structure our work so that it has fast cycles of planning, coding, testing and feedback collection and review. We believe that this kind of workflow optimizes the limited amount of time we have to achieve the most important and interesting functionalities planned ahead.
+    This practice will be supported by the use of appropriate tools for development.
