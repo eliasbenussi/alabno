@@ -1,0 +1,69 @@
+WORKFLOW
+
+    Inputs:
+    -   The model solution repository
+    -   The document to be corrected repository
+    -   Which type
+    
+    Make a directory for working. AM/tmp/123/
+    
+    Clone the model solution repository
+    in AM/tmp/123
+        git clone http://modelsolution model
+    
+    Clone the document(s) repositories
+    in AM/tmp/123
+        git clone http://studentrepo s1
+    
+    Put the configuration.json file into AM/tmp/123/configuration.json
+    
+    Launch 1 thread per microservice, each runs
+    -   ./microservicename AM/tmp/123/configuration.json AM/out/123/microservicename.json
+    
+    Wait for everything to finish
+    
+    Collect results.
+    
+    (collect feedback and give it back to the microservices)
+    
+    
+DIRECTORIES
+
+    -   AM/tmp
+    Where inputs, model solutions and configuration files live. The folders are temporary and can be deleted after the job has run.
+    
+    -   AM/out
+    Persistent, sequentially numbered result directories. A database will know whose exercise corresponds to which directory.
+    Directory might be cleared out occasionally.
+    
+COMPONENTS
+
+    GlobalDirectories
+    Knows where in the systems the directories are, and generates new directory names for new jobs.
+
+    JobManager
+    Takes in all the inputs and creates the DirectoryManager. Creates SingleJobConfig and manages and waits for the JobRunners.
+
+    DirectoryManager
+    Stores information about all the directories.
+    
+    SingleJobConfig
+    Has information about the single job. It is the input data to the JobRunner.
+    
+    JobRunner
+    It's a Thread that runs a single job.
+    
+    Collector
+    Collects results from all the jobs.
+    
+    DirectoryUtils
+    Utility functions for directories.
+    
+    JsonUtils
+    Utility functions to read/write json format.
+    
+    CmdInterface
+    A command line based interaction system to submit new jobs. Sends jobs to the GlobalDirectories.
+    
+    WebInterface
+    A WebSocket based interaction system to submit new jobs. Sends jobs to the GlobalDirectories.
