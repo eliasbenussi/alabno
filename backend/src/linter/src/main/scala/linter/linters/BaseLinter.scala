@@ -1,7 +1,9 @@
-package linter
+package linter.linters
 
 import java.io.File
 import java.nio.file.NoSuchFileException
+
+import linter.{Language, LinterError}
 
 import scala.collection.mutable
 import scala.io.Source
@@ -9,7 +11,7 @@ import scala.io.Source
 /**
   * Created by helicopter88 on 11/10/16.
   */
-class Linter(file: File, language: Language.Value) {
+abstract class BaseLinter(file: File, language: Language.Value) {
   private val mistakes = new mutable.MutableList[LinterError]
   private val fileList = findFiles
 
