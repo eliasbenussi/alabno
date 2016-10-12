@@ -8,7 +8,20 @@ import play.api.libs.json._
 import scala.collection.mutable
 
 /**
-  * @author ${user.name}
+  * This program uses JSON both as input and as output
+  * <p> Expected input format: <p>
+  * <p> { </p>
+  * <p>   "path": "<path to a file>", </p>
+  * <p>   "language": "<language to be used>", </p>
+  * <p>   "linters": [ "linter1", "linter2" ] </p>
+  * <p> } </p>
+  * <p> Language and linters are optional </p>
+  *
+  * <p> Output format will look like </p>
+  * <p> { </p>
+  * <p>   "mistakes": [ "mistake1", "mistake2"], </p>
+  * <p>   "execution_errors":  [ ] </p>
+  * <p> } </p>
   */
 object App {
 
@@ -18,6 +31,12 @@ object App {
   private var language: Language.Value = Language.Other
   private var path: File = _
 
+  /**
+    * Entry point of this service
+    * @param args
+    *             <p< Array of arguments, where the first argument is the input file </p>
+    *             <p>  and the second one is the output file </p>
+    */
   def main(args: Array[String]) {
     if (args.length != 2) {
       throw new IllegalArgumentException(s"linter <input json> <output json>")

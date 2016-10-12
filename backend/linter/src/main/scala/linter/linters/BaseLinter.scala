@@ -9,7 +9,9 @@ import scala.collection.mutable
 import scala.io.Source
 
 /**
-  * Created by helicopter88 on 11/10/16.
+  * Abstract class to be inherited by other linters
+  * @param file The file to be used in the linter, can be a directory
+  * @param language Language to be used in the linter
   */
 abstract class BaseLinter(file: File, language: Language.Value) {
   private val mistakes = new mutable.MutableList[LinterError]
@@ -37,6 +39,11 @@ abstract class BaseLinter(file: File, language: Language.Value) {
     }
   }
 
+  /**
+    * <p> Inheriting classes should override this method </p>
+    * <p> This method should run an operation on every file given and produce a list of mistakes </p>
+    * @return The list of mistakes found in the file(s)
+    */
   def parseFiles = {
     fileList.filterNot(_.isDirectory).foreach(scanFile)
     mistakes
