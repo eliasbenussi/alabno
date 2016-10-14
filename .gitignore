@@ -1,0 +1,4 @@
+# gitignore file for ALABNO project
+
+# Exclude idea configuration files
+**/.idea/**
