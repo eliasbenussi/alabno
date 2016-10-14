@@ -12,9 +12,9 @@ FILE INPUT FORMAT FOR EACH MICROZERVICE
     Which is the model answer (directory or files)
     
     {
-        input_directory: "/var/tmp/alabno/4b8ea98f6a8f97b98c97a8a6/docker/commit", // Please make sure this is an absolute path
-        type: "haskell", // can be wacc, pintos, java, c, or any custom stuff
-        additional_config: "http://www.doc.ic.ac.uk/~alabno/scripts/auto-marker/pintos.conf"
+        "input_directory": "/var/tmp/alabno/4b8ea98f6a8f97b98c97a8a6/docker/commit", // Please make sure this is an absolute path
+        "type": "haskell", // can be wacc, pintos, java, c, or any custom stuff
+        "additional_config": "http://www.doc.ic.ac.uk/~alabno/scripts/auto-marker/pintos.conf"
     }
     
 OUTPUT FORMAT OF A SINGLE MICROZERVICE

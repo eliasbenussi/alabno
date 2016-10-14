@@ -17,6 +17,8 @@ WORKFLOW
     
     Put the configuration.json file into AM/tmp/123/configuration.json
     
+    Launch the JobManager for the current job, which will launch all the required microservices.
+    
     Launch 1 thread per microservice, each runs
     -   ./microservicename AM/tmp/123/configuration.json AM/out/123/microservicename.json
     
@@ -38,32 +40,53 @@ DIRECTORIES
     
 COMPONENTS
 
+    Server component:
+
     GlobalDirectories
     Knows where in the systems the directories are, and generates new directory names for new jobs.
-
-    JobManager
-    Takes in all the inputs and creates the DirectoryManager. Creates SingleJobConfig and manages and waits for the JobRunners.
-
-    DirectoryManager
-    Stores information about all the directories.
-    
-    SingleJobConfig
-    Has information about the single job. It is the input data to the JobRunner.
-    
-    JobRunner
-    It's a Thread that runs a single job.
-    
-    Collector
-    Collects results from all the jobs.
-    
-    DirectoryUtils
-    Utility functions for directories.
-    
-    JsonUtils
-    Utility functions to read/write json format.
     
     CmdInterface
     A command line based interaction system to submit new jobs. Sends jobs to the GlobalDirectories.
     
     WebInterface
     A WebSocket based interaction system to submit new jobs. Sends jobs to the GlobalDirectories.
+
+    The following will run as a process, to allow detached running of single jobs, so that it's easy to re-use inside LabTS's current system
+    
+        JobManager
+        Takes in all the inputs and creates the DirectoryManager. Creates SingleJobConfig and manages and waits for the JobRunners.
+        Inputs can be taken from stdin, with information about where to find the microservices, what are the inputs and what are the outputs.
+
+        DirectoryManager
+        Stores information about all the directories.
+        
+        SingleJobConfig
+        Has information about the single job. It is the input data to the JobRunner.
+        
+        JobRunner
+        It's a Thread that runs a single job.
+        
+        Collector
+        Collects results from all the jobs.
+        
+        DirectoryUtils
+        Utility functions for directories.
+        
+        JsonUtils
+        Utility functions to read/write json format.
+    
+
+JOBMANAGER
+
+    Reads options from stdin
+
+    {
+        "input_directory": "/var/tmp/alabno/4b8ea98f6a8f97b98c97a8a6/docker/commit",
+        "type": "haskell",
+        "additional_config": "http://www.doc.ic.ac.uk/~alabno/scripts/auto-marker/pintos.conf",
+        "output_directory": "/var/tmp/alabno/4b8ea98f6a8f97b98c97a8a6/docker/final",
+        "services": [
+            {"name": "linter", "location": "/var/exec/linter"},
+            {"name": "cleaner", "location": "/var/exec/cleaner"}
+        ]
+    }

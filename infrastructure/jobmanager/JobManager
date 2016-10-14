@@ -1,0 +1,41 @@
+#!/usr/bin/env python
+
+import os
+import subprocess
+import sys
+from random import randint
+
+tmp_dir = '/tmp/'
+
+# Makes it possible to execute the script from anywhere and still be able to
+# correctly locate the classpaths
+exec_dir = os.path.dirname(os.path.abspath(__file__))
+
+classpath = [exec_dir + os.sep + 'bin', exec_dir + os.sep + 'lib' + os.sep + 'json-simple-1.1.jar']
+
+classpath_joint = ':'.join(classpath)
+
+while True:
+    # make a random file name
+    random_file_name = str(randint(0,99999999))
+    
+    stdin_file_path = os.path.abspath(tmp_dir + os.sep + random_file_name)
+    
+    if not os.path.isfile(stdin_file_path):
+        break
+    
+stdin_file = open(stdin_file_path, 'w')
+
+data = sys.stdin.readlines()
+stdin_file.write('\n'.join(data))
+stdin_file.close()
+
+cmd = 'java -cp "{}" jobmanager.Main {}'.format(classpath_joint, stdin_file_path)
+
+proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, shell=True)
+
+code = proc.wait()
+
+os.remove(stdin_file_path)
+
+sys.exit(code)

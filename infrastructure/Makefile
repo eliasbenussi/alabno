@@ -1,5 +1,10 @@
-all:
-	echo "nothing"
+all: jobmanager
 
 test:
-	echo "test nothing"
+	cd jobmanager && make test
+
+jobmanager:
+	cd jobmanager && make
+
+.PHONY: clean jobmanager
+
