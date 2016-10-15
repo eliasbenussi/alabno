@@ -7,10 +7,11 @@
   <version>1.0-SNAPSHOT</version>
   <name>backend</name>
   <url>http://maven.apache.org</url>
-  <!-- Add here extra modules that can be built with maven-->
-  <modules>
+  <!-- Add here extra modules that can be built with maven -->
+  <!-- Commented for now, but this has to be uncommented when the first project is added -->
+  <!--  <modules>
     <module></module>
-  </modules>
+  </modules> -->
 
   <dependencies>
     <dependency>
