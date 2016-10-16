@@ -8,10 +8,14 @@ public class MicroServiceConfiguration {
 
     private String additionalConfigLocation;
 
-    public MicroServiceConfiguration(String inputDirectory, String type, String additionalConfigLocation) {
+    private String outputDirectory;
+
+    public MicroServiceConfiguration(String inputDirectory, String type,
+                                     String additionalConfigLocation, String outputDirectory) {
         this.inputDirectory = inputDirectory;
         this.type = type;
         this.additionalConfigLocation = additionalConfigLocation;
+        this.outputDirectory = outputDirectory;
     }
 
     public String getInputDirectory() {
@@ -24,6 +28,10 @@ public class MicroServiceConfiguration {
 
     public String getAdditionalConfigLocation() {
         return additionalConfigLocation;
+    }
+
+    public String getOutputDirectory() {
+        return outputDirectory;
     }
 
 }

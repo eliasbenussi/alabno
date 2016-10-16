@@ -18,7 +18,7 @@ public class MicroServiceOutput {
     private List<Annotation> annotations = new ArrayList<>();
 
     /* The first occurring error, if any */
-    private String error = null;
+    private List<String> errors = null;
 
     public MicroServiceOutput(int score) {
         this.score = score;
@@ -26,7 +26,7 @@ public class MicroServiceOutput {
 
     public MicroServiceOutput(int score, String error) {
         this.score = score;
-        this.error = error;
+        this.errors = new ArrayList<>();
     }
 
     public void addAnnotation(int lineNumber, int charNumber, String text) {
@@ -37,7 +37,7 @@ public class MicroServiceOutput {
      * Render microService output as JSON object
      * @return
      */
-    public JSONObject getJson() {
+    public String getJson() {
 
         JSONObject json = new JSONObject();
         json.put("Score", score);
@@ -56,9 +56,19 @@ public class MicroServiceOutput {
 
         // Add list to main JSON object
         json.put("Annotations", jsonAnnotations);
-        json.put("Error", error);
 
-        return json;
+        JSONArray jsonErrors = new JSONArray();
+        // Create JSON object for each error and
+        // add to JSON list
+        for (String error : errors) {
+            JSONObject jsonError = new JSONObject();
+            jsonError.put("Error", error);
+            jsonErrors.add(jsonError);
+        }
+
+        json.put("Errors", jsonErrors);
+
+        return json.toJSONString();
     }
 
     /* ----------------------------------------------------------- */
