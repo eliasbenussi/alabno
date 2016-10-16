@@ -20,18 +20,22 @@ FILE INPUT FORMAT FOR EACH MICROZERVICE
 OUTPUT FORMAT OF A SINGLE MICROZERVICE
 
     {
-        score: 90,
-        annotations:
+        "score": 90,
+        "annotations":
         [
             {
-                lineno: 12,
-                charno: 6,
-                text: "No magic numbers plox"
+                "errortype": "style",
+                "filename": "quadratic.hs",
+                "lineno": 12,
+                "charno": 6,
+                "text": "No magic numbers plox"
             },
             {
-                lineno: 19,
-                charno: 61,
-                text: "READ THE EMAIL PLEASE. --Bryan Mitchell"
+                "errortype": "syntax",
+                "filename": "quadratic.hs",
+                "lineno": 19,
+                "charno": 61,
+                "text": "READ THE EMAIL PLEASE. --Bryan Mitchell"
             }
         ],
         error: "whatever happened" // this can be null if no error happened
