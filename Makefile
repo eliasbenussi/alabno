@@ -1,6 +1,6 @@
 all: infrastructure backend
 
-test: infrastructuretest backendtest
+test: backendtest infrastructuretest
 
 backend:
 	cd backend && mvn package

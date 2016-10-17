@@ -18,7 +18,14 @@ public class Test {
 		
 		for (TestModule module : modules)
 		{
-			module.run(stats);
+			try {
+				module.run(stats);
+			} catch (Exception e)
+			{
+				e.printStackTrace();
+				stats.recordFail(e.getMessage());
+			}
+
 		}
 		
 		System.out.println(stats.getFinalMessage());

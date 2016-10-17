@@ -1,6 +1,6 @@
 SOURCE_DIR	:= src
 OUTPUT_DIR	:= bin 
-CLASSPATHS      := -cp .:bin:lib/json-simple-1.1.jar
+CLASSPATHS      := -cp .:bin:lib/json-simple-1.1.jar:sample/
 
 FIND	:= find
 RM	:= rm -rf

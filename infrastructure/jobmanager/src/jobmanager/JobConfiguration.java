@@ -30,6 +30,27 @@ public class JobConfiguration {
 		}
 	}
 
+	public String getAdditional_config() {
+		return additional_config;
+	}
+
+	public String getInput_directory() {
+		return input_directory;
+	}
+
+	public String getOutput_directory() {
+		return output_directory;
+	}
+
+	public List<MicroServiceInfo> getServices() {
+		return services;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+
 	// Reads the stdin, to get the configuration and
 	// input/output paths
 	private void read_configuration(String file_url) {
@@ -79,11 +100,6 @@ public class JobConfiguration {
 		}
 	}
 
-	@Override
-	public String toString() {
-		return "JobConfiguration [input_directory=" + input_directory + ", type=" + type + ", additional_config="
-				+ additional_config + ", output_directory=" + output_directory + ", services=" + services + "]";
-	}
 
 	public void runAllJobs() {
 		for (MicroServiceInfo service : services)
@@ -92,5 +108,12 @@ public class JobConfiguration {
 			a_job.execute();
 		}
 	}
+
+	@Override
+	public String toString() {
+		return "JobConfiguration [input_directory=" + input_directory + ", type=" + type + ", additional_config="
+				+ additional_config + ", output_directory=" + output_directory + ", services=" + services + "]";
+	}
+
 
 }
