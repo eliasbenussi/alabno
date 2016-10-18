@@ -1,0 +1,6 @@
+
+# Remove .iml files
+*.iml
+
+# Remove Idea folder
+**/.idea/*
