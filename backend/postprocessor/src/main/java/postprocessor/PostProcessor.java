@@ -24,7 +24,7 @@ public class PostProcessor {
         String outputJsonPath = args[i + 1];
 
         Aggregator aggregator = new Aggregator(inputJsonPaths);
-        JSONObject aggregatedErrors = aggregator.aggregate();
+        String jsonAggregatedErrors = aggregator.aggregate();
 
 
     }
