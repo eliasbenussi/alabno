@@ -1,0 +1,27 @@
+{
+  "annotations":
+  [
+    {
+      "errortype": "syntax",
+      "filename": "quadratic.hs",
+      "lineno": 17,
+      "charno": 10,
+      "text": "-10.000"
+    },
+    {
+      "errortype": "semantic",
+      "filename": "quadratic.hs",
+      "lineno": 53,
+      "charno": 22,
+      "text": "The eyes are the nipples of the face."
+    },
+    {
+      "errortype": "semantic",
+      "filename": "quadratic.hs",
+      "lineno": 61,
+      "charno": 9,
+      "text": "No way."
+    }
+  ],
+  "error": null // this can be null if no error happened
+}
