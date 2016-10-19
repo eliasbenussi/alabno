@@ -1,6 +1,6 @@
 SOURCE_DIR	:= src
 OUTPUT_DIR	:= bin 
-CLASSPATHS      := -cp .:bin:lib/json-simple-1.1.jar:sample/
+CLASSPATHS      := -cp .:bin:lib/json-simple-1.1.jar:lib/Java-WebSocket-1.3.0.jar:sample/:config/
 
 FIND	:= find
 RM	:= rm -rf

@@ -1,0 +1,73 @@
+<div class="row">
+    <div class="col-xs-12">
+        <h2>Welcome Professor {{name}}</h2>
+    </div>
+</div>
+
+<!--PROFESSOR VISIBLE EXERCISES LIST SECTION-->
+<div ng-show="show_professor_exercises">
+
+    <div class="row">
+        <div class="col-xs-8">
+            <h2>Exercises: {{number_exercises}}</h2>
+        </div>
+        
+        <div class="col-xs-4">
+            <button ng-click="new_exercise_clicked()">New</button>
+        </div>
+    </div>
+    
+</div>
+
+<!--NEW EXERCISE SECTION-->
+<div ng-show="show_professor_new_exercise">
+
+    <div class="row">
+        <div class="col-xs-12">
+            <input type="text" placeholder="Title" ng-model="exercise_title">
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-xs-12">
+            <input type="text" placeholder="Type" ng-model="exercise_type">
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-xs-12">
+            <input type="text" placeholder="Model Solution git repo" ng-model="exercise_model">
+        </div>
+    </div>
+    
+    
+    <div class="row" data-ng-repeat="entry in entries">
+        <div class="col-xs-12">
+            <input type="text" ng-model="entry.git" placeholder="Student git repo">
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12">
+            <button ng-click="add_new_student_field()">Add more students</button>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-xs-12">
+            <p>Entries: {{entries}}</p>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-xs-3">
+        </div>
+        <div class="col-xs-6">
+            <button ng-click="submit_new_exercise()">Submit</button>
+        </div>
+        <div class="col-xs-3">
+        </div>
+    </div>
+
+
+</div>

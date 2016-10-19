@@ -13,6 +13,7 @@ FILE INPUT FORMAT FOR EACH MICROZERVICE
     
     {
         "input_directory": "/var/tmp/alabno/4b8ea98f6a8f97b98c97a8a6/docker/commit", // Please make sure this is an absolute path
+        "model_answer": "/var/tmp/alabno/model/",
         "type": "haskell", // can be wacc, pintos, java, c, or any custom stuff
         "additional_config": "http://www.doc.ic.ac.uk/~alabno/scripts/auto-marker/pintos.conf"
     }

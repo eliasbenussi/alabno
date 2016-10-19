@@ -14,8 +14,8 @@ public class TestStatistics {
 	public void recordFail(String message)
 	{
 		total += 1;
-		System.out.println();
-		new RuntimeException("Test failed: " + message).printStackTrace();
+
+		new RuntimeException("\nTest failed: " + message).printStackTrace();
 	}
 	
 	public String getFinalMessage()

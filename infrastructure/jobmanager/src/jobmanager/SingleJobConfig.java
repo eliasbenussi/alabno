@@ -61,7 +61,11 @@ public class SingleJobConfig {
 		System.out.println(command);
 		try {
 			Process pr = rt.exec(command);
-			pr.waitFor();
+			int code = pr.waitFor();
+			if (code != 0)
+			{
+				throw new Exception("Subprocess returned code " + code);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
