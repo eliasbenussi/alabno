@@ -57,12 +57,14 @@ class ExternalLinter(file: File, language: Language.Value) extends BaseLinter(fi
      * Checks for mistakes using HLint
      */
     override def check: Seq[LinterError] = {
-      val res = s"hlint ${file.getPath} --no-exit-code" !!
+      val hlint = s"hlint ${file.getPath} --no-exit-code" !!
+      val scan = s"scan ${file.getPath}" !!
       val fileFinder = s"$pathMatch$posMatch$reasonMatch".r
-      fileFinder.findAllIn(res).toArray.map(matchHaskellMistake)
+      fileFinder.findAllIn(hlint).toArray.map(matchHaskellMistake(_, 1, "semantic"))
+      fileFinder.findAllIn(scan).toArray.map(matchHaskellMistake(_, 0.01, "style"))
     }
 
-    private def matchHaskellMistake(string: String) = {
+    private def matchHaskellMistake(string: String, value: Double, t: String) = {
       // We can skip the checking because we know this exists
       val path = pathMatch.findFirstIn(string).get
       val positions = posMatch.findFirstIn(string).get
@@ -70,7 +72,7 @@ class ExternalLinter(file: File, language: Language.Value) extends BaseLinter(fi
       val digits = d.map(_.toString).map(Integer.decode)
       val reason = reasonMatch.findFirstIn(string).get
 
-      new LinterError(reason, path, digits.apply(0), digits.apply(1))
+      new LinterError(reason, path, digits.apply(0), digits.apply(1), value, t)
     }
   }
 
