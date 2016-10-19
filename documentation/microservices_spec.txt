@@ -4,7 +4,7 @@ Noob
 Optimizer
 
 
-FILE INPUT FORMAT FOR EACH MICROZERVICE
+FILE INPUT FORMAT FOR EACH MICROSERVICE
 
     Input is a configuration text file, which tells which directories and files to look at
     Plus additional configuration, such as which language, which training set to use and so on.
@@ -18,7 +18,7 @@ FILE INPUT FORMAT FOR EACH MICROZERVICE
         "additional_config": "http://www.doc.ic.ac.uk/~alabno/scripts/auto-marker/pintos.conf"
     }
     
-OUTPUT FORMAT OF A SINGLE MICROZERVICE
+OUTPUT FORMAT OF A SINGLE MICROSERVICE
 
     {
         "score": 90,
