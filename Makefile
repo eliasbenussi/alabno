@@ -1,6 +1,6 @@
 all: infrastructure backend
 
-test: backendtest infrastructuretest
+test: backendtest infrastructuretest postprocessortest
 
 backend:
 	cd backend && mvn package
@@ -13,5 +13,8 @@ infrastructure:
 
 infrastructuretest:
 	cd infrastructure && make test
+
+postprocessortest:
+	cd backend/postprocessor && mvn test
 
 .PHONY: clean infrastructure backend
