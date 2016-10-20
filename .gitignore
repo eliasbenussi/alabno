@@ -1,7 +1,0 @@
-tmp
-
-# Remove .iml files
-backend/**/*.iml
-
-# Remove Idea folder
-**/.idea/*
