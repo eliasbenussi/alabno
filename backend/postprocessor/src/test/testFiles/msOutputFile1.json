@@ -1,0 +1,20 @@
+{
+  "annotations":
+  [
+    {
+      "errortype": "style",
+      "filename": "quadratic.hs",
+      "lineno": 12,
+      "charno": 6,
+      "text": "No magic numbers please"
+    },
+    {
+      "errortype": "syntax",
+      "filename": "quadratic.hs",
+      "lineno": 19,
+      "charno": 61,
+      "text": "Missing bracket around line 20"
+    }
+  ],
+  "errors": []
+}

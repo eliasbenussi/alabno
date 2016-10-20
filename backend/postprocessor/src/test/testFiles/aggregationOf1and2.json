@@ -1,0 +1,43 @@
+{
+  "syntax": [
+    {
+      "charno": 61,
+      "errortype": "syntax",
+      "text": "Missing bracket around line 20",
+      "filename": "quadratic.hs",
+      "lineno": 19
+    },
+    {
+      "charno": 10,
+      "errortype": "syntax",
+      "text": "-10.000",
+      "filename": "quadratic.hs",
+      "lineno": 17
+    }
+  ],
+  "style": [
+    {
+      "charno": 6,
+      "errortype": "style",
+      "text": "No magic numbers please",
+      "filename": "quadratic.hs",
+      "lineno": 12
+    }
+  ],
+  "semantic": [
+    {
+      "charno": 22,
+      "errortype": "semantic",
+      "text": "Cannot assign x to 20",
+      "filename": "quadratic.hs",
+      "lineno": 53
+    },
+    {
+      "charno": 9,
+      "errortype": "semantic",
+      "text": "No way.",
+      "filename": "quadratic.hs",
+      "lineno": 61
+    }
+  ]
+}

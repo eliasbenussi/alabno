@@ -29,14 +29,14 @@ OUTPUT FORMAT OF A SINGLE MICROSERVICE
                 "filename": "quadratic.hs",
                 "lineno": 12,
                 "charno": 6,
-                "text": "No magic numbers plox"
+                "text": "No magic numbers please"
             },
             {
                 "errortype": "syntax",
                 "filename": "quadratic.hs",
                 "lineno": 19,
                 "charno": 61,
-                "text": "READ THE EMAIL PLEASE. --Bryan Mitchell"
+                "text": "Missing bracked around line 20"
             }
         ],
         error: "whatever happened" // this can be null if no error happened
