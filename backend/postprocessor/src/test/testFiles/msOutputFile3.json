@@ -6,7 +6,7 @@
       "filename": "quadratic.hs",
       "lineno": 12,
       "charno": 6,
-      "text": "No magic numbers plox"
+      "text": "No magic numbers please"
     },
     {
       "errortype": "syntax",
@@ -16,5 +16,7 @@
       "text": "READ THE EMAIL PLEASE. --Bryan Mitchell"
     }
   ],
-  "error": null // this can be null if no error happened
+  "errors": [
+    "0x003581753 SEGFAULT. Deal with it."
+  ]
 }

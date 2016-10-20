@@ -4,11 +4,7 @@ package postprocessor;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.*;
 
 public class Aggregator {
@@ -30,31 +26,21 @@ public class Aggregator {
 
         // Create massive list containing all errors
         JSONParser parser = new JSONParser();
+        JSONObject jsonMicroServiceOutput = null;
         for (String path : jsonPaths) {
-            try {
 
-                // Parse file as JSON object
-                Object obj = parser.parse(new FileReader(path));
-                JSONObject jsonMicroServiceOutput = (JSONObject) obj;
+            jsonMicroServiceOutput = PostProcessorUtils.obtainJSONFile(path);
 
-                String error;
-                if ((error = (String) jsonMicroServiceOutput.get("error")) != null) {
-                    System.out.println("One microservice failed to produce a valid output. " +
-                            "Details on the error: " + error);
-                    // TODO: decide what to do in this case. For the moment, skipping output.
-                } else {
+            JSONArray errors;
+            if (!(errors = (JSONArray) jsonMicroServiceOutput.get("errors")).isEmpty()) {
+                System.out.println("A microservice failed to produce a valid output. " +
+                        "Details on the errors: " + errors.toString());
+                // TODO: decide what to do in this case. For the moment, skipping output.
+            } else {
 
-                    // Get array of annotations from microservice's JSON output
-                    JSONArray annotations = (JSONArray) jsonMicroServiceOutput.get("annotations");
-                    addAnnotationToMapByErrorType(map, annotations);
-                }
-
-            } catch (ParseException e) {
-                System.out.println("[EXCEPTION] Could not parse file " + path + ". Aborting.");
-                System.exit(-1);
-            } catch (IOException e) {
-                System.out.println("[EXCEPTION] Error reading file " + path + ". Aborting.");
-                System.exit(-1);
+                // Get array of annotations from microservice's JSON output
+                JSONArray annotations = (JSONArray) jsonMicroServiceOutput.get("annotations");
+                addAnnotationToMapByErrorType(map, annotations);
             }
         }
 
@@ -75,10 +61,12 @@ public class Aggregator {
 
             List<JSONObject> associatedAnnotations = map.get(type);
             JSONArray jsonArray = new JSONArray();
-            for (JSONObject jsonAnnotation : associatedAnnotations) {
-                jsonArray.add(jsonAnnotation);
+            if (associatedAnnotations != null) {
+                for (JSONObject jsonAnnotation : associatedAnnotations) {
+                    jsonArray.add(jsonAnnotation);
+                }
+                finalOutput.put(type.toString(), associatedAnnotations);
             }
-            finalOutput.put(type.toString(), associatedAnnotations);
         }
         return finalOutput.toJSONString();
     }
@@ -94,7 +82,7 @@ public class Aggregator {
             JSONObject annotation = annotationsIterator.next();
 
             String jsonErrorType = (String) annotation.get("errortype");
-            ErrorType errorType = convertStringToErrortype(jsonErrorType);
+            ErrorType errorType = PostProcessorUtils.convertStringToErrortype(jsonErrorType);
 
             List<JSONObject> jsonListByErrorType = new ArrayList<>();
             if (map.containsKey(errorType)) {
@@ -105,20 +93,6 @@ public class Aggregator {
         }
     }
 
-    private ErrorType convertStringToErrortype(String jsonErrorType) {
-        ErrorType errorType = null;
-        switch(jsonErrorType) {
-            case "syntax":
-                errorType = ErrorType.SYNTAX;
-                break;
-            case "semantic":
-                errorType = ErrorType.SEMANTIC;
-                break;
-            case "style":
-                errorType = ErrorType.STYLE;
-                break;
-        }
-        return errorType;
-    }
+
 
 }
