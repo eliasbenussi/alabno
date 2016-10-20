@@ -92,7 +92,4 @@ public class Aggregator {
             map.put(errorType, jsonListByErrorType);
         }
     }
-
-
-
 }

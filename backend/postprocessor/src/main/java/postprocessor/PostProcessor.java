@@ -11,7 +11,7 @@ public class PostProcessor {
 
         if (args.length <= 1) {
             throw new IllegalArgumentException(
-                    "Not enough argument!\nExpected arguments: <language> <input_json_paths>+ <output_json_path>"
+                    "Not enough arguments!\nExpected arguments: <language> <input_json_paths>+ <output_json_path>"
             );
         }
 
@@ -25,7 +25,5 @@ public class PostProcessor {
 
         Aggregator aggregator = new Aggregator(inputJsonPaths);
         String jsonAggregatedErrors = aggregator.aggregate();
-
-
     }
 }
