@@ -3,13 +3,11 @@ package postprocessor;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-
 import java.util.*;
 
 public class Aggregator {
 
-    List<String> jsonPaths;
+    private final List<String> jsonPaths;
 
     public Aggregator(List<String> jsonPaths) {
         this.jsonPaths = jsonPaths;
@@ -24,47 +22,38 @@ public class Aggregator {
 
         Map<ErrorType, List<JSONObject>> map = new HashMap<>();
 
-        // Create massive list containing all errors
-        JSONParser parser = new JSONParser();
-        JSONObject jsonMicroServiceOutput = null;
+        // Create a list containing errors from all the microservices
+        JSONObject jsonMicroServiceOutput;
         for (String path : jsonPaths) {
-
             jsonMicroServiceOutput = PostProcessorUtils.obtainJSONFile(path);
-
-            JSONArray errors;
-            if (!(errors = (JSONArray) jsonMicroServiceOutput.get("errors")).isEmpty()) {
-                System.out.println("A microservice failed to produce a valid output. " +
-                        "Details on the errors: " + errors.toString());
+            JSONArray errors = (JSONArray) jsonMicroServiceOutput.get("errors");
+            if (!errors.isEmpty()) {
+                System.out.println("\nA microservice failed to produce a valid output.\n" +
+                        "Details on the errors:\n" + errors + "\n\n");
                 // TODO: decide what to do in this case. For the moment, skipping output.
             } else {
-
                 // Get array of annotations from microservice's JSON output
                 JSONArray annotations = (JSONArray) jsonMicroServiceOutput.get("annotations");
                 addAnnotationToMapByErrorType(map, annotations);
             }
         }
-
-        String finalOutput = generateJSONOutput(map);
-        return finalOutput;
+        return generateJSONOutput(map);
     }
 
     /**
      * Generate JSON formatted string containing
      * all annotations arranged by error type in
      * different JSON arrays
-     * @param map
-     * @return
+     * @param map The map containing all the micro-service annotations
+     * @return Returns all the errors as a JSON string
      */
+    // The JSON library does not cope well with generics, suppress unchecked warnings.
+    @SuppressWarnings("unchecked")
     private String generateJSONOutput(Map<ErrorType, List<JSONObject>> map) {
         JSONObject finalOutput = new JSONObject();
         for (ErrorType type : ErrorType.values()) {
-
             List<JSONObject> associatedAnnotations = map.get(type);
-            JSONArray jsonArray = new JSONArray();
             if (associatedAnnotations != null) {
-                for (JSONObject jsonAnnotation : associatedAnnotations) {
-                    jsonArray.add(jsonAnnotation);
-                }
                 finalOutput.put(type.toString(), associatedAnnotations);
             }
         }
@@ -73,16 +62,15 @@ public class Aggregator {
 
     /**
      * Add annotations in map arranging by error type
-     * @param map
-     * @param annotations
+     * @param map The map containing all the micro-service annotations grouped by error types
+     * @param annotations The list with all the micro-service annotations
      */
+    // The JSON library does not cope well with generics, suppress unchecked warnings.
+    @SuppressWarnings("unchecked")
     private void addAnnotationToMapByErrorType(Map<ErrorType, List<JSONObject>> map, JSONArray annotations) {
-        Iterator<JSONObject> annotationsIterator = annotations.iterator();
-        while (annotationsIterator.hasNext()) {
-            JSONObject annotation = annotationsIterator.next();
-
+        for (JSONObject annotation : (Iterable<JSONObject>) annotations) {
             String jsonErrorType = (String) annotation.get("errortype");
-            ErrorType errorType = PostProcessorUtils.convertStringToErrortype(jsonErrorType);
+            ErrorType errorType = ErrorType.convertStringToErrorType(jsonErrorType);
 
             List<JSONObject> jsonListByErrorType = new ArrayList<>();
             if (map.containsKey(errorType)) {

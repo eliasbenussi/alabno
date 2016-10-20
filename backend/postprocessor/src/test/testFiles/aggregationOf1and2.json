@@ -3,16 +3,16 @@
     {
       "charno": 61,
       "errortype": "syntax",
-      "text": "READ THE EMAIL PLEASE. --Bryan Mitchell",
-      "lineno": 19,
-      "filename": "quadratic.hs"
+      "text": "Missing bracket around line 20",
+      "filename": "quadratic.hs",
+      "lineno": 19
     },
     {
       "charno": 10,
       "errortype": "syntax",
       "text": "-10.000",
-      "lineno": 17,
-      "filename": "quadratic.hs"
+      "filename": "quadratic.hs",
+      "lineno": 17
     }
   ],
   "style": [
@@ -20,24 +20,24 @@
       "charno": 6,
       "errortype": "style",
       "text": "No magic numbers please",
-      "lineno": 12,
-      "filename": "quadratic.hs"
+      "filename": "quadratic.hs",
+      "lineno": 12
     }
   ],
   "semantic": [
     {
       "charno": 22,
       "errortype": "semantic",
-      "text": "The eyes are the nipples of the face.",
-      "lineno": 53,
-      "filename": "quadratic.hs"
+      "text": "Cannot assign x to 20",
+      "filename": "quadratic.hs",
+      "lineno": 53
     },
     {
       "charno": 9,
       "errortype": "semantic",
       "text": "No way.",
-      "lineno": 61,
-      "filename": "quadratic.hs"
+      "filename": "quadratic.hs",
+      "lineno": 61
     }
   ]
 }
