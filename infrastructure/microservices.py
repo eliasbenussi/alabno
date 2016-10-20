@@ -4,6 +4,6 @@
 # of the git repository
 
 microservices = [
-    {"name": "linter", "location": "java -jar /var/linter"},
+    {"name": "linter", "location": "java -jar backend/linter/target/linter-1.0-SNAPSHOT-jar-with-dependencies.jar" },
     {"name": "cleaner", "location": "./infrastructure/cleaner"}
 ]
