@@ -23,5 +23,5 @@
       "text": "No way."
     }
   ],
-  "error": null // this can be null if no error happened
+  "errors": []
 }
