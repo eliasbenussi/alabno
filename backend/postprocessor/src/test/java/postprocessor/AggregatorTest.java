@@ -42,5 +42,4 @@ public class AggregatorTest {
 
         assertEquals(expectedOutput, actualOutput);
     }
-
 }
