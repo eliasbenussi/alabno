@@ -1,7 +1,11 @@
 package jobmanager;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Arrays;
 
 import org.json.simple.JSONObject;
 
@@ -57,11 +61,27 @@ public class SingleJobConfig {
 		// Execute
 		// service_location inputfile outputlocation
 		String command = the_service.getLocation() + " " + input_json_path + " " + output_json_path;
-		Runtime rt = Runtime.getRuntime();
 		System.out.println(command);
+
+		ProcessBuilder pb = new ProcessBuilder(Arrays.asList("/bin/sh", "-c", command));
+		pb.redirectErrorStream(true);
+
+		Process process;
 		try {
-			Process pr = rt.exec(command);
-			int code = pr.waitFor();
+			process = pb.start();
+		} catch (IOException e2) {
+			e2.printStackTrace();
+			return;
+		}
+		
+		BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
+		String line = null;
+		int code = -1;
+		try {
+			while ((line = input.readLine()) != null) {
+				System.out.println(line);
+			}
+			code = process.waitFor();
 			if (code != 0)
 			{
 				throw new Exception("Subprocess returned code " + code);
@@ -69,6 +89,7 @@ public class SingleJobConfig {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
 	}
 
 }
