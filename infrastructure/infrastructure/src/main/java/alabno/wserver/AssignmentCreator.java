@@ -25,7 +25,6 @@ public class AssignmentCreator implements Runnable {
 	public void run() {
 		
 		String clonerScriptPath = "infrastructure/cloner.py";
-		Runtime runtime = Runtime.getRuntime();
 		StringBuilder studentGitArguments = new StringBuilder();
 		
 		for (int i = 0; i < studentGitLinks.size(); i++) {

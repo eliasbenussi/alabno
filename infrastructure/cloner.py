@@ -15,7 +15,7 @@ temporary_directory = home_directory + os.sep + 'tmp' + os.sep
 
 max_clone_depth = '50'
 
-jobmanager_path = os.path.abspath(home_directory + os.sep + 'infrastructure' + os.sep + 'jobmanager' + os.sep + 'JobManager')
+jobmanager_path = os.path.abspath(home_directory + os.sep + 'infrastructure' + os.sep + 'infrastructure' + os.sep + 'JobManager')
 
 print(microservices.microservices)
 
@@ -134,6 +134,6 @@ for i in range(len(the_students_gits)):
     json_config_file.write('\n')
     json_config_file.close()
     
-    cmd = 'infrastructure/jobmanager/JobManager < {}'.format(json_config_file_path)
+    cmd = 'infrastructure/infrastructure/JobManager < {}'.format(json_config_file_path)
     subprocess.call(cmd, shell=True)
     

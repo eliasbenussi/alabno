@@ -1,0 +1,2 @@
+mvn test
+java -cp config:sample:target/infrastructure-dev.0.1-jar-with-dependencies.jar jobmanager.tests.Test

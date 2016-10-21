@@ -1,10 +1,10 @@
 all: jobmanager
 
 test:
-	cd jobmanager && make test
+	cd infrastructure && ./Test
 
 jobmanager:
-	cd jobmanager && make
+	cd infrastructure && mvn package
 
 .PHONY: clean jobmanager
 
