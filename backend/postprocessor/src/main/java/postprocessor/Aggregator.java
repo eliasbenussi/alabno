@@ -39,7 +39,6 @@ public class Aggregator {
                 addAnnotationToMapByErrorType(map, annotations);
             }
         }
-        System.out.println(generateJSONOutput(map));
         return generateJSONOutput(map);
     }
 
@@ -47,7 +46,7 @@ public class Aggregator {
      * Regroup scores from all the provided JSON output of every MicroService
      * @return JSON object with scores.
      */
-    public String getMicroServiceScores(List<String> jsonPaths) {
+    public Map<String, Double> getMicroServiceScores(List<String> jsonPaths) {
 
         Map<String, Double> microServiceToScoreMap = new HashMap<>();
 
@@ -55,11 +54,11 @@ public class Aggregator {
             JSONObject jsonMicroServiceOutput = PostProcessorUtils.obtainJSONFile(path);
             String currentFileName = new File(path).getName();
             String microServiceName = extractMicroServiceName(currentFileName);
-            JSONArray microServiceScore = (JSONArray) jsonMicroServiceOutput.get("score");
-            microServiceToScoreMap.put(microServiceName, new Integer.getInteger(microServiceScore));
+            Double microServiceScore = (Double) jsonMicroServiceOutput.get("score");
+            microServiceToScoreMap.put(microServiceName, microServiceScore);
         }
 
-        return "";
+        return microServiceToScoreMap;
     }
 
     private String extractMicroServiceName(String currentFileName) {
