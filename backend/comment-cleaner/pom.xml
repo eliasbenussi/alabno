@@ -1,0 +1,64 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  
+  <groupId>comment-cleaner</groupId>
+  <artifactId>comment-cleaner</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>mvn-golang</packaging>
+  
+  <name>Hello GoLang</name>
+  <description>Simple 'Hello World!' GoLang example</description>
+
+  <build>
+    <sourceDirectory>${basedir}${file.separator}src</sourceDirectory>
+    <directory>${basedir}${file.separator}bin</directory>
+    <!-- NB! Listed resource folders will be packed into artifact!
+        <resources>
+          <resource>
+            <directory>${basedir}${file.separator}res</directory>
+          </resource>
+        </resources>
+    -->
+    <plugins>
+      <plugin>
+        <groupId>com.igormaznitsa</groupId>
+        <artifactId>mvn-golang-wrapper</artifactId>
+        <version>2.1.1</version>
+        <extensions>true</extensions>
+        <configuration>
+          <goVersion>1.7</goVersion>
+          <verbose>true</verbose>
+        </configuration>
+        <executions>
+          <!-- Example of some dependency          
+          <execution>
+            <id>default-get</id>
+            <configuration>
+              <buildFlags>
+                <flag>-u</flag>
+              </buildFlags>
+              <packages>
+                <package>github.com/gizak/termui</package>
+              </packages>
+              <branch>v2</branch>
+            </configuration>
+          </execution>          
+          -->
+          <execution>
+            <id>golang-run</id>
+            <goals>
+              <goal>build</goal>
+            </goals>
+            <configuration>
+              <packages>
+                <app>main.go</app>
+              </packages>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>
