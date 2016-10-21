@@ -13,5 +13,6 @@
     <module>linter</module>
     <module>postprocessor</module>
     <module>comment-cleaner</module>
+    <module>compile-checker</module>
   </modules>
 </project>
