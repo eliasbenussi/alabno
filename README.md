@@ -25,7 +25,7 @@ make
 then start the server
 
 ```
-./infrastructure/jobmanager/WebServer
+./infrastructure/infrastructure/WebServer
 ```
 
 also start the HTTP server (in a different terminal)
