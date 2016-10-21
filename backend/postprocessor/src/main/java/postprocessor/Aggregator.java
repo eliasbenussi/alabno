@@ -78,14 +78,16 @@ public class Aggregator {
     // The JSON library does not cope well with generics, suppress unchecked warnings.
     @SuppressWarnings("unchecked")
     private String generateJSONOutput(Map<ErrorType, List<JSONObject>> map) {
-        JSONObject finalOutput = new JSONObject();
+        JSONArray finalOutput = new JSONArray();
         for (ErrorType type : ErrorType.values()) {
             List<JSONObject> associatedAnnotations = map.get(type);
+            Map<String, List<JSONObject>> typeToError = new HashMap<>();
+            typeToError.put(type.toString(), associatedAnnotations);
             if (associatedAnnotations != null) {
-                finalOutput.put(type.toString(), associatedAnnotations);
+                finalOutput.add(typeToError);
             }
         }
-        return finalOutput.toJSONString();
+        return "\"annotations\": " + finalOutput.toJSONString();
     }
 
     /**

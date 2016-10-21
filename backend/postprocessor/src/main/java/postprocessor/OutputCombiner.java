@@ -20,9 +20,9 @@ public class OutputCombiner {
         finalOutput.append("{");
         for (String s : rawOutputs) {
             if (i == rawOutputs.size() - 1) {
-                finalOutput.append("{ "+ s);
+                finalOutput.append(s);
             } else {
-                finalOutput.append("{ "+ s + ",");
+                finalOutput.append(s + ",");
             }
             i += 1;
         }

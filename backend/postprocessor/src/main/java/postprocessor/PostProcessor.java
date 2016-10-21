@@ -10,8 +10,6 @@ import java.util.Map;
 public class PostProcessor {
 
     public static void main(String[] args) {
-        System.out.println("Working Directory = " +
-                System.getProperty("user.dir"));
         if (args.length <= 3) {
             throw new IllegalArgumentException(
                     "Expected arguments: " +
@@ -26,7 +24,6 @@ public class PostProcessor {
         int i;
         for (i = 1; i < args.length - 1; i++) {
             inputJsonPaths.add(args[i]);
-            System.out.println(args[i]);
         }
         String outputJsonPath = args[i];
 
@@ -48,7 +45,7 @@ public class PostProcessor {
             writer.println(jsonFinalOutput);
             writer.close();
         } catch (FileNotFoundException | UnsupportedEncodingException e) {
-            System.out.println("There was an error writing to the specified file.");
+            System.out.println("There was an error writing to: " + outputJsonPath);
         }
     }
 }
