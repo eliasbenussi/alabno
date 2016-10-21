@@ -1,9 +1,13 @@
 package postprocessor;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,17 +31,21 @@ public class PostProcessor {
         }
         String outputJsonPath = args[i];
 
+        // Aggregate errors from microservices
         Aggregator aggregator = new Aggregator(inputJsonPaths);
-        String jsonAggregatedErrors = aggregator.aggregate();
+        JSONArray jsonAggregatedErrors = aggregator.aggregate();
 
         // Get score based on aggregated output
         Map<String, Double> microServiceScores = aggregator.getMicroServiceScores(inputJsonPaths);
         Scorer scorer = new Scorer(microServiceScores);
-        String scores = scorer.getScore();
+        JSONArray scores = scorer.getScore();
 
-        // Append the score to the Aggregated output
-        OutputCombiner outputCombiner = new OutputCombiner(scores, jsonAggregatedErrors);
-        String jsonFinalOutput = outputCombiner.getFinalOutput();
+        // Combine the outputs into on JSONObject built from a map
+        Map<String, JSONArray> rawOutputs = new HashMap<>();
+        rawOutputs.put("scores", scores);
+        rawOutputs.put("annotations", jsonAggregatedErrors);
+        JSONObject finalOutput = new JSONObject(rawOutputs);
+        String jsonFinalOutput = finalOutput.toJSONString();
 
         // Write to output file specified
         try {

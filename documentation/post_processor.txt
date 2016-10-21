@@ -1,8 +1,11 @@
 Final output of the postprocessor is in JSON format
 
 {
-  "number_grade": 78,
-  "letter_grade": "A",
+  "scores":
+  [
+    "number_grade": 78,
+    "letter_grade": "A"
+  ],
   "annotations":
   [
     {

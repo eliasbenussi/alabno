@@ -23,8 +23,8 @@ public class ScorerTest {
         Map<String, Double> microServiceScores = new HashMap<>();
         fillMicroServiceScoreMap(microServiceScores);
         Scorer scorer = new Scorer(microServiceScores);
-        String actual = scorer.getScore();
-        String expected = "\"number_grade\": \"77.85/100\",\"letter_grade\": \"A\"";
+        String actual = scorer.getScore().toJSONString();
+        String expected = "[{\"number\":77.85},{\"letter\":\"A\"}]";
 
         assertEquals(expected, actual);
     }

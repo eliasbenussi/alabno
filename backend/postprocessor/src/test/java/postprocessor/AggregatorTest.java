@@ -18,7 +18,7 @@ public class AggregatorTest {
         paths.add("src/test/testFiles/msOutputFile2.json");
 
         Aggregator aggregator = new Aggregator(paths);
-        String actualOutput = aggregator.aggregate();
+        String actualOutput = aggregator.aggregate().toString();
 
         String pathToExpectedOutput = "src/test/testFiles/aggregationOf1and2.json";
         JSONObject expectedOutputJson = PostProcessorUtils.obtainJSONFile(pathToExpectedOutput);
@@ -34,7 +34,7 @@ public class AggregatorTest {
         paths.add("src/test/testFiles/msOutputFile3.json");
 
         Aggregator aggregator = new Aggregator(paths);
-        String actualOutput = aggregator.aggregate();
+        String actualOutput = aggregator.aggregate().toString();
 
         String pathToExpectedOutput = "src/test/testFiles/emptyAggregation.json";
         JSONObject expectedOutputJson = PostProcessorUtils.obtainJSONFile(pathToExpectedOutput);

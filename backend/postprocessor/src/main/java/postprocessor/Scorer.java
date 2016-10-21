@@ -1,11 +1,14 @@
 package postprocessor;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
 import java.util.Iterator;
 import java.util.Map;
 
 public class Scorer {
 
-    private String finalScore;
+    private JSONArray finalScore = new JSONArray();
     private Double numberGrade;
     private Map<String, Double> microServiceScores;
 
@@ -15,7 +18,7 @@ public class Scorer {
         applyMeanMicroServiceGrading();
     }
 
-    public String getScore() {
+    public JSONArray getScore() {
         return finalScore;
     }
 
@@ -48,6 +51,11 @@ public class Scorer {
     }
 
     private void updateFinalGrade() {
-        finalScore = "\"number_grade\": \"" + numberGrade + "/100\",\"letter_grade\": \"" + getLetterGrade() + "\"";
+        JSONObject numberGradeJSON = new JSONObject();
+        numberGradeJSON.put("number", numberGrade);
+        JSONObject letterGradeJSON = new JSONObject();
+        letterGradeJSON.put("letter", getLetterGrade());
+        finalScore.add(numberGradeJSON);
+        finalScore.add(letterGradeJSON);
     }
 }

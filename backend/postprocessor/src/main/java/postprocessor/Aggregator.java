@@ -16,25 +16,25 @@ public class Aggregator {
     }
 
     /**
-     * Regroup annotations from all microservices' json output provided
+     * Regroup annotations from all MicroServices' json output provided
      * by errorType inside new JSON file.
-     * @return JSON object with final, ordered output
+     * @return JSONArray with final, ordered output
      */
-    public String aggregate() {
+    public JSONArray aggregate() {
 
         Map<ErrorType, List<JSONObject>> map = new HashMap<>();
 
-        // Create a list containing errors from all the microservices
+        // Create a list containing errors from all the MicroServices
         JSONObject jsonMicroServiceOutput;
         for (String path : jsonPaths) {
             jsonMicroServiceOutput = PostProcessorUtils.obtainJSONFile(path);
             JSONArray errors = (JSONArray) jsonMicroServiceOutput.get("errors");
             if (!errors.isEmpty()) {
-                System.out.println("\nA microservice failed to produce a valid output.\n" +
+                System.out.println("\nA MicroService failed to produce a valid output.\n" +
                         "Details on the errors:\n" + errors + "\n\n");
                 // TODO: decide what to do in this case. For the moment, skipping output.
             } else {
-                // Get array of annotations from microservice's JSON output
+                // Get array of annotations from MicroService's JSON output
                 JSONArray annotations = (JSONArray) jsonMicroServiceOutput.get("annotations");
                 addAnnotationToMapByErrorType(map, annotations);
             }
@@ -44,7 +44,7 @@ public class Aggregator {
 
     /**
      * Regroup scores from all the provided JSON output of every MicroService
-     * @return JSON object with scores.
+     * @return Map of MicroService names to their respective scores.
      */
     public Map<String, Double> getMicroServiceScores(List<String> jsonPaths) {
 
@@ -77,7 +77,7 @@ public class Aggregator {
      */
     // The JSON library does not cope well with generics, suppress unchecked warnings.
     @SuppressWarnings("unchecked")
-    private String generateJSONOutput(Map<ErrorType, List<JSONObject>> map) {
+    private JSONArray generateJSONOutput(Map<ErrorType, List<JSONObject>> map) {
         JSONArray finalOutput = new JSONArray();
         for (ErrorType type : ErrorType.values()) {
             List<JSONObject> associatedAnnotations = map.get(type);
@@ -87,7 +87,7 @@ public class Aggregator {
                 finalOutput.add(typeToError);
             }
         }
-        return "\"annotations\": " + finalOutput.toJSONString();
+        return finalOutput;
     }
 
     /**
