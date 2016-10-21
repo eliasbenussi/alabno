@@ -39,7 +39,7 @@ public class JobConfiguratorTest implements TestModule {
 		stats.recordPass();
 		
 		// check information
-		assertStringContains(the_configuration.getAdditional_config(),
+		assertStringContains(the_configuration.getAdditional_config().toJSONString(),
 				"scripts/auto-marker/pintos.conf");
 		assertStringContains(the_configuration.getInput_directory(),
 				"4b8ea98f6a8f97b98c97a8a6");

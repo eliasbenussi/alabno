@@ -16,7 +16,7 @@ public class JobConfiguration {
 
 	private String input_directory = "";
 	private String type = "";
-	private String additional_config = "";
+	private JSONArray additional_config = new JSONArray();
 	private String output_directory = "";
 
 	private List<MicroServiceInfo> services = new ArrayList<>();
@@ -30,7 +30,7 @@ public class JobConfiguration {
 		}
 	}
 
-	public String getAdditional_config() {
+	public JSONArray getAdditional_config() {
 		return additional_config;
 	}
 
@@ -62,13 +62,13 @@ public class JobConfiguration {
 		// Read the info from the JSON
 		input_directory = (String) jobject.get("input_directory");
 		type = (String) jobject.get("type");
-		additional_config = (String) jobject.get("additional_config");
+		additional_config = (JSONArray) jobject.get("additional_config");
 		output_directory = (String) jobject.get("output_directory");
 
 		// Get the JSON array
 		JSONArray services_array = (JSONArray) jobject.get("services");
-		for (int i = 0; i < services_array.size(); i++) {
-			JSONObject an_object = (JSONObject) services_array.get(i);
+		for (Object aServices_array : services_array) {
+			JSONObject an_object = (JSONObject) aServices_array;
 
 			String name = (String) an_object.get("name");
 			String location = (String) an_object.get("location");
@@ -99,9 +99,12 @@ public class JobConfiguration {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public void runAllJobs() {
 		for (MicroServiceInfo service : services)
 		{
+			additional_config.add("baselinter");
+			additional_config.add("external_linter");
 			SingleJobConfig a_job = new SingleJobConfig(input_directory, output_directory, type, additional_config, service);
 			a_job.execute();
 		}

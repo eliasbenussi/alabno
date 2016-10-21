@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 public class SingleJobConfig {
@@ -14,11 +15,11 @@ public class SingleJobConfig {
 	private String input_directory;
 	private String output_directory;
 	private String type;
-	private String additional_config;
+	private JSONArray additional_config;
 
 	private MicroServiceInfo the_service;
 
-	public SingleJobConfig(String input_directory, String output_directory, String type, String additional_config,
+	public SingleJobConfig(String input_directory, String output_directory, String type, JSONArray additional_config,
 			MicroServiceInfo the_service) {
 		this.input_directory = input_directory;
 		this.output_directory = output_directory;
