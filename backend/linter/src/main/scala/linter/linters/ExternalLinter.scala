@@ -59,10 +59,10 @@ class ExternalLinter(file: File, language: Language.Value) extends BaseLinter(fi
      */
     override def check: Seq[Error] = {
       val hlint = s"hlint ${file.getPath} --no-exit-code" !!
-      val scan = s"scan ${file.getPath}" !!
+      val scan = fileList.map(e => s"scan ${e.getPath}" !!).mkString("\n")
       val fileFinder = s"$pathMatch$posMatch$reasonMatch".r
       fileFinder.findAllIn(hlint).toArray.map(matchHaskellMistake(_, 1, "semantic"))
-      fileFinder.findAllIn(scan).toArray.map(matchHaskellMistake(_, 0.01, "style"))
+      fileFinder.findAllIn(scan).toArray.map(matchHaskellMistake(_, 0.1, "style"))
     }
 
     private def matchHaskellMistake(string: String, value: Double, t: String) = {
