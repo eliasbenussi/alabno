@@ -1,0 +1,26 @@
+Final output of the postprocessor is in JSON format
+
+{
+  "number_grade": 78,
+  "letter_grade": "A",
+  "annotations":
+  [
+    {
+      "syntax":
+      [
+        {
+          "filename": "quadratic.hs",
+          "fileno": 12,
+          "charno": 6,
+          "text": "Missing bracket around line 20"
+        },
+        {
+          "filename": "quadratic.hs",
+          "fileno": 13,
+          "charno": 5,
+          "text": "Expected type B but got A"
+        }
+      ]
+    }
+  ]
+}

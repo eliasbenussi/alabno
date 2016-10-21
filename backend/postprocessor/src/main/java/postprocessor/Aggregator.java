@@ -3,6 +3,8 @@ package postprocessor;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+
+import java.io.File;
 import java.util.*;
 
 public class Aggregator {
@@ -37,7 +39,34 @@ public class Aggregator {
                 addAnnotationToMapByErrorType(map, annotations);
             }
         }
+        System.out.println(generateJSONOutput(map));
         return generateJSONOutput(map);
+    }
+
+    /**
+     * Regroup scores from all the provided JSON output of every MicroService
+     * @return JSON object with scores.
+     */
+    public String getMicroServiceScores(List<String> jsonPaths) {
+
+        Map<String, Double> microServiceToScoreMap = new HashMap<>();
+
+        for (String path : jsonPaths) {
+            JSONObject jsonMicroServiceOutput = PostProcessorUtils.obtainJSONFile(path);
+            String currentFileName = new File(path).getName();
+            String microServiceName = extractMicroServiceName(currentFileName);
+            JSONArray microServiceScore = (JSONArray) jsonMicroServiceOutput.get("score");
+            microServiceToScoreMap.put(microServiceName, new Integer.getInteger(microServiceScore));
+        }
+
+        return "";
+    }
+
+    private String extractMicroServiceName(String currentFileName) {
+        int stringDotIndex = currentFileName.lastIndexOf(".");
+        String baseFileName = currentFileName.substring(0, stringDotIndex);
+        int underScoreIndex = baseFileName.lastIndexOf("_output");
+        return baseFileName.substring(0, underScoreIndex);
     }
 
     /**

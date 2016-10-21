@@ -36,12 +36,12 @@ OUTPUT FORMAT OF A SINGLE MICROSERVICE
                 "filename": "quadratic.hs",
                 "lineno": 19,
                 "charno": 61,
-                "text": "Missing bracked around line 20"
+                "text": "Missing bracket around line 20"
             }
         ],
         error: "whatever happened" // this can be null if no error happened
     }
     
-CALLING FORMAT OF ARGUMENTZ
+CALLING FORMAT OF ARGUMENTS
 
     ./procabuff configuration_file.json output_file.json

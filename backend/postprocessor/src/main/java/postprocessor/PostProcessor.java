@@ -1,5 +1,8 @@
 package postprocessor;
 
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,13 +13,12 @@ public class PostProcessor {
         if (args.length <= 3) {
             throw new IllegalArgumentException(
                     "Expected arguments: " +
-                    "<language> " +
-                    "<input_json_paths>+" +
-                    "<output_json_path>"
+                            "<language> " +
+                            "<input_json_paths>+" +
+                            "<output_json_path>"
             );
         }
 
-        // TODO: Give a final output
         String language = args[0];
         List<String> inputJsonPaths = new ArrayList<>();
         int i;
@@ -27,5 +29,20 @@ public class PostProcessor {
 
         Aggregator aggregator = new Aggregator(inputJsonPaths);
         String jsonAggregatedErrors = aggregator.aggregate();
+
+        // Get score based on aggregated output
+        Scorer scorer = new Scorer(jsonAggregatedErrors);
+        String jsonFinalOutput = scorer.getScore();
+
+        // pass FileWriter into OutputStream and write.
+        // Write to output file specified
+        PrintWriter writer = null;
+        try {
+            writer = new PrintWriter(outputJsonPath, "UTF-8");
+            writer.println(jsonFinalOutput);
+            writer.close();
+        } catch (FileNotFoundException | UnsupportedEncodingException e) {
+            System.out.println("There was an error writing to the specified file.");
+        }
     }
 }
