@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"os"
 	"input/cstylecomments"
-	"input/pythonstylecomments"
 	"input/haskellstylecomments"
 )
 
@@ -42,30 +41,28 @@ func CallCleanerForEachFile(fileName, language string) {
 			CallCleanerForEachFile(fileName + "/" + fileInfo.Name(), language)
 		}
 	default:
-		RouteToLanguageCleaner(fileName, language)
+		CleanFile(fileName, language)
 	}
 }
 
-func RouteToLanguageCleaner(fileName, language string) {
-
+func CleanFile(fileName, language string) {
 	raw, err := ioutil.ReadFile(fileName)
 	if err != nil {
 		panic(err)
 	}
 	fileContent := bytes.NewBuffer(raw).String()
 
-	var correction string
+	fileContent = RouteToLanguageCleaner(fileContent, language)
+	ioutil.WriteFile(fileName, []byte(fileContent), os.ModePerm)
+}
 
+func RouteToLanguageCleaner(fileContent, language string) string {
 	switch language {
 	case "c", "c++", "java", "scala", "kotlin", "go":
-		correction = cstylecomments.RemoveFrom(fileContent)
-	case "python", "ruby":
-		correction = pythonstylecomments.RemoveFrom(fileContent)
+		 return cstylecomments.RemoveFrom(fileContent)
 	case "haskell":
-		correction = haskellstylecomments.RemoveFrom(fileContent)
-	default:
-		return
+		return haskellstylecomments.RemoveFrom(fileContent)
 	}
 
-	ioutil.WriteFile(fileName, []byte(correction), os.ModePerm)
+	return fileContent
 }
