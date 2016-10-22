@@ -6,7 +6,14 @@ import play.api.libs.json.Json
 import sys.process._
 
 /**
- * @author ${user.name}
+  * This program uses JSON as input and outputs 0 if the given
+  * <p> program compiles, or an integer otherwise.
+  * <p> Expected input format: <p>
+  * <p> { </p>
+  * <p>   "input_directory": "<path to a file>", </p>
+  * <p>   "type": "<language to be used>", </p>
+  * <p> } </p>
+  * <p> Language and linters are optional </p>
  */
 object App {
 
@@ -27,7 +34,7 @@ object App {
   private def checkHaskell(path: File) = {
     var returnCode = 0
     val haskellFiles = path.list().filter(_ endsWith ".hs")
-    //TODO: turn off ghc output
+    // GHC output is generated; can be supressed
     for (file <- haskellFiles) returnCode +=
         s"ghc -i$path/IC -i$path $path/$file".!
     returnCode
@@ -36,10 +43,8 @@ object App {
   private def checkJava(path: File) = {
     val javaFiles = 
       path.listFiles().filter(e => e.getName.endsWith(".java")).mkString(" ")
-    print(javaFiles)
     s"javac $javaFiles" !
   }
-
 
   private def compileCheck(str: String, path: File): Int = str match {
     case "haskell" => checkHaskell(path)
