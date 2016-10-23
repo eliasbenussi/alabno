@@ -9,6 +9,7 @@
   <url>http://maven.apache.org</url>
   <!-- Add here extra modules that can be built with maven -->
   <modules>
+    <module>../lib/json_parser</module>
     <module>linter</module>
     <module>postprocessor</module>
   </modules>

@@ -10,16 +10,23 @@ import scala.collection.JavaConverters._
 /**
   * Created by helicopter88 on 23/10/16.
   */
-class MicroserviceOutput(score: Double, annotations: java.util.List[Error], errors: java.util.List[String]) {
-  implicit val locationWrites = new Writes[Error] {
+class MicroServiceOutput(score: Double, annotations: java.util.List[Error], errors: java.util.List[String]) {
+
+  private implicit val errorWrites = new Writes[Error] {
     def writes(error: Error) = Json.obj(
-      "errortype" -> error._type,
-      "filename" -> error._file,
-      "lineNo" -> error._lineNo,
-      "charNo" -> error._colNo,
-      "text" -> error._msg
+      "errortype" -> error.getType,
+      "filename" -> error.getFile,
+      "lineNo" -> error.getLineNo,
+      "charNo" -> error.getColNo,
+      "text" -> error.getMsg
     )
   }
+
+  def getScore = score
+
+  def getAnnotations = annotations
+
+  def getErrors = errors
 
   def writeFile(file: File): Unit = {
     val outputStream = new FileWriter(file)
@@ -29,31 +36,34 @@ class MicroserviceOutput(score: Double, annotations: java.util.List[Error], erro
       "errors" -> errors.asScala
     )
     outputStream.write(Json.stringify(result))
+    outputStream.close()
   }
-  
 }
 
-object MicroserviceOutputParser {
+/**
+  * Use this object to generate MicroServiceOutputParser, as MicroServiceOutput may become private
+  */
+object MicroServiceOutputParser {
 
-  implicit val locationRead: Reads[Error] = (
+  private implicit val errorRead: Reads[Error] = (
     (JsPath \ "text").read[String] and
       (JsPath \ "filename").read[String] and
       (JsPath \ "lineNo").read[Int] and
-      (JsPath \ "colNo").read[Int] and
-      (JsPath \ "text").read[String]
+      (JsPath \ "charNo").read[Int] and
+      (JsPath \ "errortype").read[String]
     ) (Error.apply _)
 
   def parseFile(file: File) = {
     val inputReader = new FileInputStream(file)
     val json = Json.parse(inputReader)
     val score = (json \ "score").as[Double]
-    val annotations = (json \ "annotations").validate[List[Error]].asOpt
+    val annotations = (json \ "annotations").validate[List[Error]].asOpt.getOrElse(Seq())
     val errors = (json \ "errors").asOpt[List[String]].getOrElse(Seq())
-    new MicroserviceOutput(score, annotations.get.asJava, errors.asJava)
+    new MicroServiceOutput(score, annotations.asJava, errors.asJava)
   }
 
   def writeFile(file: File, score: Double, annotations: java.util.List[Error], errors: java.util.List[String]): Unit = {
-    new MicroserviceOutput(score, annotations, errors).writeFile(file)
+    new MicroServiceOutput(score, annotations, errors).writeFile(file)
   }
 
 }

@@ -1,7 +1,5 @@
 package json_parser
 
-import play.api.libs.json._
-
 /**
   * Created by helicopter88 on 23/10/16.
   */
@@ -14,15 +12,18 @@ import play.api.libs.json._
   * @param colNo  the column number of the mistake
   */
 class Error(msg: String, file: String, lineNo: Int, colNo: Int, t: String) {
-  implicit val _msg = msg
-  implicit val _lineNo = lineNo
-  implicit val _colNo = colNo
-  implicit val _file = file
-  implicit val _type = t
 
-  override def toString: String = s"$file:$lineNo:$colNo: $msg"
+  def getMsg = msg
 
+  def getLineNo = lineNo
 
+  def getColNo = colNo
+
+  def getFile = file
+
+  def getType = t
+
+  override def toString: String = s"<${t.toUpperCase}> $file:$lineNo:$colNo:$msg"
 }
 
 object Error {
