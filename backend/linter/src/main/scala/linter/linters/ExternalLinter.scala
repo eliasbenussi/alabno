@@ -2,7 +2,8 @@ package linter.linters
 
 import java.io.File
 
-import linter.{Language, LinterError}
+import linter.{Language, OutputGenerator}
+import json_parser.Error
 
 import scala.sys.process._
 
@@ -25,7 +26,7 @@ class ExternalLinter(file: File, language: Language.Value) extends BaseLinter(fi
     *
     * @return The list of mistakes found in the file(s) by the external linter
     */
-  override def parseFiles: Seq[LinterError] = language match {
+  override def parseFiles: Seq[Error] = language match {
     case Language.Haskell => hLinter.check
     case Language.Java => jLinter.check
     case _ => throw new IllegalArgumentException("Wrong language given")
@@ -35,14 +36,14 @@ class ExternalLinter(file: File, language: Language.Value) extends BaseLinter(fi
    * External linters should mixin with this class
    */
   private trait Linter {
-    def check: Seq[LinterError] = Seq()
+    def check: Seq[Error] = Seq()
   }
 
   /*
    * TODO: implement
    */
   private class JLinter extends Linter {
-    override def check: Seq[LinterError] = super.check
+    override def check: Seq[Error] = super.check
   }
 
   /*
@@ -56,7 +57,7 @@ class ExternalLinter(file: File, language: Language.Value) extends BaseLinter(fi
     /*
      * Checks for mistakes using HLint
      */
-    override def check: Seq[LinterError] = {
+    override def check: Seq[Error] = {
       val hlint = s"hlint ${file.getPath} --no-exit-code" !!
       val scan = s"scan ${file.getPath}" !!
       val fileFinder = s"$pathMatch$posMatch$reasonMatch".r
@@ -71,8 +72,8 @@ class ExternalLinter(file: File, language: Language.Value) extends BaseLinter(fi
       val d = digitsMatch.findAllMatchIn(positions).toArray
       val digits = d.map(_.toString).map(Integer.decode)
       val reason = reasonMatch.findFirstIn(string).get
-
-      new LinterError(reason, path, digits.apply(0), digits.apply(1), value, t)
+      OutputGenerator.addScore(value)
+      new Error(reason, path, digits.apply(0), digits.apply(1), t)
     }
   }
 
