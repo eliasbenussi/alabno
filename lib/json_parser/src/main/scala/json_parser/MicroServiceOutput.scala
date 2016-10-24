@@ -7,9 +7,6 @@ import play.api.libs.json._
 
 import scala.collection.JavaConverters._
 
-/**
-  * Created by helicopter88 on 23/10/16.
-  */
 class MicroServiceOutput(score: Double, annotations: java.util.List[Error], errors: java.util.List[String]) {
 
   private implicit val errorWrites = new Writes[Error] {
@@ -31,7 +28,7 @@ class MicroServiceOutput(score: Double, annotations: java.util.List[Error], erro
   def writeFile(file: File): Unit = {
     val outputStream = new FileWriter(file)
     val result = Json.obj(
-      "score" -> (100 - score),
+      "score" -> score,
       "annotations" -> Json.toJson(annotations.asScala),
       "errors" -> errors.asScala
     )
@@ -67,4 +64,3 @@ object MicroServiceOutputParser {
   }
 
 }
-

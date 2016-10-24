@@ -42,8 +42,7 @@ object MicroServiceInputParser {
     val inputReader = new FileInputStream(file)
     val json = Json.parse(inputReader)
     val path = (json \ "input_directory").as[String]
-    val mLanguage = (json \ "type").asOpt[String]
-    val language = mLanguage.getOrElse("haskell")
+    val language = (json \ "type").asOpt[String].getOrElse("haskell")
     val list = (json \ "additional_config").asOpt[List[String]].getOrElse(Seq())
     new MicroServiceInput(path, language, list.asJava)
   }
