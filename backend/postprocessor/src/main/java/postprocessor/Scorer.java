@@ -35,8 +35,10 @@ public class Scorer {
             return "C";
         } else if (numberGrade >= 40) {
             return "D";
-        } else {
+        } else if (numberGrade >= 30) {
             return "E";
+        } else {
+            return "F";
         }
     }
 
