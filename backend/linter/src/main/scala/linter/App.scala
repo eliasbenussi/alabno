@@ -2,7 +2,7 @@ package linter
 
 import java.io.File
 
-import json_parser.{Error, MicroServiceOutputParser, MicroserviceInputParser}
+import json_parser.{Error, MicroServiceOutputParser, MicroServiceInputParser}
 import linter.linters.{BaseLinter, ExternalLinter, LengthCheckerLinter}
 
 import scala.collection.JavaConverters._
@@ -47,7 +47,7 @@ object App {
     if (args.length != 2) {
       throw new IllegalArgumentException(s"linter <input json> <output json>")
     }
-    val inputJSON = MicroserviceInputParser.parseFile(new File(args.apply(0)))
+    val inputJSON = MicroServiceInputParser.parseFile(new File(args.apply(0)))
 
     path = new File(inputJSON.getPath)
     language = Language.matchString(inputJSON.getLanguage)
