@@ -2,8 +2,8 @@ package linter.linters
 
 import java.io.File
 import java.nio.file.NoSuchFileException
-
-import linter.{Language, LinterError}
+import json_parser.Error
+import linter.Language
 
 /**
   * Abstract class to be inherited by other linters
@@ -23,7 +23,7 @@ abstract class BaseLinter(file: File, language: Language.Value) {
     *
     * @return The list of mistakes found in the file(s)
     */
-  def parseFiles: Seq[LinterError] = Seq()
+  def parseFiles: Seq[Error] = Seq()
 
   private def recursiveListFiles(f: File): Seq[File] = {
     val these = f.listFiles
