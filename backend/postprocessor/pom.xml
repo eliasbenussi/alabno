@@ -14,12 +14,15 @@
   <url>http://maven.apache.org</url>
   <dependencies>
     <dependency>
+<<<<<<< HEAD
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>3.8.1</version>
       <scope>test</scope>
     </dependency>
     <dependency>
+=======
+>>>>>>> 71f9de2d0f804d05913f8833941095c517b3a00f
       <groupId>com.googlecode.json-simple</groupId>
       <artifactId>json-simple</artifactId>
       <version>1.1.1</version>
@@ -31,4 +34,12 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+<<<<<<< HEAD
+=======
+  <properties>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <encoding>UTF-8</encoding>
+  </properties>
+>>>>>>> 71f9de2d0f804d05913f8833941095c517b3a00f
 </project>

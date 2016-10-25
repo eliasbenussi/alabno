@@ -25,7 +25,6 @@ public class Test {
 				e.printStackTrace();
 				stats.recordFail(e.getMessage());
 			}
-
 		}
 		
 		System.out.println(stats.getFinalMessage());

@@ -2,11 +2,9 @@ package jobmanager.tests;
 import static alabno.testsuite.TestUtils.*;
 
 import java.net.URL;
-
 import alabno.testsuite.TestModule;
 import alabno.testsuite.TestStatistics;
 import jobmanager.JobConfiguration;
-
 
 public class JobConfiguratorTest implements TestModule {
 
@@ -51,7 +49,6 @@ public class JobConfiguratorTest implements TestModule {
 				"haskell");
 		assertTrue(the_configuration.getServices() != null);
 		assertEqualsObjects(the_configuration.getServices().size(), 2);
-		
 	}
 
 }

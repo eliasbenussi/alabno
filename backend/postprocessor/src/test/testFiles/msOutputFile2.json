@@ -13,7 +13,7 @@
       "filename": "quadratic.hs",
       "lineno": 53,
       "charno": 22,
-      "text": "The eyes are the nipples of the face."
+      "text": "Cannot assign x to 20"
     },
     {
       "errortype": "semantic",

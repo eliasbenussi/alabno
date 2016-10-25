@@ -50,7 +50,6 @@ public class JobConfiguration {
 		return type;
 	}
 
-
 	// Reads the stdin, to get the configuration and
 	// input/output paths
 	private void read_configuration(String file_url) {
@@ -100,7 +99,6 @@ public class JobConfiguration {
 		}
 	}
 
-
 	public void runAllJobs() {
 		for (MicroServiceInfo service : services)
 		{
@@ -114,6 +112,5 @@ public class JobConfiguration {
 		return "JobConfiguration [input_directory=" + input_directory + ", type=" + type + ", additional_config="
 				+ additional_config + ", output_directory=" + output_directory + ", services=" + services + "]";
 	}
-
 
 }

@@ -11,7 +11,7 @@ import play.api.libs.json.{Json, Writes}
   * @param mistakes        List of mistakes to be written in the file
   * @param executionErrors List of errors encountered during the execution
   */
-private class OutputGenerator(output: String, mistakes: Seq[LinterError], executionErrors: Seq[String]) {
+private class OutputGenerator(output: String, mistakes: Seq[LinterError], executionErrors: Seq[String], score: Double) {
 
   /*
    * Needed by JSON to properly format LinterError
@@ -20,6 +20,8 @@ private class OutputGenerator(output: String, mistakes: Seq[LinterError], execut
    */
   implicit val locationWrites = new Writes[LinterError] {
     def writes(linterError: LinterError) = Json.obj(
+      "errortype" -> linterError._type,
+      "filename" -> linterError._file,
       "lineNo" -> linterError._lineNo,
       "charNo" -> linterError._colNo,
       "text" -> linterError._msg
@@ -28,14 +30,12 @@ private class OutputGenerator(output: String, mistakes: Seq[LinterError], execut
 
   private val outputStream = new FileWriter(output)
   private val result = Json.obj(
-    "score" -> calculateScore,
+    "score" -> (100 - score),
     "annotations" -> Json.toJson(mistakes),
     "errors" -> executionErrors
   )
 
   // We are very harsh and we take mistakes very seriously
-  private def calculateScore = if (mistakes.length >= 10) 0 else 10 - mistakes.length
-
   outputStream.write(Json.stringify(result))
   outputStream.close()
 }
@@ -44,7 +44,10 @@ private class OutputGenerator(output: String, mistakes: Seq[LinterError], execut
  * Companion class used to create instances of OutputGenerator
  */
 object OutputGenerator {
+  private var score = 0.0d
+
+  def addScore(value: Double) = score += value
   def generateOutput(output: String, mistakes: Seq[LinterError], executionErrors: Seq[String]): Unit = {
-    new OutputGenerator(output, mistakes, executionErrors)
+    new OutputGenerator(output, mistakes, executionErrors, score)
   }
 }

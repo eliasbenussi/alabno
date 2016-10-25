@@ -19,27 +19,8 @@ classpath = [java_proj_path + 'bin', java_proj_path + 'lib' + os.sep + 'json-sim
 
 classpath_joint = ':'.join(classpath)
 
-while True:
-    # make a random file name
-    random_file_name = str(randint(0,99999999))
-    
-    stdin_file_path = os.path.abspath(tmp_dir + os.sep + random_file_name)
-    
-    if not os.path.isfile(stdin_file_path):
-        break
-    
-stdin_file = open(stdin_file_path, 'w')
+cmd = 'java -cp "{}" alabno.wserver.Main'.format(classpath_joint)
 
-data = sys.stdin.readlines()
-stdin_file.write('\n'.join(data))
-stdin_file.close()
-
-cmd = 'java -cp "{}" jobmanager.Main {}'.format(classpath_joint, stdin_file_path)
-
-proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, shell=True)
-
-code = proc.wait()
-
-os.remove(stdin_file_path)
+code = subprocess.call(cmd, shell=True)
 
 sys.exit(code)
