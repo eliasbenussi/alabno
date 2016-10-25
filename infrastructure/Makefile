@@ -6,5 +6,8 @@ test: jobmanager
 jobmanager:
 	cd infrastructure && mvn package
 
+clean:
+	- cd infrastructure && make clean
+
 .PHONY: clean jobmanager
 

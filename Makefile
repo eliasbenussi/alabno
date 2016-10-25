@@ -1,6 +1,6 @@
 all: infrastructure backend
 
-test: backendtest infrastructuretest
+test: all backendtest infrastructuretest
 
 backend:
 	cd backend && mvn package
@@ -13,5 +13,9 @@ infrastructure:
 
 infrastructuretest:
 	cd infrastructure && make test
+
+clean:
+	- cd backend && mvn clean
+	- cd infrastructure/infrastructure && mvn clean
 
 .PHONY: clean infrastructure backend
