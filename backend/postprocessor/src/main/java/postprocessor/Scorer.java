@@ -1,28 +1,35 @@
 package postprocessor;
 
+import json_parser.MicroServiceOutput;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Scorer {
 
-    private JSONArray finalScore = new JSONArray();
-    private Double numberGrade;
-    private Map<String, Double> microServiceScores;
+    private List<MicroServiceOutput> microServiceOutputs;
+    private String letterGrade;
+    private double numberGrade;
 
-    public Scorer(Map<String, Double> microServiceScores) {
-        this.microServiceScores = microServiceScores;
-        this.numberGrade = 0.0;
+    public Scorer(List<MicroServiceOutput> microServiceOutputs) {
+        this.microServiceOutputs = microServiceOutputs;
         applyMeanMicroServiceGrading();
     }
 
-    public JSONArray getScore() {
-        return finalScore;
+    public String getLetterGrade() {
+        return letterGrade;
     }
 
-    public String getLetterGrade() {
+    public double getScore() {
+        return numberGrade;
+    }
+
+    public String getLetterGrade(Double numberGrade) {
         if (numberGrade >= 90) {
             return "A*";
         } else if (numberGrade >= 80) {
@@ -42,22 +49,15 @@ public class Scorer {
         }
     }
 
-    private void applyMeanMicroServiceGrading() {
-        Iterator<Double> iterator = microServiceScores.values().iterator();
-        double addedScore = 0.0;
-        while (iterator.hasNext()) {
-            addedScore += iterator.next();
-        }
-        numberGrade = addedScore / microServiceScores.size();
-        updateFinalGrade();
+    private List<Double> getScoresFromMicroServiceOutputs() {
+        return microServiceOutputs.stream().map(MicroServiceOutput::getScore).collect(Collectors.toList());
     }
 
-    private void updateFinalGrade() {
-        JSONObject numberGradeJSON = new JSONObject();
-        numberGradeJSON.put("number", numberGrade);
-        JSONObject letterGradeJSON = new JSONObject();
-        letterGradeJSON.put("letter", getLetterGrade());
-        finalScore.add(numberGradeJSON);
-        finalScore.add(letterGradeJSON);
+    public void applyMeanMicroServiceGrading() {
+        List<Double> scores = getScoresFromMicroServiceOutputs();
+        double addedScore = scores.stream().reduce(0.0, (a, b) -> a + b);
+        numberGrade = addedScore / microServiceOutputs.size();
+        letterGrade = getLetterGrade(numberGrade);
     }
+
 }

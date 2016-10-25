@@ -1,8 +1,12 @@
 package postprocessor;
 
+import json_parser.AggregatorOutputParser;
+import json_parser.Error;
+import json_parser.MicroServiceOutput;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
@@ -14,7 +18,7 @@ import java.util.Map;
 public class PostProcessor {
 
     public static void main(String[] args) {
-        if (args.length <= 3) {
+        if (args.length < 3) {
             throw new IllegalArgumentException(
                     "Expected arguments: " +
                             "<language> " +
@@ -23,37 +27,28 @@ public class PostProcessor {
             );
         }
 
+        // Collect paths of MicroServices JSON outputs
         String language = args[0];
-        List<String> inputJsonPaths = new ArrayList<>();
+        List<String> inputPaths = new ArrayList<>();
         int i;
         for (i = 1; i < args.length - 1; i++) {
-            inputJsonPaths.add(args[i]);
+            inputPaths.add(args[i]);
         }
         String outputJsonPath = args[i];
 
+        // Wrap outputs in MicroServiceOutput objects.
+        // In this way we have a versatile list of containers to pass around w/o dealing with JSON directly.
+        List<MicroServiceOutput> microServiceOutputs = PostProcessorUtils.getMicroServiceOutputsFromPaths(inputPaths);
+
         // Aggregate errors from microservices
-        Aggregator aggregator = new Aggregator(inputJsonPaths);
-        JSONArray jsonAggregatedErrors = aggregator.aggregate();
+        Aggregator aggregator = new Aggregator(microServiceOutputs);
+        List<Error> aggregatedErrors = aggregator.aggregate();
 
         // Get score based on aggregated output
-        Map<String, Double> microServiceScores = aggregator.getMicroServiceScores(inputJsonPaths);
-        Scorer scorer = new Scorer(microServiceScores);
-        JSONArray scores = scorer.getScore();
+        Scorer scorer = new Scorer(microServiceOutputs);
+        Double scores = scorer.getScore();
+        String letterScore = scorer.getLetterGrade();
 
-        // Combine the outputs into on JSONObject built from a map
-        Map<String, JSONArray> rawOutputs = new HashMap<>();
-        rawOutputs.put("scores", scores);
-        rawOutputs.put("annotations", jsonAggregatedErrors);
-        JSONObject finalOutput = new JSONObject(rawOutputs);
-        String jsonFinalOutput = finalOutput.toJSONString();
-
-        // Write to output file specified
-        try {
-            PrintWriter writer = new PrintWriter(outputJsonPath, "UTF-8");
-            writer.println(jsonFinalOutput);
-            writer.close();
-        } catch (FileNotFoundException | UnsupportedEncodingException e) {
-            System.out.println("There was an error writing to: " + outputJsonPath);
-        }
+        AggregatorOutputParser.writeFile(new File(outputJsonPath), aggregatedErrors, letterScore, scores);
     }
 }
