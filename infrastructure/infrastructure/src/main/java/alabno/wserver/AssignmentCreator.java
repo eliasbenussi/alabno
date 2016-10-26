@@ -36,11 +36,15 @@ public class AssignmentCreator implements Runnable {
 				clonerScriptPath,
 				"--extype",
 				exerciseType,
-				"--model",
-				modelAnswerGitLink,
 				"--students",
 				studentGitArguments.toString()
 				);
+		
+		if (modelAnswerGitLink != null)
+		{
+			command.add("--model");
+			command.add(modelAnswerGitLink);
+		}
 		
 		ProcessBuilder pb = new ProcessBuilder(command);
 		pb.redirectErrorStream(true);

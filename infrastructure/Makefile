@@ -1,13 +1,13 @@
 all: jobmanager
 
-test: jobmanager
+test:
 	cd infrastructure && ./Test
 
 jobmanager:
-	cd infrastructure && mvn package
+	cd infrastructure && mvn package -q
 
 clean:
-	- cd infrastructure && make clean
+	- cd infrastructure && mvn clean -q
 
 .PHONY: clean jobmanager
 

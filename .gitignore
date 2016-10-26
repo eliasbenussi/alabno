@@ -1,3 +1,4 @@
 # Remove idea files
 *.iml
 *.idea
+tmp

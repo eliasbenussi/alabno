@@ -9,7 +9,10 @@ import alabno.testsuite.TestUtils;
 
 public class Test {
 
-	private static List<TestModule> modules = Arrays.asList(new JobConfiguratorTest());
+	private static List<TestModule> modules = Arrays.asList(
+			new JobConfiguratorTest(),
+			new MicroServiceInfoTest()
+			);
 	
 	public static void main(String[] args)
 	{
