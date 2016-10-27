@@ -55,6 +55,9 @@ public class WebSocketHandlerTest {
 		
 		expect(mockExecutorService.submit(isA(AssignmentCreator.class))).andReturn(null);
 		
+		Capture<String> captured_string = EasyMock.<String>newCapture();
+		mockWebSocketConnection.send(EasyMock.capture(captured_string));
+		
 		replay(mockExecutorService);
 		replay(mockWebSocketConnection);
 		
@@ -63,5 +66,6 @@ public class WebSocketHandlerTest {
 		verify(mockWebSocketConnection);
 		verify(mockExecutorService);
 		
+		assertTrue(captured_string.getValue().contains("job_sent"));
 	}
 }

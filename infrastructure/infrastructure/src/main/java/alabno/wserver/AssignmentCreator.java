@@ -23,51 +23,42 @@ public class AssignmentCreator implements Runnable {
 
 	@Override
 	public void run() {
-		
-		String clonerScriptPath = "infrastructure/cloner.py";
-		StringBuilder studentGitArguments = new StringBuilder();
-		
-		for (int i = 0; i < studentGitLinks.size(); i++) {
-			studentGitArguments.append(studentGitLinks.get(i) + " ");
-		}
-		
-		List<String> command = Arrays.asList(
-				"python",
-				clonerScriptPath,
-				"--extype",
-				exerciseType,
-				"--students",
-				studentGitArguments.toString()
-				);
-		
-		if (modelAnswerGitLink != null)
-		{
-			command.add("--model");
-			command.add(modelAnswerGitLink);
-		}
-		
-		ProcessBuilder pb = new ProcessBuilder(command);
-		pb.redirectErrorStream(true);
+		try {
+			String clonerScriptPath = "infrastructure/cloner.py";
+			StringBuilder studentGitArguments = new StringBuilder();
 
-		Process process;
-		try {
-			process = pb.start();
-		} catch (IOException e2) {
-			e2.printStackTrace();
-			return;
-		}
-		
-		BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
-		String line = null;
-		try {
+			for (Object o : studentGitLinks) {
+				studentGitArguments.append(o + " ");
+			}
+
+			List<String> command = new ArrayList<>();
+			command.addAll(Arrays.asList("python", clonerScriptPath, "--extype", exerciseType, "--students",
+					studentGitArguments.toString()));
+
+			if (modelAnswerGitLink != null) {
+				command.add("--model");
+				command.add(modelAnswerGitLink);
+			}
+
+			ProcessBuilder pb = new ProcessBuilder(command);
+			pb.redirectErrorStream(true);
+
+			Process process = pb.start();
+
+			BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
+			String line = null;
 			while ((line = input.readLine()) != null) {
 				System.out.println(line);
 			}
-			process.waitFor();
-		} catch (IOException | InterruptedException e) {
+			int code = process.waitFor();
+			System.out.println("Return code was " + code + "\n");
+
+		} catch (IOException e) {
+			System.out.println("Subprocess encountered an error");
+			e.printStackTrace();
+			return;
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 	}
-
 }

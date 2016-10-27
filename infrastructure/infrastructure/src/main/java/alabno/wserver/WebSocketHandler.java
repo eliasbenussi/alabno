@@ -50,10 +50,65 @@ public class WebSocketHandler {
 		String modelAnswerGitLink = parser.getString("model_git");
 		JSONArray studentGitLinks = parser.getArray("students_git");
 		
+		if (exerciseType == null || exerciseType.isEmpty()) {
+			sendAlert(conn, "exercise type is required");
+			return;
+		}
+		
+		if (modelAnswerGitLink == null || modelAnswerGitLink.isEmpty()) {
+			sendAlert(conn, "model answer git repository required");
+			return;
+		}
+		
+		if (studentGitLinks == null) {
+			sendAlert(conn, "students repo git links required");
+			return;
+		} else {
+			String msg = checkStudentGitLinks(studentGitLinks);
+			if (msg != null) {
+				sendAlert(conn, msg);
+				return;
+			}
+		}
+		
+		System.out.println("all checks passed");
+		
 		AssignmentCreator newAssignmentProcessor = new AssignmentCreator(
 				exerciseType, modelAnswerGitLink, studentGitLinks);
 		
 		executor.submit(newAssignmentProcessor);
+		
+		// Send confirmation message
+		JSONObject msgobj = new JSONObject();
+		msgobj.put("type", "job_sent");
+		conn.send(msgobj.toJSONString());
+    }
+
+    /**
+     * @param studentGitLinks
+     * @return a String containing the error message, or null if no error was detected
+     */
+    private String checkStudentGitLinks(JSONArray studentGitLinks) {
+        String errormsg = "Malformed Student git link. It must be an HTTPS git repository";
+        try {
+            for (Object l : studentGitLinks) {
+                String str = (String) l;
+                if (!str.contains("https")) {
+                    return errormsg;
+                }
+            }
+        } catch (ClassCastException e) {
+            return errormsg;
+        }
+
+        return null;
+    }
+
+	private void sendAlert(WebSocket conn, String string) {
+		JSONObject msgobj = new JSONObject();
+		msgobj.put("type", "alert");
+		msgobj.put("message", string);
+		conn.send(msgobj.toJSONString());
 	}
 
 	private void handleLogin(JsonParser parser, WebSocket conn) {

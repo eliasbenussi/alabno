@@ -1,11 +1,11 @@
 all: infrastructure backend
 
-test: all backendtest infrastructuretest
+test: backendtest infrastructuretest
 
 backend:
 	cd backend && mvn package -q
 
-backendtest:
+backendtest: backend
 	cd backend && mvn test -q
 
 infrastructure:

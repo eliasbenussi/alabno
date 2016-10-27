@@ -117,7 +117,10 @@ theapp.controller('professorController', function($scope) {
         };
         
         $globals.send(JSON.stringify(msgobj));
-                
+    };
+    
+    $scope.reset_submit = function() {
+        console.log('Resetting submit');
         // clear out all data
         $scope.exercise_title = '';
         $scope.exercise_type = '';
@@ -126,5 +129,13 @@ theapp.controller('professorController', function($scope) {
         
         // go back to the exercises view
         $scope.show_section('show_professor_exercises');
+        console.log('Reset complete');
+    };
+    // register callback to globals
+    $globals.professor_scope = $scope;
+    
+    $scope.cancel_new_exercise = function()
+    {
+        $scope.reset_submit();
     };
 });

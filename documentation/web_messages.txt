@@ -31,4 +31,15 @@ SERVER -> CLIENT
     {
         "type": "login_fail"
     }
+    tells the client that login failed
+
+    {
+        "type": "alert",
+        "message": "hello world"
+    }
+    generic error message from server to client. Client can display this in alert or other form of error popups
     
+    {
+        "type": "job_sent"
+    }
+    tells the client that the job has been submitted successfully to the JobManager. The Client can then return to the Professor's homepage.
