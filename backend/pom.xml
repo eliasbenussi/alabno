@@ -12,6 +12,7 @@
     <module>../lib/json_parser</module>
     <module>linter</module>
     <module>postprocessor</module>
+    <module>comment-cleaner</module>
   </modules>
 
   <dependencies>
