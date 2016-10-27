@@ -26,32 +26,7 @@
             <artifactId>scala-library</artifactId>
             <version>${scala.version}</version>
         </dependency>
-       <!-- Test -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.specs2</groupId>
-            <artifactId>specs2-core_${scala.compat.version}</artifactId>
-            <version>2.4.16</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.scalatest</groupId>
-            <artifactId>scalatest_${scala.compat.version}</artifactId>
-            <version>2.2.4</version>
-            <scope>test</scope>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/com.typesafe.play/play-json_2.11 -->
-        <dependency>
-            <groupId>com.typesafe.play</groupId>
-            <artifactId>play-json_2.11</artifactId>
-            <version>2.5.9</version>
-        </dependency>
-        <dependency>
+      <dependency>
             <groupId>org.scalactic</groupId>
             <artifactId>scalactic_2.11</artifactId>
             <version>3.0.0</version>
