@@ -1,35 +1,30 @@
 package postprocessor;
 
 import json_parser.MicroServiceOutput;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
-public class Scorer {
+class Scorer {
 
     private List<MicroServiceOutput> microServiceOutputs;
     private String letterGrade;
     private double numberGrade;
 
-    public Scorer(List<MicroServiceOutput> microServiceOutputs) {
+    Scorer(List<MicroServiceOutput> microServiceOutputs) {
         this.microServiceOutputs = microServiceOutputs;
         applyMeanMicroServiceGrading();
     }
 
-    public String getLetterGrade() {
+    String getLetterGrade() {
         return letterGrade;
     }
 
-    public double getScore() {
+    double getNumberGrade() {
         return numberGrade;
     }
 
-    public String getLetterGrade(Double numberGrade) {
+    private String convertToLetterGrade(Double numberGrade) {
         if (numberGrade >= 90) {
             return "A*";
         } else if (numberGrade >= 80) {
@@ -53,11 +48,11 @@ public class Scorer {
         return microServiceOutputs.stream().map(MicroServiceOutput::getScore).collect(Collectors.toList());
     }
 
-    public void applyMeanMicroServiceGrading() {
+    private void applyMeanMicroServiceGrading() {
         List<Double> scores = getScoresFromMicroServiceOutputs();
         double addedScore = scores.stream().reduce(0.0, (a, b) -> a + b);
         numberGrade = addedScore / microServiceOutputs.size();
-        letterGrade = getLetterGrade(numberGrade);
+        letterGrade = convertToLetterGrade(numberGrade);
     }
 
 }

@@ -3,17 +3,10 @@ package postprocessor;
 import json_parser.AggregatorOutputParser;
 import json_parser.Error;
 import json_parser.MicroServiceOutput;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class PostProcessor {
 
@@ -46,7 +39,7 @@ public class PostProcessor {
 
         // Get score based on aggregated output
         Scorer scorer = new Scorer(microServiceOutputs);
-        Double scores = scorer.getScore();
+        Double scores = scorer.getNumberGrade();
         String letterScore = scorer.getLetterGrade();
 
         AggregatorOutputParser.writeFile(new File(outputJsonPath), aggregatedErrors, letterScore, scores);
