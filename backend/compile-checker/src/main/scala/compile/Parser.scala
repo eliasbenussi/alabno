@@ -6,9 +6,6 @@ import scala.collection.mutable.ArrayBuffer
 import scala.sys.process._
 import json_parser.Error
 
-/**
-  * Created by dfm114 on 28/10/16.
-  */
 trait Parser {
 
   protected val digitsMatch = "([0-9])+".r
