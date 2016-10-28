@@ -17,9 +17,14 @@
 
     <dependencies>
         <dependency>
+            <groupId>json_parser</groupId>
+            <artifactId>json_parser</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>antlr4-runtime</artifactId>
-            <version>4.5.1-1</version>
+            <version>4.5.3</version>
         </dependency>
     </dependencies>
 
@@ -29,7 +34,7 @@
             <plugin>
                 <groupId>org.antlr</groupId>
                 <artifactId>antlr4-maven-plugin</artifactId>
-                <version>4.5.1-1</version>
+                <version>4.5.3</version>
                 <executions>
                     <execution>
                         <id>antlr</id>
