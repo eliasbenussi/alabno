@@ -82,6 +82,7 @@ JOBMANAGER
 
     {
         "input_directory": "/var/tmp/alabno/4b8ea98f6a8f97b98c97a8a6/docker/commit",
+        "model_directory": "/var/tmp/alabno/4b8ea98f6a8f97b98c97a8a6/model/commit",
         "type": "haskell",
         "additional_config": "http://www.doc.ic.ac.uk/~alabno/scripts/auto-marker/pintos.conf",
         "output_directory": "/var/tmp/alabno/4b8ea98f6a8f97b98c97a8a6/docker/final",

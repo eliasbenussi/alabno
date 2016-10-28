@@ -15,16 +15,18 @@ public class SingleJobConfig {
 	private String output_directory;
 	private String type;
 	private String additional_config;
+	private String model_directory;
 
 	private MicroServiceInfo the_service;
 
 	public SingleJobConfig(String input_directory, String output_directory, String type, String additional_config,
-			MicroServiceInfo the_service) {
+			MicroServiceInfo the_service, String model_directory) {
 		this.input_directory = input_directory;
 		this.output_directory = output_directory;
 		this.type = type;
 		this.additional_config = additional_config;
 		this.the_service = the_service;
+		this.model_directory = model_directory;
 	}
 
 	private String makeJsonFile() {
@@ -32,6 +34,10 @@ public class SingleJobConfig {
 		obj.put("input_directory", input_directory);
 		obj.put("type", type);
 		obj.put("additional_config", additional_config);
+		if (model_directory != null)
+		{
+			obj.put("model_answer", model_directory);
+		}
 		return obj.toJSONString();
 	}
 

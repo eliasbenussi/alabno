@@ -1,10 +1,11 @@
 package linter
 
-import java.io.{File, FileInputStream}
+import java.io.File
 
+import json_parser.{Error, MicroServiceOutputParser, MicroServiceInputParser}
 import linter.linters.{BaseLinter, ExternalLinter, LengthCheckerLinter}
-import play.api.libs.json._
 
+import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 /**
@@ -30,7 +31,7 @@ import scala.collection.mutable
 object App {
 
   private val lintersList = new mutable.MutableList[BaseLinter]
-  private val mistakes = new mutable.MutableList[LinterError]
+  private val mistakes = new mutable.MutableList[Error]
   private val executionErrors = new mutable.MutableList[String]
   private var language: Language.Value = Language.Other
   private var path: File = _
@@ -46,19 +47,19 @@ object App {
     if (args.length != 2) {
       throw new IllegalArgumentException(s"linter <input json> <output json>")
     }
-    val inputReader = new FileInputStream(args.apply(0))
-    val json = Json.parse(inputReader)
-    path = new File((json \ "input_directory").as[String])
-    val mLanguage = (json \ "type").asOpt[String]
-    language = Language.matchString(mLanguage.getOrElse("haskell"))
-    val list = (json \ "additional_config").asOpt[List[String]].getOrElse(Seq("baselinter"))
+    val inputJSON = MicroServiceInputParser.parseFile(new File(args.apply(0)))
+
+    path = new File(inputJSON.getPath)
+    language = Language.matchString(inputJSON.getLanguage)
+    val list = inputJSON.getList.asScala
     try {
       list.foreach(parseLinters)
       mistakes ++= lintersList.flatMap(_.parseFiles)
     } catch {
       case e: Exception => executionErrors += e.getMessage
     }
-    OutputGenerator.generateOutput(args.apply(1), mistakes, executionErrors)
+
+    MicroServiceOutputParser.writeFile(new File(args.apply(1)), OutputGenerator.getScore, mistakes.asJava, executionErrors.asJava)
   }
 
   private def parseLinters(str: String): Unit = str match {

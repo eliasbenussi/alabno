@@ -9,17 +9,10 @@
   <url>http://maven.apache.org</url>
   <!-- Add here extra modules that can be built with maven -->
   <modules>
+    <module>../lib/json_parser</module>
     <module>linter</module>
     <module>postprocessor</module>
+    <module>comment-cleaner</module>
     <module>compile-checker</module>
   </modules>
-
-  <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
 </project>

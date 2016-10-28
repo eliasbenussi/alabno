@@ -26,7 +26,12 @@ $globals.socket.onmessage = function(message) {
         $handlers.handle_login_success(msgobj);
     } else if (msgobj.type == 'login_fail') {
         $handlers.handle_login_failure(msgobj);
-    } else {
+    } else if (msgobj.type == 'alert') {
+        $handlers.handle_alert(msgobj);
+    } else if (msgobj.type == 'job_sent') {
+        $handlers.handle_job_sent(msgobj);
+    }
+    else {
         console.log("message type not recognized: " + msgobj.type);
     }
 };

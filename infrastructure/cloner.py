@@ -107,7 +107,10 @@ for i in range(len(the_students_gits)):
 if args.model and args.model != '':
     os.chdir(base_directory)
     cmd = 'git clone {} {} --depth {}'.format(args.model, 'model', max_clone_depth)
-    subprocess.call(cmd, shell=True)
+    code = subprocess.call(cmd, shell=True)
+    if code != 0:
+        print('Cloning of the model answer at {} failed. Aborting...'.format(args.model))
+        sys.exit(1)
 
 os.chdir(home_directory)
 
@@ -115,7 +118,10 @@ os.chdir(home_directory)
 for i in range(len(the_students_gits)):
     os.chdir(get_student_directory(base_directory, i))
     cmd = 'git clone {} {} --depth {}'.format(the_students_gits[i], 'commitX', max_clone_depth)
-    subprocess.call(cmd, shell=True)
+    code = subprocess.call(cmd, shell=True)
+    if code != 0:
+        print('Cloning of student repository at {} failed. Aborting...'.format(the_students_gits[i]))
+        sys.exit(1)
     os.chdir(home_directory)
 
 # create the configuration JSON file for the JobManager
@@ -127,6 +133,10 @@ for i in range(len(the_students_gits)):
         'output_directory': get_student_out_directory(base_directory, i),
         'services': microservices.microservices
     }
+
+    if args.model and args.model != '':
+        jsonobj['model_directory'] = get_model_directory(base_directory)
+    
     print('Json is {}'.format(json.dumps(jsonobj)))
     json_config_file_path = get_student_config_directory(base_directory, i) + os.sep + 'jobmanager.json'
     json_config_file = open(json_config_file_path, 'w')
