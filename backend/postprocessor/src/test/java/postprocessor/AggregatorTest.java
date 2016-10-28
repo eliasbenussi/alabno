@@ -1,45 +1,51 @@
 package postprocessor;
 
-import org.json.simple.JSONObject;
+import json_parser.Error;
+import json_parser.MicroServiceOutput;
+import json_parser.MicroServiceOutputParser;
 import org.junit.Test;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class AggregatorTest {
 
     @Test
-    public void producesCorrectlyArrangedJSONFileFromAggregationOfTwoOutputFiles() {
+    public void returnsAnnotationsFromAllMicroservices() {
 
-        List<String> paths = new ArrayList<>();
-        paths.add("src/test/testFiles/msOutputFile1.json");
-        paths.add("src/test/testFiles/msOutputFile2.json");
+        List<MicroServiceOutput> microServiceOutputs = new ArrayList<>();
+        MicroServiceOutput fstMicroserviceOutput = MicroServiceOutputParser.parseFile(new File("src/test/testFiles/msOutputFile1.json"));
+        MicroServiceOutput sndMicroserviceOutput = MicroServiceOutputParser.parseFile(new File("src/test/testFiles/msOutputFile2.json"));
 
-        Aggregator aggregator = new Aggregator(paths);
-        String actualOutput = aggregator.aggregate();
+        List<Error> fstMicroserviceAnnotations = fstMicroserviceOutput.getAnnotations();
+        List<Error> sndMicroserviceAnnotations = sndMicroserviceOutput.getAnnotations();
 
-        String pathToExpectedOutput = "src/test/testFiles/aggregationOf1and2.json";
-        JSONObject expectedOutputJson = PostProcessorUtils.obtainJSONFile(pathToExpectedOutput);
-        String expectedOutput = expectedOutputJson.toJSONString();
+        microServiceOutputs.add(fstMicroserviceOutput);
+        microServiceOutputs.add(sndMicroserviceOutput);
 
-        assertEquals(expectedOutput, actualOutput);
+        Aggregator aggregator = new Aggregator(microServiceOutputs);
+        List<Error> aggregatorResult = aggregator.aggregate();
+
+        assertEquals(aggregatorResult.size(), fstMicroserviceAnnotations.size() + sndMicroserviceAnnotations.size());
+        assertTrue(aggregatorResult.containsAll(fstMicroserviceAnnotations));
+        assertTrue(aggregatorResult.containsAll(sndMicroserviceAnnotations));
     }
 
     @Test
-    public void skipsMicroServiceOutputIfAnyErrorIsOccurredInTheMicroservices() {
+    public void aggregatingAMicroserviceOuputWithEmptyAnnotationReturnsEmptyList() {
 
-        List<String> paths = new ArrayList<>();
-        paths.add("src/test/testFiles/msOutputFile3.json");
+        List<MicroServiceOutput> microServiceOutputs = new ArrayList<>();
+        MicroServiceOutput microserviceOutput = MicroServiceOutputParser.parseFile(new File("src/test/testFiles/msOutputFile4.json"));
 
-        Aggregator aggregator = new Aggregator(paths);
-        String actualOutput = aggregator.aggregate();
+        microServiceOutputs.add(microserviceOutput);
 
-        String pathToExpectedOutput = "src/test/testFiles/emptyAggregation.json";
-        JSONObject expectedOutputJson = PostProcessorUtils.obtainJSONFile(pathToExpectedOutput);
-        String expectedOutput = expectedOutputJson.toJSONString();
+        Aggregator aggregator = new Aggregator(microServiceOutputs);
+        List<Error> aggregatorResult = aggregator.aggregate();
 
-        assertEquals(expectedOutput, actualOutput);
+        assertEquals(0, aggregatorResult.size());
     }
 }

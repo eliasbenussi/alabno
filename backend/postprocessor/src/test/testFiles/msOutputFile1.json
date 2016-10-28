@@ -1,18 +1,19 @@
 {
+  "score": 60.0,
   "annotations":
   [
     {
       "errortype": "style",
       "filename": "quadratic.hs",
-      "lineno": 12,
-      "charno": 6,
+      "lineNo": 12,
+      "charNo": 6,
       "text": "No magic numbers please"
     },
     {
       "errortype": "syntax",
       "filename": "quadratic.hs",
-      "lineno": 19,
-      "charno": 61,
+      "lineNo": 19,
+      "charNo": 61,
       "text": "Missing bracket around line 20"
     }
   ],

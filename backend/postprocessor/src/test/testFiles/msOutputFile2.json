@@ -1,25 +1,26 @@
 {
+  "score": 44.6,
   "annotations":
   [
     {
       "errortype": "syntax",
       "filename": "quadratic.hs",
-      "lineno": 17,
-      "charno": 10,
+      "lineNo": 17,
+      "charNo": 10,
       "text": "-10.000"
     },
     {
       "errortype": "semantic",
       "filename": "quadratic.hs",
-      "lineno": 53,
-      "charno": 22,
+      "lineNo": 53,
+      "charNo": 22,
       "text": "Cannot assign x to 20"
     },
     {
       "errortype": "semantic",
       "filename": "quadratic.hs",
-      "lineno": 61,
-      "charno": 9,
+      "lineNo": 61,
+      "charNo": 9,
       "text": "No way."
     }
   ],
