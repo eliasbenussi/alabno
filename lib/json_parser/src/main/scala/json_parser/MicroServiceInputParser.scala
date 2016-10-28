@@ -6,7 +6,7 @@ import play.api.libs.json.Json
 
 import scala.collection.JavaConverters._
 
-class MicroServiceInput(path: String, language: String, list: java.util.List[String]) {
+class MicroServiceInput(path: String, language: String, list: java.util.List[String], modelAnswer: String) {
 
   def getPath = path
 
@@ -14,12 +14,15 @@ class MicroServiceInput(path: String, language: String, list: java.util.List[Str
 
   def getList = list
 
+  def getModelAnswer = modelAnswer
+
   def printToFile(file: File): Unit = {
     val outputStream = new FileWriter(file)
     val res = Json.obj(
       "input_directory" -> path,
       "type" -> language,
-      "additional_config" -> list.asScala
+      "additional_config" -> list.asScala,
+      "model_answer" -> modelAnswer
     )
     outputStream.write(Json.stringify(res))
     outputStream.close()
@@ -43,8 +46,9 @@ object MicroServiceInputParser {
     val json = Json.parse(inputReader)
     val path = (json \ "input_directory").as[String]
     val language = (json \ "type").asOpt[String].getOrElse("haskell")
+    val modelAnswer = (json \ "model_answer").asOpt[String].getOrElse("")
     val list = (json \ "additional_config").asOpt[List[String]].getOrElse(Seq())
-    new MicroServiceInput(path, language, list.asJava)
+    new MicroServiceInput(path, language, list.asJava, modelAnswer)
   }
 
   /**
@@ -54,8 +58,9 @@ object MicroServiceInputParser {
     * @param path     path used by the MicroService
     * @param language Language used by the MicroService
     * @param config   Additional config for the MicroService
+    * @param modelAnswer path to the model answer
     */
-  def writeFile(file: File, path: String, language: String, config: java.util.List[String]) = {
-    new MicroServiceInput(path, language, config).printToFile(file)
+  def writeFile(file: File, path: String, language: String, config: java.util.List[String], modelAnswer: String) = {
+    new MicroServiceInput(path, language, config, modelAnswer).printToFile(file)
   }
 }
