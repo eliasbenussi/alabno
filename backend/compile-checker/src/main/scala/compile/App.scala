@@ -1,11 +1,12 @@
 package compile
 
 import java.io.File
+
 import json_parser.{Error, MicroServiceInputParser, MicroServiceOutputParser}
 import sun.reflect.generics.reflectiveObjects.NotImplementedException
+
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
-import scala.sys.process._
 
 /**
   * This program uses JSON as both input and output.
@@ -17,7 +18,7 @@ import scala.sys.process._
   * <p>   "input_directory": "<path to a file>", </p>
   * <p>   "type": "<language to be used>", </p>
   * <p> } </p>
- */
+  */
 object App {
 
   private var path: File = _
@@ -25,10 +26,7 @@ object App {
   val annotations = new ArrayBuffer[Error]
   val errorList = new ArrayBuffer[String]
 
-  val digitsMatch = "([0-9])+".r
-  val reasonMatch = ":(.*?)".r
-
-  def main(args : Array[String]) {
+  def main(args: Array[String]) {
     if (args.length != 2) {
       throw new IllegalArgumentException("Compile checker <input json> ")
     }
@@ -43,68 +41,18 @@ object App {
     MicroServiceOutputParser.writeFile(new File(args.apply(1)), score,
       annotations.asJava, errorList.asJava)
   }
-
-  //The 2 process functions can be generalised maybe
-  // They are meant to put the errors in annotations
-
-  def haskellProcess(lines: ArrayBuffer[String]) = {
-    val pathMatch = "(.*?.hs)".r
-    val posMatch = s":$digitsMatch:$digitsMatch".r
-
-    var error = s"$pathMatch$posMatch$reasonMatch".r
-
-    val errors = error.split(lines.mkString("\n")).tail
-
-    /*for(line <- lines) {
-      if(line.matches(s"$pathMatch$posMatch$reasonMatch")){
-        path = pathMatch.findFirstIn(line).get
-        println(path)
-        pathMatch.
-      }
-    }*/
-    errors.foreach(println)
-  }
-
-  def javaProcess(lines: ArrayBuffer[String]) = {
-    val pathMatch = "(.*?.java)".r
-    val posMatch = s":$digitsMatch".r
-
-    for(line <- lines) {
-      println(line)
-    }
-  }
-
-  def removeOldFiles(path: File, fileType: String) = {
-    val compileFiles = path.listFiles().filter(e
-    => e.getName.endsWith(fileType)).mkString(" ")
-    if (!compileFiles.isEmpty) {
-      s"rm $compileFiles".!
-    }
-  }
-
-  private def checkHaskell(path: File) = {
-    val haskellFiles = path.listFiles().filter(e
-        => e.getName.endsWith(".hs")).mkString(" ")
-    removeOldFiles(path, ".hi")
-    val lines = new ArrayBuffer[String]()
-    val exit = s"ghc -i$path/IC -i$path $haskellFiles" ! ProcessLogger(line
-                                                      => lines.append(line))
-    haskellProcess(lines)
-    exit
-  }
-
-  private def checkJava(path: File) = {
-    val javaFiles =
-      path.listFiles().filter(e => e.getName.endsWith(".java")).mkString(" ")
-    val lines = new ArrayBuffer[String]()
-    val exit = s"javac $javaFiles" ! ProcessLogger(line => lines.append(line))
-    javaProcess(lines)
-    exit
-  }
-
+  
   private def compileCheck(language: String, path: File): Int = language match {
-    case "haskell" => checkHaskell(path)
-    case "java" => checkJava(path)
+    case "haskell" =>
+      val hCheck = HaskellParser.check(path)
+      annotations ++= hCheck._2
+      hCheck._1
+
+    case "java" =>
+      val hCheck = JavaParser.check(path)
+      annotations ++= hCheck._2
+      hCheck._1
+
     case _ => throw new NotImplementedException
   }
 }
