@@ -43,15 +43,11 @@
  *  $ grun Java8 compilationUnit *.java
  *
  * Or,
-~/antlr/code/grammars-v4/java8 $ java Test .
-/Users/parrt/antlr/code/grammars-v4/java8/./Java8BaseListener.java
-/Users/parrt/antlr/code/grammars-v4/java8/./Java8Lexer.java
-/Users/parrt/antlr/code/grammars-v4/java8/./Java8Listener.java
-/Users/parrt/antlr/code/grammars-v4/java8/./Java8Parser.java
-/Users/parrt/antlr/code/grammars-v4/java8/./Test.java
-Total lexer+parser time 30844ms.
  */
 grammar Java8;
+@header {
+package ast_comparator.antlr;
+}
 
 /*
  * Productions from §3 (Lexical Structure)
