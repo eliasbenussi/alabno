@@ -1,0 +1,6 @@
+{
+  "input_directory": "backend/integration/testFiles/input/",
+  "model_answer": "backend/integration/testFiles/model_answer.hs",
+  "type": "haskell",
+  "additional_config": []
+}
