@@ -5,11 +5,10 @@ import java.io.{File, FileWriter}
 import play.api.libs.json._
 
 import scala.collection.JavaConverters._
-import scala.collection.mutable
 
 
 /**
-  * Created by Consul on 25/10/2016.
+  * Class used to represent the AggregatorOutput, use the AggregatorOutputParser to create instances of this class
   */
 class AggregatorOutput(annotations: java.util.List[Error], letterScore: String, numberScore: Double) {
 
@@ -36,6 +35,9 @@ class AggregatorOutput(annotations: java.util.List[Error], letterScore: String, 
 
 }
 
+/**
+  * Use this object to generate AggregatorOutput
+  */
 object AggregatorOutputParser {
   def writeFile(file: File, annotations: java.util.List[Error], letterScore: String, numberScore: Double) = {
     new AggregatorOutput(annotations, letterScore, numberScore).printToFile(file)

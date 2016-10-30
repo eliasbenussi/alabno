@@ -22,6 +22,21 @@ class Error(msg: String, file: String, lineNo: Int, colNo: Int, t: String) {
   def getType = t
 
   override def toString: String = s"<${t.toUpperCase}> $file:$lineNo:$colNo:$msg"
+
+  override def equals(obj: scala.Any): Boolean = obj match {
+    case obj: Error =>
+      obj.getColNo.equals(colNo) &&
+      obj.getFile.equals(file) &&
+      obj.getLineNo.equals(lineNo) &&
+      obj.getMsg.equals(msg) &&
+      obj.getType.equals(t)
+    case _ => false
+  }
+
+  override def hashCode(): Int = {
+    val tmp = ((msg.hashCode << 31) + (lineNo.hashCode() << 7)) << 31
+    (tmp + colNo << 27 + file.hashCode << 7) + t.hashCode
+  }
 }
 
 object Error {

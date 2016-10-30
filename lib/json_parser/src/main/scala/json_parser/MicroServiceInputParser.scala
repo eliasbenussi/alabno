@@ -28,6 +28,21 @@ class MicroServiceInput(path: String, language: String, list: java.util.List[Str
     outputStream.close()
   }
 
+  override def equals(obj: scala.Any): Boolean = obj match {
+    case obj: MicroServiceInput =>
+      obj.getLanguage.equals(language) &&
+        obj.getPath.equals(path) &&
+        obj.getModelAnswer.equals(modelAnswer) &&
+        obj.getList.equals(list)
+    case _ => false
+  }
+
+  override def hashCode(): Int = {
+    val tmp = ((path.hashCode << 7) << 31) + language.hashCode
+    val hash = (((tmp << 31) + modelAnswer.hashCode) << 31) + list.hashCode
+    hash
+  }
+
 }
 
 /**
@@ -51,16 +66,31 @@ object MicroServiceInputParser {
     new MicroServiceInput(path, language, list.asJava, modelAnswer)
   }
 
+
   /**
     * Writes to a file in JSON using the format specified by the documentation
     *
-    * @param file     file to write to
-    * @param path     path used by the MicroService
-    * @param language Language used by the MicroService
-    * @param config   Additional config for the MicroService
+    * @param file file to write to
+    * @param msi  instance of MicroServiceInput to be printed to the file
+    */
+  def writeFile(file: File, msi: MicroServiceInput) = {
+    msi.printToFile(file)
+    msi
+  }
+
+
+  /**
+    * Writes to a file in JSON using the format specified by the documentation
+    *
+    * @param file        file to write to
+    * @param path        path used by the MicroService
+    * @param language    Language used by the MicroService
+    * @param config      Additional config for the MicroService
     * @param modelAnswer path to the model answer
     */
   def writeFile(file: File, path: String, language: String, config: java.util.List[String], modelAnswer: String) = {
-    new MicroServiceInput(path, language, config, modelAnswer).printToFile(file)
+    val microServiceInput = new MicroServiceInput(path, language, config, modelAnswer)
+    microServiceInput.printToFile(file)
+    microServiceInput
   }
 }
