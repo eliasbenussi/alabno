@@ -1,1 +1,1 @@
-{"score":100,"annotations":[],"errors":[]}
+{"score":0,"annotations":[{"errortype":"compilation","filename":"/homes/mc3714/Year1/javaloopsandarrays_mc3714/LoopArraysTestSuite.java","lineNo":16,"charNo":0,"text":"error: <identifier> expected"},{"errortype":"compilation","filename":"/homes/mc3714/Year1/javaloopsandarrays_mc3714/LoopArraysTestSuite.java","lineNo":16,"charNo":0,"text":"error: invalid method declaration; return type required"}],"errors":[]}

@@ -1,5 +1,0 @@
-package compile
-
-class AppTest {
-
-}

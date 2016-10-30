@@ -34,6 +34,7 @@ object JavaParser extends Parser {
       path.listFiles().filter(e => e.getName.endsWith(".java")).mkString(" ")
     val lines = new ArrayBuffer[String]()
     val exit = s"javac $javaFiles" ! ProcessLogger(line => lines.append(line))
+    removeOldFiles(path, ".class")
     (exit, process(lines))
   }
 }
