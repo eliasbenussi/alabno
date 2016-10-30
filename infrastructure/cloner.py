@@ -17,12 +17,9 @@ max_clone_depth = '50'
 
 jobmanager_path = os.path.abspath(home_directory + os.sep + 'infrastructure' + os.sep + 'infrastructure' + os.sep + 'JobManager')
 
-print(microservices.microservices)
-
 # #########################################################################
 
 # read the command line arguments
-print(sys.argv)
 
 if len(sys.argv) < 4:
     print('Error, expecting more arguments!')
@@ -44,10 +41,6 @@ parser.add_argument('--students')
 
 args = parser.parse_args()
 
-print(args.extype)
-print(args.model)
-print(args.services)
-print(args.students)
 splitted = args.students.split(' ')
 the_students_gits = []
 for s in splitted:
@@ -146,4 +139,3 @@ for i in range(len(the_students_gits)):
     
     cmd = 'infrastructure/infrastructure/JobManager < {}'.format(json_config_file_path)
     subprocess.call(cmd, shell=True)
-    
