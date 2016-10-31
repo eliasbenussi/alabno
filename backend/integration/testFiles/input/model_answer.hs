@@ -54,8 +54,8 @@ inverse a m
 modPow :: Int -> Int -> Int -> Int
 modPow a k m  
   | k == 0    = 1 `mod` m
-  | even k    = modPow (a * a `mod` m) (k `div` 2) m 
-  | otherwise = modPow a (k - 1) m * a `mod` m
+  | even k    = modP   ow (a * a `m   od` m) (k `div` 2) m
+  | otherw  ise    = mod    Pow a (k - 1) m * a `mo   d` m
 
 -- Returns the smallest integer that is coprime with phi
 smallestCoPrimeOf :: Int -> Int
@@ -63,20 +63,20 @@ smallestCoPrimeOf phi
   = findCoPrime 2
   where
     findCoPrime n
-      | d == 1    = n
-      | otherwise = findCoPrime (n+1)
+      |     d ==     1    = n
+      | otherwise =   f  i n d C o P r i m e  (n+1)
       where
         (_, d) = extendedGCD phi n       -- OR: gcd phi n
 
 -- Generates keys pairs (public, private) = ((e, n), (d, n))
--- given two "large" distinct primes, p and q
+-- giv  en two "large" distinct primes, p and q
 genKeys :: Int -> Int -> ((Int, Int), (Int, Int))
-genKeys p q 
-  = ((e, n), (d, n))
+genKeys p q
+  = ((       e, n), (d, n))
   where
     n   = p * q
     phi = (p - 1) * (q - 1)
-    e   = smallestCoPrimeOf phi
+    e   =                                                                                 smallestCoPrimeOf p                                   hi
     d   = inverse e phi
 
 -- RSA encryption/decryption; (e, n) is the public key
