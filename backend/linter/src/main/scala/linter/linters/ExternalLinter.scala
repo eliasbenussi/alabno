@@ -43,7 +43,33 @@ class ExternalLinter(file: File, language: Language.Value) extends BaseLinter(fi
    * TODO: implement
    */
   private class JLinter extends Linter {
-    override def check: Seq[Error] = super.check
+    private lazy val pathMatch = "(.*?.java)".r
+    private lazy val reasonMatch = ":(.*?\n)".r
+    private lazy val t = "\\[[A-Z]+\\] ".r
+    private final val PATH = "linter/lib"
+    private def matchJavaMistake(s: String): Error = {
+      // Get rid of the [WARN] bit
+      val string = t.replaceFirstIn(s, "")
+      val path = pathMatch.findFirstIn(string).get
+
+      val digits = digitsMatch.findAllIn(string).toSeq
+      // This is always present
+      val lineNo = Integer.decode(digits.head)
+      // This one may or may not be present
+      var charNo = 0
+      if (digits.tail.length >= 0)
+        charNo = Integer.decode(digits.apply(1))
+      val reason = reasonMatch.findFirstIn(string).get.tail
+      OutputGenerator.addScore(0.1d)
+      new Error(reason, path, lineNo, charNo, "style")
+    }
+
+    override def check: Seq[Error] = {
+      // Execute checkstyle from linter/lib with the google style checks
+      val checkStyle = s"java -jar $PATH/checkstyle-7.2-all.jar -c $PATH/checkstyle_checks.xml ${file.getPath}" !!
+      val fileFinder = s"$t$pathMatch:$digitsMatch(:$digitsMatch)?$reasonMatch".r
+      fileFinder.findAllIn(checkStyle).toArray.map(matchJavaMistake)
+    }
   }
 
   /*
@@ -61,8 +87,9 @@ class ExternalLinter(file: File, language: Language.Value) extends BaseLinter(fi
       val hlint = s"hlint ${file.getPath} --no-exit-code" !!
       val scan = fileList.map(e => s"scan ${e.getPath}" !!).mkString("\n")
       val fileFinder = s"$pathMatch$posMatch$reasonMatch".r
-      fileFinder.findAllIn(hlint).toArray.map(matchHaskellMistake(_, 1, "semantic"))
-      fileFinder.findAllIn(scan).toArray.map(matchHaskellMistake(_, 0.1, "style"))
+      val hlintErrors = fileFinder.findAllIn(hlint).toArray.map(matchHaskellMistake(_, 1, "semantic"))
+      val scanErrors = fileFinder.findAllIn(scan).toArray.map(matchHaskellMistake(_, 0.1, "style"))
+      hlintErrors ++ scanErrors
     }
 
     private def matchHaskellMistake(string: String, value: Double, t: String) = {
@@ -71,7 +98,7 @@ class ExternalLinter(file: File, language: Language.Value) extends BaseLinter(fi
       val positions = posMatch.findFirstIn(string).get
       val d = digitsMatch.findAllMatchIn(positions).toArray
       val digits = d.map(_.toString).map(Integer.decode)
-      val reason = reasonMatch.findFirstIn(string).get
+      val reason = reasonMatch.findFirstIn(string).get.tail
       OutputGenerator.addScore(value)
       new Error(reason, path, digits.apply(0), digits.apply(1), t)
     }
