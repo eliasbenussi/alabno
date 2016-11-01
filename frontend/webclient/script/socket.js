@@ -1,6 +1,6 @@
 var $globals = {};
 
-$globals.socket = new WebSocket('ws://localhost:8686');
+$globals.socket = new WebSocket(ws_address);
 
 $globals.socket.onopen = function() {
     console.log('Connection opened');

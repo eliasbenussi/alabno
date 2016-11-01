@@ -17,6 +17,7 @@ infrastructuretest:
 clean:
 	- cd backend && mvn clean
 	- cd infrastructure/infrastructure && mvn clean
+	- rm -rf tmp
 
 .PHONY: clean infrastructure backend
 

@@ -1,0 +1,50 @@
+#!/usr/bin/env python
+
+import os
+import sys
+import subprocess
+
+# Starts all the necessary server components as a background process
+# Also allows to reattach to the multiplexed terminal,
+# and to kill the process
+
+screen_name = 'alabnodaemonservice'
+
+exec_dir = os.path.abspath(os.path.dirname(os.path.abspath(__file__)))
+os.chdir(exec_dir)
+
+def start_server():
+    start_server_command = './infrastructure/runservers.sh'
+    cmd = 'screen -A -m -d -S {} {}'.format(screen_name, start_server_command)
+    subprocess.call(cmd, shell=True)
+
+def kill_server():
+    cmd = 'screen -X -S {} quit'.format(screen_name)
+    subprocess.call(cmd, shell=True)
+
+def show_server():
+    print('If server is running, you will be attached to its console')
+    print('To exit the server console without killing it, press')
+    print('Ctrl+A, then press D')
+    print('Press ENTER to continue...')
+    raw_input()
+    cmd = 'screen -r {}'.format(screen_name)
+    subprocess.call(cmd, shell=True)
+
+def exit_with_error():
+    print('Usage: ./RunServer [start|stop|show]')
+    sys.exit(1)
+
+if len(sys.argv) != 2:
+    exit_with_error()
+
+command = sys.argv[1]
+
+if command == 'show':
+    show_server()
+elif command == 'start':
+    start_server()
+elif command == 'stop':
+    kill_server()
+else:
+    exit_with_error()
