@@ -68,3 +68,105 @@ comment	-- Arithmetic series\n
 ok	arithmeticSeries :: Double -> Double -> Int -> Double\narithmeticSeries a d n\n  = (n' + 1) * (a + d * n' / 2)\n  where\n    n' = fromIntegral n\n\n
 comment	-- Geometric series\n
 ok	geometricSeries :: Double -> Double -> Int -> Double\ngeometricSeries a r n\n  | r == 1    = (fromIntegral n + 1) * a\n  | otherwise = a * (1 - r ^ (n + 1)) / (1 - r)\n
+ok	foo :: int -> int -> int\nfoo a _\n= 2 * a\n\n
+ok	foo :: int -> int\nfoo a\n= 2 * a\n\n
+ok	lookupChar :: Char -> Rules -> String\nlookupChar c rules\n  = head [s | (ch, s) <- rules, ch == c]\n\n
+ok	expandOne :: Rules -> String -> String\nexpandOne r s\n  = concat (map (flip lookupChar r) s)\n\n
+ok	expand :: Rules -> String -> Int -> String\nexpand r s n\n  = s\n\n
+ok	expand :: Rules -> String -> Int -> String\nexpand r s n\n  = iterate (expandOne r) s !! n\n\n
+ok	move :: Char -> TurtleState -> Float -> TurtleState\nmove ’L’ (position, angle) turn\n  = (position, angle + turn)\nmove ’R’ (position, angle) turn\n  = (position, angle - turn)\nmove ’F’ ((x, y), angle) turn\n  = ((x + cos (degreesToRadians angle),\n  y + sin (degreesToRadians angle)), angle)\n\n
+ok	degreesToRadians :: Float -> Float\ndegreesToRadians x\n  = (x / 180) * pi\n\n
+ok	trace1 :: String -> Float -> Colour -> [ColouredLine]\ntrace1 cs angle colour\n  = lines\n  where\n    (lines, nullString) = trace’ cs ((0,0), 90)\n\n
+ok	trace’ :: [int] -> [int]\ntrace’ [] t\n  = ([], [])\n\n
+ok	trace' :: [int] -> [int]\ntrace’ (c : cs) t\n  | c == ’F’ = ((p, p’, colour) : lines’, cs’)\n  | c == ’[’ = (lines’’ ++ lines’’’, cs’’’)\n  | c == ’]’ = ([], cs)\n  | otherwise = (lines’, cs’)\n  where\n    (p’, a’) = move c t angle\n    (lines’, cs’) = trace’ cs (p’, a’)\n    (lines’’, cs’’) = trace’ cs t\n    (lines’’’, cs’’’) = trace’ cs’’ t\n
+ok	    (p, a) = t\n\n
+ok	trace2 :: String -> Float -> Colour -> [ColouredLine]\ntrace2 cs turn colour\n  = trace’ cs ((0, 0), 90) []\n\n
+ok	trace’ :: String -> TurtleState -> Stack -> [ColouredLine]\ntrace’ [] _ _\n  = []\ntrace’ (’F’ : cs) ts@(position, angle) stack\n  = (position, newPosition, colour) :\n      trace’ cs (newPosition, newAngle) stack\n    where\n      (newPosition, newAngle) = move ’F’ ts turn\n\n
+ok	trace’ :: String -> TurtleState -> Stack -> [ColouredLine]\ntrace’ (’[’ : cs) ts stack\n  = trace’ cs ts (ts : stack)\ntrace’ (’]’ : cs) _ (ts : stack)\n  = trace’ cs ts stack\ntrace’ (c : cs) ts stack\n  = trace’ cs (move c ts turn) stack\n\n
+signature	foo :: int -> int -> int\nfoo a\n= 2 * a\n\n
+signature	bar :: (int, int) -> int\nbar a\n= a\n\n
+signature	lookupChar :: Char -> Rules -> String\nlookupChar c\n  = head [s | (ch, s) <- rules, ch == c]\n\n
+signature	lookupChar :: Char -> Rules -> String\nlookupChar c rules\n  = rules\n\n
+signature	lookupChar :: Char -> Rules -> String\nlookupChar c rules\n  = c\n\n
+signature	lookupChar :: Char -> String\nlookupChar c rules\n  = head [s | (ch, s) <- rules, ch == c]\n\n
+signature	expandOne :: Rules -> String -> String\nexpandOne r s\n  = concat (map (flip lookupChar r) s)\n\n
+signature	expand :: Rules -> Int -> String\nexpand r s n\n  = iterate (expandOne r) s !! n\n\n
+signature	expand :: Rules -> String -> Int -> String\nexpand r s\n  = iterate (expandOne r) s !! n\n\n
+signature	expand :: Rules -> String -> Int -> String\nexpand r s n\n  = n\n\n
+signature	expand :: Rules -> String -> Int -> String\nexpand r s n\n  = r\n\n
+signature	move :: Char -> TurtleState -> Float -> TurtleState\nmove ’L’ turn\n  = (position, angle + turn)\nmove ’R’ (position, angle) turn\n  = (position, angle - turn)\nmove ’F’ ((x, y), angle) turn\n  = ((x + cos (degreesToRadians angle),\n  y + sin (degreesToRadians angle)), angle)\n\n
+signature	move :: Char -> TurtleState -> Float -> TurtleState\nmove ’L’ (position, angle) turn\n  = (position, angle + turn)\nmove (position, angle) turn\n  = (position, angle - turn)\nmove ’F’ ((x, y), angle) turn\n  = ((x + cos (degreesToRadians angle),\n  y + sin (degreesToRadians angle)), angle)\n\n
+signature	move :: Char -> TurtleState -> Float -> TurtleState\nmove ’L’ (position, angle) turn\n  = (position, angle + turn)\nmove ’R’ (position, angle) turn\n  = (position, angle - turn)\nmove ’F’ ((x, y), angle)\n  = ((x + cos (degreesToRadians angle),\n  y + sin (degreesToRadians angle)), angle)\n\n
+signature	move :: Char -> Float -> TurtleState\nmove ’L’ (position, angle) turn\n  = (position, angle + turn)\nmove ’R’ (position, angle) turn\n  = (position, angle - turn)\nmove ’F’ ((x, y), angle) turn\n  = ((x + cos (degreesToRadians angle),\n  y + sin (degreesToRadians angle)), angle)\n\n
+signature	move :: Char -> TurtleState -> TurtleState\nmove ’L’ (position, angle) turn\n  = (position, angle + turn)\nmove ’R’ (position, angle) turn\n  = (position, angle - turn)\nmove ’F’ ((x, y), angle) turn\n  = ((x + cos (degreesToRadians angle),\n  y + sin (degreesToRadians angle)), angle)\n\n
+signature	degreesToRadians :: Float -> Float\ndegreesToRadians\n  = (x / 180) * pi\n\n
+signature	degreesToRadians :: Float\ndegreesToRadians x\n  = (x / 180) * pi\n\n
+signature	degreesToRadians :: Float -> Float\ndegreesToRadians x u\n  = (x / 180) * pi\n\n
+signature	trace1 :: Float -> Colour -> [ColouredLine]\ntrace1 cs angle colour\n  = lines\n  where\n    (lines, nullString) = trace’ cs ((0,0), 90)\n\n
+signature	trace1 :: String -> Float -> [ColouredLine]\ntrace1 cs angle colour\n  = lines\n  where\n    (lines, nullString) = trace’ cs ((0,0), 90)\n\n
+signature	trace1 :: String -> Float -> Colour -> [ColouredLine]\ntrace1 cs angle\n  = lines\n  where\n    (lines, nullString) = trace’ cs ((0,0), 90)\n\n
+signature	trace1 :: String -> Float -> Colour -> [ColouredLine]\ntrace1 cs colour\n  = lines\n  where\n    (lines, nullString) = trace’ cs ((0,0), 90)\n\n
+signature	trace1 :: String -> Float -> Colour -> [ColouredLine]\ntrace1 angle colour\n  = lines\n  where\n    (lines, nullString) = trace’ cs ((0,0), 90)\n\n
+signature	trace’ :: [int]\ntrace’ [] t\n  = ([], [])\n\n
+signature	;\n
+signature	trace’ :: [int] -> [int]\ntrace’ []\n  = ([], [])\n\n
+signature	;\n
+signature	trace’ :: [int] -> [int]\ntrace’ t\n  = ([], [])\n\n
+signature	trace' :: [int]\ntrace’ (c : cs) t\n  | c == ’F’ = ((p, p’, colour) : lines’, cs’)\n  | c == ’[’ = (lines’’ ++ lines’’’, cs’’’)\n  | c == ’]’ = ([], cs)\n  | otherwise = (lines’, cs’)\n  where\n    (p’, a’) = move c t angle\n    (lines’, cs’) = trace’ cs (p’, a’)\n    (lines’’, cs’’) = trace’ cs t\n    (lines’’’, cs’’’) = trace’ cs’’ t\n
+signature	    (p, a) = t\n\n
+signature	trace' :: [int] -> [int]\ntrace’ t\n  | c == ’F’ = ((p, p’, colour) : lines’, cs’)\n  | c == ’[’ = (lines’’ ++ lines’’’, cs’’’)\n  | c == ’]’ = ([], cs)\n  | otherwise = (lines’, cs’)\n  where\n    (p’, a’) = move c t angle\n    (lines’, cs’) = trace’ cs (p’, a’)\n    (lines’’, cs’’) = trace’ cs t\n    (lines’’’, cs’’’) = trace’ cs’’ t\n
+signature	    (p, a) = t\n\n
+signature	trace' :: [int] -> [int]\ntrace’ (c : cs)\n  | c == ’F’ = ((p, p’, colour) : lines’, cs’)\n  | c == ’[’ = (lines’’ ++ lines’’’, cs’’’)\n  | c == ’]’ = ([], cs)\n  | otherwise = (lines’, cs’)\n  where\n    (p’, a’) = move c t angle\n    (lines’, cs’) = trace’ cs (p’, a’)\n    (lines’’, cs’’) = trace’ cs t\n    (lines’’’, cs’’’) = trace’ cs’’ t\n
+signature	    (p, a) = t\n\n
+signature	trace2 :: String -> Float -> [ColouredLine]\ntrace2 cs turn colour\n  = trace’ cs ((0, 0), 90) []\n\n\n
+signature	trace2 :: String -> Colour -> [ColouredLine]\ntrace2 cs turn colour\n  = trace’ cs ((0, 0), 90) []\n\n\n
+signature	trace2 :: Float -> Colour -> [ColouredLine]\ntrace2 cs turn colour\n  = trace’ cs ((0, 0), 90) []\n\n\n
+signature	trace2 :: String -> Float -> Colour\ntrace2 cs turn colour\n  = trace’ cs ((0, 0), 90) []\n\n
+signature	trace2 :: String -> Float -> Colour -> [ColouredLine]\ntrace2 turn colour\n  = trace’ cs ((0, 0), 90) []\n\n
+signature	trace2 :: String -> Float -> Colour -> [ColouredLine]\ntrace2 cs colour\n  = trace’ cs ((0, 0), 90) []\n\n
+signature	trace2 :: String -> Float -> Colour -> [ColouredLine]\ntrace2 cs turn\n  = trace’ cs ((0, 0), 90) []\n\n
+signature	trace’ :: TurtleState -> Stack -> [ColouredLine]\ntrace’ [] _ _\n  = []\ntrace’ (’F’ : cs) ts@(position, angle) stack\n  = (position, newPosition, colour) :\n      trace’ cs (newPosition, newAngle) stack\n    where\n      (newPosition, newAngle) = move ’F’ ts turn\n\n
+signature	trace’ :: String -> Stack -> [ColouredLine]\ntrace’ [] _ _\n  = []\ntrace’ (’F’ : cs) ts@(position, angle) stack\n  = (position, newPosition, colour) :\n      trace’ cs (newPosition, newAngle) stack\n    where\n      (newPosition, newAngle) = move ’F’ ts turn\n\n
+signature	trace’ :: String -> TurtleState -> [ColouredLine]\ntrace’ [] _ _\n  = []\ntrace’ (’F’ : cs) ts@(position, angle) stack\n  = (position, newPosition, colour) :\n      trace’ cs (newPosition, newAngle) stack\n    where\n      (newPosition, newAngle) = move ’F’ ts turn\n\n
+signature	trace’ :: String -> Stack\ntrace’ [] _ _\n  = []\ntrace’ (’F’ : cs) ts@(position, angle) stack\n  = (position, newPosition, colour) :\n      trace’ cs (newPosition, newAngle) stack\n    where\n      (newPosition, newAngle) = move ’F’ ts turn\n\n
+signature	trace’ :: String -> TurtleState -> Stack -> [ColouredLine]\ntrace’ []\n  = []\ntrace’ (’F’ : cs) ts@(position, angle) stack\n  = (position, newPosition, colour) :\n      trace’ cs (newPosition, newAngle) stack\n    where\n      (newPosition, newAngle) = move ’F’ ts turn\n\n
+signature	trace’ :: String -> TurtleState -> Stack -> [ColouredLine]\ntrace’ [] _ _\n  = []\ntrace’ (’F’ : cs) stack\n  = (position, newPosition, colour) :\n      trace’ cs (newPosition, newAngle) stack\n    where\n      (newPosition, newAngle) = move ’F’ ts turn\n\n
+signature	trace’ :: String -> TurtleState -> Stack -> [ColouredLine]\ntrace’ [] _ _\n  = []\ntrace’ stack\n  = (position, newPosition, colour) :\n      trace’ cs (newPosition, newAngle) stack\n    where\n      (newPosition, newAngle) = move ’F’ ts turn\n\n
+signature	trace’ :: String -> TurtleState -> Stack -> [ColouredLine]\ntrace’ [] _ _\n  = []\ntrace’\n  = (position, newPosition, colour) :\n      trace’ cs (newPosition, newAngle) stack\n    where\n      (newPosition, newAngle) = move ’F’ ts turn\n\n
+signature	trace’ :: String -> TurtleState -> Stack -> [ColouredLine]\ntrace’ (’[’ : cs) stack\n  = trace’ cs ts (ts : stack)\ntrace’ (’]’ : cs) _ (ts : stack)\n  = trace’ ts stack\ntrace’ (c : cs) ts stack\n  = trace’ cs (move c ts turn) stack\n\n
+signature	trace’ :: String -> TurtleState -> Stack -> [ColouredLine]\ntrace’ (’[’ : cs) ts stack\n  = trace’ cs ts\ntrace’ (’]’ : cs) (ts : stack)\n  = trace’ cs ts stack\ntrace’ (c : cs)\n  = trace’ cs (move c ts turn) stack\n\n\n
+signature	trace’ :: String -> TurtleState -> Stack -> [ColouredLine]\ntrace’ (’[’ : cs) ts stack\n  = trace’ cs ts (ts : stack)\ntrace’ (’]’ : cs) _ (ts : stack)\n  = trace’ cs ts stack\ntrace’ (c : cs) ts\n  = trace’ cs (move c ts turn) stack\n\n
+signature	trace’ :: String -> TurtleState -> Stack -> [ColouredLine]\ntrace’ (’[’ : cs) ts stack\n  = trace’ cs ts (ts : stack)\ntrace’ (’]’ : cs) _ (ts : stack)\n  = trace’ cs ts stack\ntrace’ (c : cs)\n  = trace’ cs (move c ts turn) stack\n\n
+signature	trace’ :: String -> TurtleState -> Stack -> [ColouredLine]\ntrace’ (’[’ : cs) ts stack\n  = trace’ cs ts (ts : stack)\ntrace’ (’]’ : cs) (ts : stack)\n  = trace’ cs ts stack\ntrace’ (c : cs) ts stack\n  = trace’ cs (move c ts turn) stack\n\n
+signature	trace’ :: String -> TurtleState -> Stack -> [ColouredLine]\ntrace’ ts stack\n  = trace’ cs ts (ts : stack)\ntrace’ (’]’ : cs) _ (ts : stack)\n  = trace’ cs ts stack\ntrace’ (c : cs) ts stack\n  = trace’ cs (move c ts turn) stack\n\n\n
+signature	trace’ :: TurtleState -> Stack -> [ColouredLine]\ntrace’ (’[’ : cs) ts stack\n  = trace’ cs ts (ts : stack)\ntrace’ (’]’ : cs) _ (ts : stack)\n  = trace’ cs ts stack\ntrace’ (c : cs) ts stack\n  = trace’ cs (move c ts turn) stack\n\n
+signature	trace’ :: String -> Stack\ntrace’ (’[’ : cs) ts stack\n  = trace’ cs ts (ts : stack)\ntrace’ (’]’ : cs) _ (ts : stack)\n  = trace’ cs ts stack\ntrace’ (c : cs) ts stack\n  = trace’ cs (move c ts turn) stack\n\n
+signature	trace’ :: Stack -> [ColouredLine]\ntrace’ (’[’ : cs) ts stack\n  = trace’ cs ts (ts : stack)\ntrace’ (’]’ : cs) _ (ts : stack)\n  = trace’ cs ts stack\ntrace’ (c : cs) ts stack\n  = trace’ cs (move c ts turn) stack\n\n
+signature	trace’ :: String -> TurtleState\ntrace’ (’[’ : cs) ts stack\n  = trace’ cs ts (ts : stack)\ntrace’ (’]’ : cs) _ (ts : stack)\n  = trace’ cs ts stack\ntrace’ (c : cs) ts stack\n  = trace’ cs (move c ts turn) stack\n
+ok	base :: System -> String\nbase (_, b, _)\n= b\n\n
+ok	foo :: System -> String\nfoo (_, beta, _)\n= beta\n\n
+ok	rules :: System -> Rules\nrules (_, _, rs)\n= rs\n\n
+ok	foo :: int -> int -> int\nfoo a _\n= 2 * a\n\n
+ok	lookupChar :: Char -> Rules -> String\nlookupChar _ rules\n  = head [rules]\n\n
+ok	expandOne :: Rules -> String -> String\nexpandOne _ s\n  = concat s\n\n
+ok	expand :: Rules -> String -> Int -> String\nexpand _ s _\n  = s\n\n
+ok	move :: Char -> TurtleState -> Float -> TurtleState\nmove ’L’ (position, angle) turn\n  = (position, angle + turn)\nmove ’R’ (position, angle) turn\n  = (position, angle - turn)\nmove ’F’ ((x, y), angle) turn\n  = ((x + cos (degreesToRadians angle),\n  y + sin (degreesToRadians angle)), angle)\nmove _ _ _\n  = (-1, -1)\n\n\n
+ok	degreesToRadians :: Float -> Float\ndegreesToRadians x _\n  = (x / 180) * 3.141\n\n
+ok	trace1 :: String -> Float -> Colour -> [ColouredLine]\ntrace1 cs _ _\n  = lines\n  where\n    (lines, nullString) = trace’ cs ((0,0), 90)\n\n
+ok	trace’ :: [int] -> [int]\ntrace’ [] _\n  = ([], [])\n\n
+ok	trace2 :: String -> Float -> Colour -> [ColouredLine]\ntrace2 cs _ _\n  = trace’ cs ((0, 0), 90) []\n\n
+verbose	foo :: int -> int -> int\nfoo a b\n= 2 * a\n\n
+verbose	lookupChar :: Char -> Rules -> String\nlookupChar c rules\n  = head [rules]\n\n
+verbose	expandOne :: Rules -> String -> String\nexpandOne r s\n  = concat s\n\n
+verbose	expand :: Rules -> String -> Int -> String\nexpand r s n\n  = s\n\n
+verbose	move :: Char -> TurtleState -> Float -> TurtleState\nmove ’L’ (position, angle) turn\n  = (position, angle + turn)\nmove ’R’ (position, angle) turn\n  = (position, angle - turn)\nmove ’F’ ((x, y), angle) turn\n  = ((x + cos (degreesToRadians angle),\n  y + sin (degreesToRadians angle)), angle)\nmove letter (position, angle) turn\n  = (-1, -1)\n\n
+verbose	  move :: Char -> TurtleState -> Float -> TurtleState\n  move ’L’ (position, angle) turn\n    = (position, angle + turn)\n  move ’R’ (position, angle) turn\n    = (position, angle - turn)\n  move ’F’ ((x, y), angle) turn\n    = ((x + cos (degreesToRadians angle),\n    y + sin (degreesToRadians angle)), angle)\n  move _ (position, angle) turn\n    = (-1, -1)\n\n
+verbose	move :: Char -> TurtleState -> Float -> TurtleState\nmove ’L’ (position, angle) turn\n  = (position, angle + turn)\nmove ’R’ (position, angle) turn\n  = (position, angle - turn)\nmove ’F’ ((x, y), angle) turn\n  = ((x + cos (degreesToRadians angle),\n  y + sin (degreesToRadians angle)), angle)\nmove letter _ _\n  = (-1, -1)\n\n
+verbose	move :: Char -> TurtleState -> Float -> TurtleState\nmove ’L’ (position, angle) turn\n  = (position, angle + turn)\nmove ’R’ (position, angle) turn\n  = (position, angle - turn)\nmove ’F’ ((x, y), angle) turn\n  = ((x + cos (degreesToRadians angle),\n  y + sin (degreesToRadians angle)), angle)\nmove letter _ turn\n  = (-1, -1)\n\n
+verbose	degreesToRadians :: Float -> Float\ndegreesToRadians x pi\n  = (x / 180) * 3.141\n\n
+verbose	trace1 :: String -> Float -> Colour -> [ColouredLine]\ntrace1 cs angle colour\n  = lines\n  where\n    (lines, nullString) = trace’ cs ((0,0), 90)\n\n
+verbose	trace’ :: [int] -> [int]\ntrace’ [] t\n  = ([], [])\n\n
+verbose	trace2 :: String -> Float -> Colour -> [ColouredLine]\ntrace2 cs turn colour\n  = trace’ cs ((0, 0), 90) []\n
+verbose	base :: System -> String\nbase (a, b, c)\n= b\n\n
+verbose	foo :: System -> String\nfoo (alpha, beta, gamma)\n= beta\n\n
+verbose	rules :: System -> Rules\nrules (var, iable, rs)\n= rs\n\n
