@@ -40,7 +40,7 @@ object App {
     * Entry point of this service
     *
     * @param args
-    * <p< Array of arguments, where the first argument is the input file </p>
+    * <p> Array of arguments, where the first argument is the input file </p>
     * <p>  and the second one is the output file </p>
     */
   def main(args: Array[String]) {
@@ -51,7 +51,9 @@ object App {
 
     path = new File(inputJSON.getPath)
     language = Language.matchString(inputJSON.getLanguage)
-    val list = inputJSON.getList.asScala
+    var list = inputJSON.getList.asScala.toSeq
+    if(list.length == 0)
+        list = Seq("baselinter", "external_linter")
     try {
       list.foreach(parseLinters)
       mistakes ++= lintersList.flatMap(_.parseFiles)

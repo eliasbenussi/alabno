@@ -20,6 +20,22 @@ CLIENT -> SERVER
     id is the user token received upon successful login. Kinda lika cookie.
     This message can only be used by a professor. Server will do the check.
     
+    {
+    	"type": "get_job",
+    	"id": "687ba687de5",
+    	"title": "haskell23"
+    }
+    requests an expansion of the section of the current job
+    Each student row has a button which will call $scope.get_data(jobtitle,studentid)
+    
+    {
+        "type": "retrieve_result",
+        "id": "687ba687de5",
+        "title": "haskell23",
+        "student": "1"
+    }
+    Asks for final results of an exercise of specific student
+    
 SERVER -> CLIENT
 
     {
@@ -43,3 +59,27 @@ SERVER -> CLIENT
         "type": "job_sent"
     }
     tells the client that the job has been submitted successfully to the JobManager. The Client can then return to the Professor's homepage.
+    
+    {
+        "type": "job_list",
+        "jobs": [
+            "haskellquadratic",
+            "pintos01"
+            ]
+    }
+    Sends the list of existing jobs to the client
+    
+    {
+    	"type": "job_group",
+    	"title": "haskell23",
+    	"group": ["0", "1"]
+    }
+    Sends the list of students marked for one job title.
+    
+    {
+    	"type": "postpro_result",
+    	"title": "haskell23",
+    	"student": "1",
+    	"data": "the json raw data"
+    }
+    Sends the postprocessor output to the client

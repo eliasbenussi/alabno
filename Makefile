@@ -1,11 +1,11 @@
 all: infrastructure backend simple-haskell-marker
 
-test: backendtest infrastructuretest simple-haskell-marker-test
+test: all backendtest infrastructuretest simple-haskell-marker-test
 
 backend:
-	cd backend && mvn package -q
+	cd backend && mvn package -q -Dmaven.test.skip=true
 
-backendtest: backend
+backendtest:
 	cd backend && mvn test -q
 
 infrastructure:
@@ -21,8 +21,8 @@ simple-haskell-marker-test:
 	cd simple-haskell-marker && make test
 
 clean:
-	- cd backend && mvn clean
-	- cd infrastructure/infrastructure && mvn clean
+	- cd backend && mvn clean -q
+	- cd infrastructure/infrastructure && mvn clean -q
 	- cd simple-haskell-marker && make clean
 	- rm -rf tmp
 

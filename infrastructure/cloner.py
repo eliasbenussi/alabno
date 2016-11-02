@@ -117,13 +117,17 @@ for i in range(len(the_students_gits)):
         sys.exit(1)
     os.chdir(home_directory)
 
+postpro_all_outputs = []
+
 # create the configuration JSON file for the JobManager
 for i in range(len(the_students_gits)):
+    student_out_directory = get_student_out_directory(base_directory, i)
+    
     jsonobj = {
         'input_directory': get_student_commit_directory(base_directory, i),
         'type': args.extype,
         'additional_config': '',
-        'output_directory': get_student_out_directory(base_directory, i),
+        'output_directory': student_out_directory,
         'services': microservices.microservices
     }
 
@@ -139,3 +143,31 @@ for i in range(len(the_students_gits)):
     
     cmd = 'infrastructure/infrastructure/JobManager < {}'.format(json_config_file_path)
     subprocess.call(cmd, shell=True)
+    
+    # postprocessor arguments
+    language = args.extype
+    postpro_input_json_paths = []
+    postpro_output_json_path = os.path.abspath(student_out_directory + os.sep + 'postpro.json')
+    postpro_all_outputs.append(postpro_output_json_path)
+    
+    # Get the list of microservice output jsons
+    for item in os.listdir(student_out_directory):
+        full_path = os.path.abspath(student_out_directory + os.sep + item)
+        if len(full_path) >= 12 and full_path[-12:] == '_output.json':
+            postpro_input_json_paths.append(full_path)
+    
+    # call the postprocessor
+    postprocessor_jar_path = os.path.abspath(home_directory + os.sep + 'backend/postprocessor/target/postprocessor-1.0-SNAPSHOT-jar-with-dependencies.jar')
+    cmd = 'java -cp {} postprocessor.PostProcessor {} {} {}'.format(
+        postprocessor_jar_path,
+        language,
+        ' '.join(postpro_input_json_paths),
+        postpro_output_json_path
+        )
+    
+    code = subprocess.call(cmd, shell=True)
+    if code != 0:
+        print('cmd [{}] failed with code {}'.format(cmd, code))
+
+# Special stdout line that will be read by the caller process
+print('#FINALOUTPUTS={}'.format(os.path.abspath(' '.join(postpro_all_outputs))))

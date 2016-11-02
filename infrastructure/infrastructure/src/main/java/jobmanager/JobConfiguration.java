@@ -1,14 +1,12 @@
 package jobmanager;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
 
+import alabno.utils.FileUtils;
 import alabno.wserver.JsonParser;
 
 // Parses and contains the information of the current program run
@@ -55,7 +53,7 @@ public class JobConfiguration {
 	// Reads the stdin, to get the configuration and
 	// input/output paths
 	private void read_configuration(String file_url) {
-		String stdin_input = read_file(file_url);
+		String stdin_input = FileUtils.read_file(file_url);
 
 		JsonParser parser = new JsonParser(stdin_input);
 		
@@ -82,27 +80,9 @@ public class JobConfiguration {
 
 	}
 
-	private String read_file(String file_url) {
-		try {
-			BufferedReader br = new BufferedReader(new FileReader(file_url));
-
-			StringBuilder sb = new StringBuilder();
-			String line = br.readLine();
-
-			while (line != null) {
-				sb.append(line);
-				sb.append(System.lineSeparator());
-				line = br.readLine();
-			}
-
-			br.close();
-			return sb.toString();
-		} catch (Exception e) {
-			e.printStackTrace();
-			return "";
-		}
-	}
-
+	/**
+	 * Executes the microservices in order
+	 */
 	public void runAllJobs() {
 		for (MicroServiceInfo service : services)
 		{

@@ -30,6 +30,7 @@ public class AutoMarkerWSServer extends WebSocketServer implements Runnable {
 	@Override
 	public void onClose(WebSocket conn, int code, String reason, boolean remote) {
 		System.out.println("Connection closed");
+		handler.closeSession(conn);
 	}
 
 	@Override

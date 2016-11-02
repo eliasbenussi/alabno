@@ -30,6 +30,12 @@ $globals.socket.onmessage = function(message) {
         $handlers.handle_alert(msgobj);
     } else if (msgobj.type == 'job_sent') {
         $handlers.handle_job_sent(msgobj);
+    } else if (msgobj.type == 'job_list') {
+        $handlers.handle_job_list(msgobj);
+    } else if (msgobj.type == 'job_group') {
+        $handlers.handle_job_group(msgobj);
+    } else if (msgobj.type == 'postpro_result') {
+        $handlers.handle_postpro_result(msgobj);
     }
     else {
         console.log("message type not recognized: " + msgobj.type);
