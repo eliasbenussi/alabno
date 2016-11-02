@@ -112,7 +112,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="#">Student Result View</a>
+                <a class="navbar-brand">Student Result View</a>
             </div>
             <!-- Collect the nav links, forms, and other content for toggling -->
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
@@ -131,7 +131,26 @@
                 <div class="list-group-item">
                     <h4 class="list-group-item-heading">{{student_result.letter_score}}</h4>
                     <h4 class="list-group-item-heading">{{student_result.number_score}}</h4>
-                    <p class="list-group-item-text">{{student_result.annotations}}</p>
+                    
+                    <!--Table of annotations-->
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Error Type</th>
+                                <th>File Name</th>
+                                <th>Position</th>
+                                <th>Text</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="tbline in student_result.annotations">
+                                <td>{{tbline.errortype}}</td>
+                                <td>{{tbline.filename}}</td>
+                                <td>{{tbline.lineno}}:{{tbline.charno}}</td>
+                                <td>{{tbline.text}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
