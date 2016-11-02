@@ -38,3 +38,33 @@ ok	-- replaceWord :: String -> KeywordDefs -> String\n\n\n\n
 ok	main :: IO ()\n-- The provided main program which uses your functions to merge a\n-- template and source file.\nmain = do\n  args <- getArgs\n  main' args\n\n
 ok	  where\n
 ok	    main' :: [String] -> IO ()\n    main' [template, source, output] = do\n      t <- readFile template\n      i <- readFile source\n      writeFile output (expand t i)\n    main' _ = putStrLn ("Usage: runghc MP <template> <info> <output>")\n\n
+ok	maxOf2 :: Int -> Int -> Int\n-- Returns first argument if it is larger than the second,\n-- the second argument otherwise\nmaxOf2 x y\n  | x > y     = x\n  | otherwise = y\n  \n
+whitespace	maxOf2 :: Int -> Int -> Int\n-- Returns first argument if it is larger than the second,\n-- the second argument otherwise\nmaxOf2 x y\n  | x>y = x\n  | otherwise = y\n  \n
+whitespace	maxOf2 :: Int -> Int -> Int\n-- Returns first argument if it is larger than the second,\n-- the second argument otherwise\nmaxOf2 x y\n  | x>y = x\n  | otherwise= y\n\n
+ok	maxOf3 :: Int -> Int -> Int -> Int\n-- Returns the largest of three Ints\nmaxOf3 x y z\n  = maxOf2 x (maxOf2 y z)\n  \n
+reuse	maxOf3 :: Int -> Int -> Int -> Int\n-- Returns the largest of three Ints\nmaxOf3 x y z = if maxOf2 x y == x && maxOf2 x z == x then x else maxOf2 y z\n\n
+reuse	maxOf3 :: Int -> Int -> Int -> Int\n-- Returns the largest of three Ints\nmaxOf3 x y z \n  = if maxOf2 x y == x && maxOf2 x z == x then x else maxOf2 y z\n\n
+ok	isADigit :: Char -> Bool\n-- Returns True if the character represents a digit '0'..'9';\n-- False otherwise\nisADigit c\n  = c >= '0' && c <= '9'\n  \n
+minustenk	isADigit :: Char -> Bool\n-- Returns True if the character represents a digit '0'..'9';\n-- False otherwise\nisADigit c\n  | c >= '0' && c <= '9' = True\n  | otherwise            = False\n  \n
+conversion	isADigit :: Char -> Bool\n-- Returns True if the character represents a digit '0'..'9';\n-- False otherwise\nisADigit c\n  = ord c >= ord '0' && ord c <= ord '9'\n  \n
+minustenk	isADigit :: Char -> Bool\n-- Returns True if the character represents a digit '0'..'9';\n-- False otherwise\nisADigit c\n  | ord c >= ord '0' && ord c <= ord '9' = True\n  | otherwise = False\n\n
+comment	-- False otherwise\n
+ok	isAlpha :: Char -> Bool\n-- Returns True if the character represents an alphabetic\n-- character either in the range 'a'..'z' or in the range 'A'..'Z';\nisAlpha c\n  = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')\n  \n
+comment	-- False otherwise\n
+minustenk	isAlpha :: Char -> Bool\n-- Returns True if the character represents an alphabetic\n-- character either in the range 'a'..'z' or in the range 'A'..'Z';\nisAlpha c\n  | (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') = True\n  | otherwise = False\n  \n
+comment	-- False otherwise\n
+conversion	isAlpha :: Char -> Bool\n-- Returns True if the character represents an alphabetic\n-- character either in the range 'a'..'z' or in the range 'A'..'Z';\nisAlpha c\n  = (ord c >= ord 'a' && ord c <= ord 'z') || (ord c >= ord 'A' && ord c <= ord 'Z')\n  \n
+comment	-- False otherwise\n
+minustenk	isAlpha :: Char -> Bool\n-- Returns True if the character represents an alphabetic\n-- character either in the range 'a'..'z' or in the range 'A'..'Z';\nisAlpha c\n  | (ord c >= ord 'a' && ord c <= ord 'z') || (ord c >= ord 'A' && ord c <= ord 'Z') = True\n  | otherwise = False\n\n
+ok	digitToInt :: Char -> Int\n-- Pre: the character is one of '0'..'9'\n-- Returns the integer [0..9] corresponding to the given character.\n-- Note: this is a simpler version of digitToInt in module Data.Char,\n-- which does not assume the precondition.\ndigitToInt c\n  = ord c - ord '0'\n  \n
+magic	digitToInt :: Char -> Int\n-- Pre: the character is one of '0'..'9'\n-- Returns the integer [0..9] corresponding to the given character.\n-- Note: this is a simpler version of digitToInt in module Data.Char,\n-- which does not assume the precondition.\ndigitToInt c\n  = ord c - 48\n\n
+ok	toUpper :: Char -> Char\n-- Returns the upper case character corresponding to the input.\n-- Uses guards by way of variety.\ntoUpper c\n  | c >= 'A' && c <= 'Z' = c\n  | c >= 'a' && c <= 'z' = chr (ord 'A' + ord c - ord 'a')\n\n
+ok	--\n-- Sequences and series\n--\n\n
+comment	-- Arithmetic sequence\n
+ok	arithmeticSeq :: Double -> Double -> Int -> Double\narithmeticSeq a d n\n  = a + fromIntegral n * d\n\n
+comment	-- Geometric sequence\n
+ok	geometricSeq :: Double -> Double -> Int -> Double\ngeometricSeq a r n\n  = a * r ^ n\n\n
+comment	-- Arithmetic series\n
+ok	arithmeticSeries :: Double -> Double -> Int -> Double\narithmeticSeries a d n\n  = (n' + 1) * (a + d * n' / 2)\n  where\n    n' = fromIntegral n\n\n
+comment	-- Geometric series\n
+ok	geometricSeries :: Double -> Double -> Int -> Double\ngeometricSeries a r n\n  | r == 1    = (fromIntegral n + 1) * a\n  | otherwise = a * (1 - r ^ (n + 1)) / (1 - r)\n
