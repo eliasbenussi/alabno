@@ -1,0 +1,1 @@
+cd ../ && ./simple-haskell-marker/Demo simple-haskell-marker/samples/hs_basic_training.prop simple-haskell-marker/samples/hs_basic_training.train

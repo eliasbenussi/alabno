@@ -1,0 +1,53 @@
+CLASSIFIER
+
+    http://nlp.stanford.edu/software/classifier.shtml
+    Stanford Classifier GPLv2
+    General purpose maximum entropy classifier for supervised training
+    
+    It can work with any kind of data, but it works best with textual data.
+    
+    wiki page here http://nlp.stanford.edu/wiki/Software/Classifier
+    
+WORKFLOW
+
+    A python script receives the microservices JSON input. Extract the single input haskell file, and the directory of where the output file can be put.
+    
+    Call the main java program with these specific options.
+    
+    Split the input haskell file using some heuristics (later on we can use better methods based on actual syntax analysis), such as start of function, and maximum number of characters in a block to be analyzed. The splitter will convert newlines to literal '\n'
+    
+    Run the machine learning on each of them.
+    
+    Look at the outcome categories (the categories are numbered with integers, but can signify things like OK, BAD STYLE, BAD PRACTICE and other common mistakes) to generate a final score and final set of answers.
+    
+TRAINING
+
+    Training data: splitting comes from the same splitter we would use to analyze the test input.
+    
+    The categories we give to the training set would be given manually by us. That will be a lot of work!
+
+ARGUMENTS
+
+    The python launcher script will read the JSON file
+
+    {
+        "input_directory": "/var/tmp/alabno/4b8ea98f6a8f97b98c97a8a6/docker/commit", // Please make sure this is an absolute path
+        "model_answer": "/var/tmp/alabno/model/",
+        "type": "haskell", // can be wacc, pintos, java, c, or any custom stuff
+        "additional_config": "http://www.doc.ic.ac.uk/~alabno/scripts/auto-marker/pintos.conf"
+    }
+    
+    if type is not haskell, nothing will be done
+        
+    model_answer and additional_config will be ignored
+    
+    input_directory will be explored to find all .hs files, which will be passed to the Java program as arguments
+    
+    commitX/Sequences.hs
+    commitX/extension/Ext.hs
+    
+    Java will receive the following arguments
+    
+    Sequences.hs extension/Ext.hs /var/tmp/alabno/tmp/64af8c684/output/simple_haskell_marker_out.json
+    
+    and the working directory is commitX

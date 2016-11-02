@@ -1,0 +1,32 @@
+#!/usr/bin/env python
+
+import sys
+import subprocess
+import os
+import json
+
+# calculate classpaths
+exec_dir = os.path.abspath(os.path.dirname(os.path.abspath(__file__)))
+# exec_dir is simple-haskell-marker
+jar_path = os.path.abspath(exec_dir + os.sep + 'target' + os.sep + 'simple-haskell-marker-dev0.1-jar-with-dependencies.jar') + ':' + os.path.abspath('{}/samples/'.format(exec_dir))
+
+if len(sys.argv) != 2:
+    print('Usage: ./Split <input.hs>')
+    sys.exit(1)
+
+input_file_path = sys.argv[1]
+
+# make subprocess call
+cmd = [
+    'java',
+    '-cp',
+    jar_path,
+    'alabno.simple_haskell_marker.MainSplitter',
+    input_file_path
+    ]
+
+code = subprocess.call(cmd, shell=False)
+if code != 0:
+    print('Subprocess returned code: {}'.format(code))
+
+sys.exit(0)

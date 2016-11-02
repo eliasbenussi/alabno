@@ -1,0 +1,40 @@
+ok	module Sequences where\n\n
+ok	import Data.Char (ord, chr)\n\n
+ok	maxOf2 :: Int -> Int -> Int\n-- Returns first argument if it is larger than the second,\n-- the second argument otherwise\nmaxOf2 x y\n  | x > y     = x\n
+ok	  | otherwise = y\n\n
+ok	maxOf3 :: Int -> Int -> Int -> Int\n-- Returns the largest of three Ints\nmaxOf3 x y z\n  = maxOf2 x (maxOf2 y z)\n\n
+comment	-- Alternative version of maxOf3 using >= and &&\nmaxof3' x y z\n  = if x >= y && x >= z\n    then x\n    else if y >= x && y >= z\n
+ok	         then y\n         else z\n\n
+comment	-- Another version of maxOf3 using just >=\nmaxof3'' x y z\n  = if x >= y\n    then if x >= z\n         then x\n
+ok	         else z\n    else if y >= z\n         then y\n         else z\n\n
+ok	isADigit :: Char -> Bool\n-- Returns True if the character represents a digit '0'..'9';\n-- False otherwise\nisADigit c\n  = c >= '0' && c <= '9'\n\n
+comment	-- False otherwise\n
+ok	isAlpha :: Char -> Bool\n-- Returns True if the character represents an alphabetic\n-- character either in the range 'a'..'z' or in the range 'A'..'Z';\nisAlpha c\n  = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')\n\n
+ok	digitToInt :: Char -> Int\n-- Pre: the character is one of '0'..'9'\n-- Returns the integer [0..9] corresponding to the given character.\n-- Note: this is a simpler version of digitToInt in module Data.Char,\n-- which does not assume the precondition.\n
+ok	digitToInt c\n  = ord c - ord '0'\n\n
+ok	toUpper :: Char -> Char\n-- Returns the upper case character corresponding to the input.\n-- Uses guards by way of variety.\ntoUpper c\n  | c >= 'A' && c <= 'Z' = c\n
+ok	  | c >= 'a' && c <= 'z' = chr (ord 'A' + ord c - ord 'a')\n\n
+comment	--\n-- Sequences and series\n--\n\n
+comment	-- Arithmetic sequence\n
+ok	arithmeticSeq :: Double -> Double -> Int -> Double\narithmeticSeq a d n\n  = a + fromIntegral n * d\n\n
+comment	-- Geometric sequence\n
+ok	geometricSeq :: Double -> Double -> Int -> Double\ngeometricSeq a r n\n  = a * r ^ n\n\n
+comment	-- Arithmetic series\n
+ok	arithmeticSeries :: Double -> Double -> Int -> Double\narithmeticSeries a d n\n  = (n' + 1) * (a + d * n' / 2)\n  where\n    n' = fromIntegral n\n\n
+comment	-- Geometric series\n
+ok	geometricSeries :: Double -> Double -> Int -> Double\ngeometricSeries a r n\n  | r == 1    = (fromIntegral n + 1) * a\n  | otherwise = a * (1 - r ^ (n + 1)) / (1 - r)\n
+ok	module MP where\n\n
+ok	import System.Environment\n\n
+ok	type FileContents = String\n\n
+ok	type Keyword      = String\ntype KeywordValue = String\ntype KeywordDefs  = [(Keyword, KeywordValue)]\n\n
+ok	separators :: String\nseparators\n  = " \n\t.,:;!\"\'()<>/\\"\n\n\n
+unimplemented	lookUp :: String -> [(String, a)] -> [a]\nlookUp = error "TODO: implement lookUp"\n\n
+indentation	split :: [Char] -> String -> (String, [String])\nsplit chs []\n    = ("", [""])\nsplit chs (c : cs)\n        | elem c chs = (c : terms, "" : words)\n        | otherwise = (terms, (c:w) : ws)\n        where\n                (terms, words) = split chs cs\n                (w : ws) = words\n\n
+unimplemented	combine :: String -> [String] -> [String]\ncombine = error "TODO: implement combine"\n\n
+unimplemented	getKeywordDefs :: [String] -> KeywordDefs\ngetKeywordDefs = error "TODO: implement getKeywordDefs"\n\n
+unimplemented	expand :: FileContents -> FileContents -> FileContents\nexpand = error "TODO: implement expand"\n\n
+ok	-- You may wish to uncomment and implement this helper function\n-- when implementing expand\n
+ok	-- replaceWord :: String -> KeywordDefs -> String\n\n\n\n
+ok	main :: IO ()\n-- The provided main program which uses your functions to merge a\n-- template and source file.\nmain = do\n  args <- getArgs\n  main' args\n\n
+ok	  where\n
+ok	    main' :: [String] -> IO ()\n    main' [template, source, output] = do\n      t <- readFile template\n      i <- readFile source\n      writeFile output (expand t i)\n    main' _ = putStrLn ("Usage: runghc MP <template> <info> <output>")\n\n

@@ -1,0 +1,4 @@
+ok	unknown	ok
+comment	unknown	comment
+unimplemented	semantic	You didn't implement this function. Try it next time, it doesn't matter if you get it wrong!
+indentation	style	Try to use consistent indentation. It makes code look clearer.
