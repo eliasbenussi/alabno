@@ -16,8 +16,8 @@ class AggregatorOutput(annotations: java.util.List[Error], letterScore: String, 
     def writes(error: Error) = Json.obj(
       "errortype" -> error.getType,
       "filename" -> error.getFile,
-      "lineNo" -> error.getLineNo,
-      "charNo" -> error.getColNo,
+      "lineno" -> error.getLineNo,
+      "charno" -> error.getColNo,
       "text" -> error.getMsg
     )
   }

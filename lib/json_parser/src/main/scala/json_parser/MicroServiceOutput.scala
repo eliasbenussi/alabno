@@ -13,8 +13,8 @@ class MicroServiceOutput(score: Double, annotations: java.util.List[Error], erro
     def writes(error: Error) = Json.obj(
       "errortype" -> error.getType,
       "filename" -> error.getFile,
-      "lineNo" -> error.getLineNo,
-      "charNo" -> error.getColNo,
+      "lineno" -> error.getLineNo,
+      "charno" -> error.getColNo,
       "text" -> error.getMsg
     )
   }
@@ -58,8 +58,8 @@ object MicroServiceOutputParser {
   private implicit val errorRead: Reads[Error] = (
     (JsPath \ "text").read[String] and
       (JsPath \ "filename").read[String] and
-      (JsPath \ "lineNo").read[Int] and
-      (JsPath \ "charNo").read[Int] and
+      (JsPath \ "lineno").read[Int] and
+      (JsPath \ "charno").read[Int] and
       (JsPath \ "errortype").read[String]
     ) (Error.apply _)
 
