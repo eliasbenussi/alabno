@@ -1,12 +1,11 @@
 ok	unknown	ok
 comment	unknown	comment
 unimplemented	semantic	You didn't implement this function. Try it next time, it doesn't matter if you get it wrong!
-signature	semantic    Your function does not match its declared type
+signature	semantic	Your function does not match its declared type
 indentation	style	Try to use consistent indentation. It makes code look clearer.
-<<<<<<< HEAD
 whitespace	style	Use whitespaces around operators and align operators.
 reuse	semantic	Reuse the functions you have already defined.
 minustenk	semantic	-10000 marks! Don't check if a boolean is true or false, and then return true or false. Return the check directly.
 conversion	semantic	There is no need to convert characters to integers in order to compare them. You can compare characters directly.
 magic	semantic	Don't use magic numbers. Give the number a name, or generate it from an expression.
-verbose style You named variables that are not used and could be underscores.
+verbose	style	You named variables that are not used and could be underscores.
