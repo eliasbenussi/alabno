@@ -3,10 +3,10 @@ all: infrastructure backend simple-haskell-marker
 test: all backendtest infrastructuretest simple-haskell-marker-test
 
 backend:
-	cd backend && mvn package -q -Dmaven.test.skip=true
+	cd backend && mvn -T 1C package -q -Dmaven.test.skip=true
 
 backendtest:
-	cd backend && mvn test -q
+	cd backend && mvn -T 1C test -q
 
 infrastructure:
 	cd infrastructure && make

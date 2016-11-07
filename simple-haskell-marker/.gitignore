@@ -6,3 +6,4 @@ repo.tar.gz
 *.iml
 .idea/
 .settings/
+test.json

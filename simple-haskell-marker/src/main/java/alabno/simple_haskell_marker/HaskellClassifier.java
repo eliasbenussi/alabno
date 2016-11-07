@@ -10,7 +10,7 @@ import edu.stanford.nlp.ling.Datum;
  * Runs the main text classifier
  *
  */
-public class HaskellClassifier {
+public class HaskellClassifier implements ScriptClassifier {
 
     private URL trainingSetPath;
     private URL propertiesPath;
@@ -27,7 +27,8 @@ public class HaskellClassifier {
         this.cdc = new ColumnDataClassifier(propertiesPath.getPath());
         this.cl = cdc.makeClassifier(cdc.readTrainingExamples(trainingSetPath.getPath()));
     }
-    
+
+    @Override
     public void classify(HaskellSplitDocument document) {
         for (HaskellBlock block : document.getBlocks()) {
             try {

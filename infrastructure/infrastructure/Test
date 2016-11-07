@@ -4,7 +4,7 @@ import os
 import subprocess
 import sys
 
-code1 = subprocess.call('mvn test -q', shell=True)
+code1 = subprocess.call('mvn -T 1C test -q', shell=True)
 code2 = subprocess.call('java -cp config:sample:target/infrastructure-dev.0.1-jar-with-dependencies.jar jobmanager.tests.Test', shell=True)
 
 sys.exit(code1 or code2)

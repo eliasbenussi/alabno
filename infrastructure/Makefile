@@ -4,7 +4,7 @@ test: jobmanager
 	cd infrastructure && ./Test
 
 jobmanager:
-	cd infrastructure && mvn package -q -Dmaven.test.skip=true
+	cd infrastructure && mvn -T 1C package -q -Dmaven.test.skip=true
 
 clean:
 	- cd infrastructure && mvn clean -q

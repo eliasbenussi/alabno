@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
-public class CategoryConverter {
+public class CategoryConverter implements CategoryConverterInterface {
 
     private final Map<String, String> errorMap = new HashMap<>();
     private final Map<String, String> descriptionMap = new HashMap<>();
@@ -19,30 +19,43 @@ public class CategoryConverter {
      */
     public CategoryConverter() {
         URL dataFile = this.getClass().getClassLoader().getResource("category_converter_map.csv");
-        
+        init(dataFile);
+    }
+    
+    public CategoryConverter(URL url) {
+        init(url);
+    }
+    
+    private void init(URL url) {
         Scanner scanner = null;
         try {
-            scanner = new Scanner(new File(dataFile.getPath()));
+            scanner = new Scanner(new File(url.getPath()));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
         
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
+            if (line == null || line.isEmpty()) {
+                continue;
+            }
             String[] components = line.split("\\t");
             if (components.length != 3) {
                 System.out.println("CategoryConverter: Bad input: " + line);
+                continue;
             }
             errorMap.put(components[0], components[1]);
             descriptionMap.put(components[0], components[2]);
         }
         scanner.close();
     }
-    
+
+    @Override
     public String getErrorType(String ann) {
         return errorMap.get(ann);
     }
 
+    @Override
     public String getDescription(String ann) {
         return descriptionMap.get(ann);
     }

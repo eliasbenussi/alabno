@@ -9,6 +9,11 @@ public class Arguments {
     private String outputJsonPath;
     
     public Arguments(String[] args) {
+        if (args == null || args.length < 1) {
+            System.out.println("Error: invalid command line arguments");
+            outputJsonPath = null;
+            return;
+        }
         for (int i = 0; i < args.length - 1; i++) {
             haskellInputs.add(args[i]);
         }

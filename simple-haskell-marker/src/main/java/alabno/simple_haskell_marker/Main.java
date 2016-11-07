@@ -6,15 +6,16 @@ public class Main {
         Arguments arguments = new Arguments(args);
 
         // Start the machine learning algorithm
-        HaskellClassifier haskellClassifier = new HaskellClassifier();
+        ScriptClassifier haskellClassifier = new HaskellClassifier();
 
         // Start the category converter
-        CategoryConverter categoryConverter = new CategoryConverter();
+        CategoryConverterInterface categoryConverter = new CategoryConverter();
 
         // call the Marker
         HaskellMarker marker = new HaskellMarker(haskellClassifier, arguments, categoryConverter);
         
         marker.mark();
+        marker.writeOutput();
     }
 
 }

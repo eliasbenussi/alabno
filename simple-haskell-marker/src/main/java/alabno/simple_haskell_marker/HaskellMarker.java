@@ -16,12 +16,13 @@ import org.json.simple.JSONObject;
  */
 public class HaskellMarker {
 
-    private HaskellClassifier haskellClassifier;
+    private ScriptClassifier haskellClassifier;
     private Arguments arguments;
-    private CategoryConverter categoryConverter;
+    private CategoryConverterInterface categoryConverter;
+    private JSONObject outputObject = null;
 
-    public HaskellMarker(HaskellClassifier haskellClassifier, Arguments arguments,
-            CategoryConverter categoryConverter) {
+    public HaskellMarker(ScriptClassifier haskellClassifier, Arguments arguments,
+            CategoryConverterInterface categoryConverter) {
         this.haskellClassifier = haskellClassifier;
         this.arguments = arguments;
         this.categoryConverter = categoryConverter;
@@ -42,8 +43,13 @@ public class HaskellMarker {
             documents.add(document);
         }
 
-        JSONObject outputObject = generateOutput(documents);
+        outputObject = generateOutput(documents);
+    }
 
+    public void writeOutput() {
+        if (outputObject == null) {
+            return;
+        }
         // Write it to output file
         try {
             PrintWriter writer = new PrintWriter(arguments.getOutputJsonPath(), "UTF-8");
@@ -54,6 +60,10 @@ public class HaskellMarker {
         }
     }
 
+    JSONObject getOutputObject() {
+        return outputObject;
+    }
+    
     private JSONObject generateOutput(List<HaskellSplitDocument> documents) {
         JSONObject obj = new JSONObject();
         obj.put("score", calculateScore(documents));
