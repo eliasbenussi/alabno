@@ -7,7 +7,6 @@ import pymysql.cursors
 class MysqlConn:
     def __init__(self):
         self.connection = None
-        self.dbconnect()
         
     def dbconnect(self):
         try:
@@ -22,8 +21,8 @@ class MysqlConn:
             
     def query(self, sql):
         try:
+            self.dbconnect()
             with self.connection.cursor() as cursor:
-                # sql = 'SELECT * FROM `PdfPaths`'
                 cursor.execute(sql)
                 result = cursor.fetchall()
                 return result
@@ -31,14 +30,46 @@ class MysqlConn:
             print(traceback.format_exc())
             self.dbconnect()
             return None
+    
+    def execute(self, sql):
+        try:
+            self.dbconnect()
+            with self.connection.cursor() as cursor:
+                cursor.execute(sql)
+                self.connection.commit()
+                return
+        except:
+            print(traceback.format_exc())
+            self.dbconnect()
+            return None
+
+def get_pdf_path(db, token):
+    sql = 'SELECT path FROM PdfPaths WHERE token="{}"'.format(token)
+    results = db.query(sql)
+    print('results')
+    print(results)
+    if results is None:
+        print('No path given token {} found'.format(token))
+        return None
+    try:
+        final = results[0]['path']
+        print('final is ')
+        print(final)
+        # now delete the entry
+        sql = 'DELETE FROM `PdfPaths` WHERE `token`="{}"'.format(token)
+        db.execute(sql)
+        return final
+    except:
+        print(traceback.format_exc())
+        return None
 
 db = MysqlConn()
-res = db.query('SELECT * FROM `PdfPaths`')
-print(res)
 
 app = flask.Flask(__name__)
 
 exec_dir = os.path.abspath(os.path.dirname(os.path.abspath(__file__)))
+
+pdf_path_dir = os.path.abspath(exec_dir + '/..')
 
 secure = False
 if len(sys.argv) >= 2 and sys.argv[1] == 'https':
@@ -53,7 +84,12 @@ def upload_file(token):
 
 @app.route("/result/<token>")
 def download_result(token):
-    return 'get with token {}'.format(token)
+    # get the path from database
+    filepath = get_pdf_path(db, token)
+    thefile = open(pdf_path_dir + os.sep + filepath, 'r')
+    buff = thefile.read()
+    thefile.close()
+    return buff
 
 @app.route("/")
 def serve_index():
