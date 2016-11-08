@@ -3,6 +3,7 @@ import traceback
 import os
 import sys
 import pymysql.cursors
+import subprocess
 
 class MysqlConn:
     def __init__(self):
@@ -62,6 +63,26 @@ def get_pdf_path(db, token):
     except:
         print(traceback.format_exc())
         return None
+    
+def get_upload_path(db, token):
+    sql = 'SELECT path FROM UploadPaths WHERE token="{}"'.format(token)
+    results = db.query(sql)
+    print('results')
+    print(results)
+    if results is None:
+        print('No path given token {} found'.format(token))
+        return None
+    try:
+        final = results[0]['path']
+        print('final is ')
+        print(final)
+        # now delete the entry
+        sql = 'DELETE FROM `UploadPaths` WHERE `token`="{}"'.format(token)
+        db.execute(sql)
+        return final
+    except:
+        print(traceback.format_exc())
+        return None
 
 db = MysqlConn()
 
@@ -71,6 +92,9 @@ exec_dir = os.path.abspath(os.path.dirname(os.path.abspath(__file__)))
 
 pdf_path_dir = os.path.abspath(exec_dir + '/..')
 
+upload_path_dir = os.path.abspath(exec_dir + '/../uploads')
+subprocess.call('mkdir {}'.format(upload_path_dir), shell=True)
+
 secure = False
 if len(sys.argv) >= 2 and sys.argv[1] == 'https':
     secure = True
@@ -78,9 +102,13 @@ if len(sys.argv) >= 2 and sys.argv[1] == 'https':
 # SSL context
 context = ('selfsigned.crt', 'decserver.key')
 
-@app.route("/upload/<token>")
+@app.route("/upload/<token>", methods=['POST'])
 def upload_file(token):
-    return 'post with token {}'.format(token)
+    # get the path from database
+    filepath = get_upload_path(db, token)
+    f = request.files['file']
+    f.save(upload_path_dir + os.sep + filepath)
+    return 'File uploaded'
 
 @app.route("/result/<token>")
 def download_result(token):
