@@ -2,6 +2,39 @@ import flask
 import traceback
 import os
 import sys
+import pymysql.cursors
+
+class MysqlConn:
+    def __init__(self):
+        self.connection = None
+        self.dbconnect()
+        
+    def dbconnect(self):
+        try:
+            self.connection = pymysql.connect(host='tc.jstudios.ovh',
+                                user='python',
+                                password='python',
+                                db='Automarker',
+                                charset='utf8mb4',
+                                cursorclass=pymysql.cursors.DictCursor)
+        except:
+            print(traceback.format_exc())
+            
+    def query(self, sql):
+        try:
+            with self.connection.cursor() as cursor:
+                # sql = 'SELECT * FROM `PdfPaths`'
+                cursor.execute(sql)
+                result = cursor.fetchall()
+                return result
+        except:
+            print(traceback.format_exc())
+            self.dbconnect()
+            return None
+
+db = MysqlConn()
+res = db.query('SELECT * FROM `PdfPaths`')
+print(res)
 
 app = flask.Flask(__name__)
 
