@@ -36,6 +36,50 @@ public class MySqlDatabaseConnection {
 
     /**
      * @param sql the SELECT query
+     * @return results of the query where columns content is all strings
+     */
+    public List<Map<String, String>> retrieveQueryString(String sql) {
+        return retrieveQueryString(sql, true);
+    }
+
+    // if `retry` is set, the database will try to re-establish
+    // a broken connection and query again. Otherwise, it will
+    // print the Exception to console
+    private List<Map<String, String>> retrieveQueryString(String sql, boolean retry) {
+        List<Map<String, String>> result = new ArrayList<>();
+
+        try {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(sql);
+
+            Map<String, String> row;
+            ResultSetMetaData metaData = rs.getMetaData();
+            Integer columnCount = metaData.getColumnCount();
+
+            while (rs.next()) {
+                row = new HashMap<>();
+                for (int i = 1; i <= columnCount; i++) {
+                    row.put(metaData.getColumnName(i), rs.getString(i));
+                }
+                result.add(row);
+            }
+
+            rs.close();
+            stmt.close();
+        } catch (Exception e) {
+            connect();
+            if (retry) {
+                return retrieveQueryString(sql, false);
+            } else {
+                e.printStackTrace();
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * @param sql the SELECT query
      * @return results of the query
      */
     public List<Map<String, Object>> retrieveQuery(String sql) {
@@ -46,7 +90,7 @@ public class MySqlDatabaseConnection {
     // a broken connection and query again. Otherwise, it will
     // print the Exception to console
     private List<Map<String, Object>> retrieveQuery(String sql, boolean retry) {
-        List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
+        List<Map<String, Object>> result = new ArrayList<>();
 
         try {
             Statement stmt = conn.createStatement();
