@@ -1,7 +1,9 @@
 package alabno.utils;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 
 public class FileUtils {
 
@@ -25,5 +27,20 @@ public class FileUtils {
             return "";
         }
     }
-    
+
+    public static void rename(String oldName, String newName) throws IOException {
+        // File (or directory) with old name
+        File file = new File(oldName);
+
+        // File (or directory) with new name
+        File file2 = new File(newName);
+
+        if (file2.exists()) {
+            throw new java.io.IOException("file exists");
+        }
+
+        // Rename file (or directory)
+        boolean success = file.renameTo(file2);
+    }
+
 }

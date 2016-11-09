@@ -3,3 +3,7 @@ is the directory that will contain the training sets and the serialized training
 
 train001.train
 train001.bin.tmp -> train001.bin
+train001.csv						the categories map
+
+
+The Simple Haskell Marker launcher will pass to the Java program extra arguments containing the names of the training, properties and categories files to be read.
