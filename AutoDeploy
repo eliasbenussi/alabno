@@ -14,9 +14,17 @@ def call_and_check(cmd):
     return
 
 # get output directory
-if len(sys.argv) != 3:
-    print('Usage: ./AutoDeploy <destination> <example.com>')
+if len(sys.argv) < 3:
+    print('Usage: ./AutoDeploy <destination> <example.com> [server.pem][mykeystore.jks]')
     sys.exit(1)
+
+pem_file = None
+if len(sys.argv) >= 4:
+    pem_file = os.path.abspath(sys.argv[3])
+
+jks_file = None
+if len(sys.argv) >= 5:
+    jks_file = os.path.abspath(sys.argv[4])
 
 # stop any running servers
 cmd = 'screen -X -S {} quit'.format(screen_name)
@@ -48,8 +56,13 @@ call_and_check('make')
 
 # change domain endpoint
 endpoint_js_path = destination_directory + '/frontend/webclient/script/endpoint.js'
-cmd = "echo \"var ws_address = 'ws://{}:8686';\" > {}".format(domain_name, endpoint_js_path)
+cmd = "echo \"var ws_address = '://{}:';\" > {}".format(domain_name, endpoint_js_path)
 call_and_check(cmd)
 
-# run the server
-call_and_check('./RunServer start')
+# copy over pem and jks files
+if pem_file is not None:
+    cmd = 'cp {} {}'.format(pem_file, destination_directory + '/frontend/server.pem')
+    call_and_check(cmd)
+if jks_file is not None:
+    cmd = 'cp {} {}'.format(jks_file, destination_directory + '/frontend/mykeystore.jks')
+    call_and_check(cmd)

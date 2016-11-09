@@ -1,1 +1,1 @@
-var ws_address = 'ws://localhost:8686';
+var ws_address_stem = '://localhost:';

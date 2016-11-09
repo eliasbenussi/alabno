@@ -15,6 +15,8 @@ jQuery
 
 Play JSON
 
+Stanford Classifier
+
 
 # How to run the server
 
@@ -27,15 +29,22 @@ make
 then start the server
 
 ```
-./infrastructure/infrastructure/WebServer
+./RunServer start
 ```
 
-also start the HTTP server (in a different terminal)
+to show the server's console
 
 ```
-python frontend/httpserver.py
+./RunServer show
 ```
 
-now you can navigate to localhost:8000
+to start the server in secure mode (both HTTPS and WSS)
+
+```
+./RunServer start https
+```
+For local testing, use 'albano' as passphrase. Before you can use WSS with a self-signed certificate, you need to browse to https://localhost:4444 and add it to the certificate exceptions of your browser.
+
+Now you can navigate to localhost:8000 (https://localhost:4443 if https)
 and submit a job as professor
-Output can be seen from the console of the server.
+

@@ -13,8 +13,23 @@ screen_name = 'alabnodaemonservice'
 exec_dir = os.path.abspath(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(exec_dir)
 
-def start_server():
-    start_server_command = './infrastructure/runservers.sh'
+def check_https(args):
+    for a in args:
+        if a == 'https':
+            return True
+    return False
+
+def start_server(https):
+    if https:
+        print("Starting in secure mode")
+        # check for presence of certificates
+        if not os.path.isfile('frontend/mykeystore.jks'):
+            print("Certificates not found. Generating self-signed certificates now...")
+            subprocess.call('cd frontend && ./generate_certificates.sh', shell=True)
+        start_server_command = './infrastructure/runservers_secure.sh'
+    else:
+        print("Starting in normal mode")
+        start_server_command = './infrastructure/runservers.sh'
     cmd = 'screen -A -m -d -S {} {}'.format(screen_name, start_server_command)
     subprocess.call(cmd, shell=True)
 
@@ -32,18 +47,20 @@ def show_server():
     subprocess.call(cmd, shell=True)
 
 def exit_with_error():
-    print('Usage: ./RunServer [start|stop|show]')
+    print('Usage: ./RunServer start|stop|show [https]')
     sys.exit(1)
 
-if len(sys.argv) != 2:
+if len(sys.argv) < 2 or len(sys.argv) > 3:
     exit_with_error()
+
+https = check_https(sys.argv)
 
 command = sys.argv[1]
 
 if command == 'show':
     show_server()
 elif command == 'start':
-    start_server()
+    start_server(https)
 elif command == 'stop':
     kill_server()
 else:

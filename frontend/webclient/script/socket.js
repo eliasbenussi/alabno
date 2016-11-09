@@ -1,5 +1,9 @@
 var $globals = {};
 
+var ws_address = location.protocol == 'https:' ?
+                 'wss' + ws_address_stem + '4444' :
+                 'ws' + ws_address_stem + '8686';
+
 $globals.socket = new WebSocket(ws_address);
 
 $globals.socket.onopen = function() {

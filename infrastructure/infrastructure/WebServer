@@ -24,7 +24,9 @@ classpath = [
 
 classpath_joint = ':'.join(classpath)
 
-cmd = 'java -cp "{}" alabno.wserver.Main'.format(classpath_joint)
+args = sys.argv[1:]
+
+cmd = 'java -cp "{}" alabno.wserver.Main {}'.format(classpath_joint, ' '.join(args))
 
 code = subprocess.call(cmd, shell=True)
 
