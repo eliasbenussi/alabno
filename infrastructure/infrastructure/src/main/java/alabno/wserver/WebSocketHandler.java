@@ -1,8 +1,15 @@
 package alabno.wserver;
 
+import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
+import alabno.utils.FileUtils;
 import org.java_websocket.WebSocket;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -109,15 +116,80 @@ public class WebSocketHandler {
         // Read the JSON file
         String fileContent = studentJob.readPostProcessorOutput();
 
+        // Create a set of file names from the annotations in the JSON output
+        Set<String> uniqueFiles = new HashSet<>();
+        JsonParser jsonParser = new JsonParser(fileContent);
+        JsonArrayParser annotations = jsonParser.getArrayParser("annotations");
+        for (JsonParser a : annotations) {
+            String filePath = a.getString("filename");
+            uniqueFiles.add(filePath);
+        }
+
         // Prepare output message
-        JSONObject msgobj = new JSONObject();
-        msgobj.put("type", "postpro_result");
-        msgobj.put("title", title);
-        msgobj.put("student", student);
-        msgobj.put("data", fileContent);
-        conn.send(msgobj.toJSONString());
+        JSONObject postProcResultMsg = new JSONObject();
+        postProcResultMsg.put("type", "postpro_result");
+        postProcResultMsg.put("title", title);
+        postProcResultMsg.put("student", student);
+        postProcResultMsg.put("data", fileContent);
+//        conn.send(postProcResultMsg.toJSONString());
+
+
+        // For each file in the set generated, create a message with the content and the generated annotations
+        // and send it.
+        Iterator<String> uniqueFilesIt = uniqueFiles.iterator();
+        while (uniqueFilesIt.hasNext()) {
+            JSONObject annotatedFileMsg = new JSONObject();
+            String fileName = uniqueFilesIt.next();
+            JSONArray data = generateAnnotatedFileData(fileName, fileContent);
+
+            // Create and send the message
+            annotatedFileMsg.put("type", "annotated_file");
+            annotatedFileMsg.put("filename", fileName);
+            annotatedFileMsg.put("data", data);
+            conn.send(annotatedFileMsg.toJSONString());
+        }
     }
 
+    private JSONArray generateAnnotatedFileData(String fileName, String postprocessorOutput) {
+        JSONArray fileData = new JSONArray();
+        JsonParser postProcParser = new JsonParser(postprocessorOutput);
+        JsonArrayParser postProcData = postProcParser.getArrayParser("data");
+
+        Path filePath = Paths.get(fileName);
+        File file = filePath.toFile();
+        try {
+            FileInputStream fis = new FileInputStream(file);
+            BufferedReader br = new BufferedReader(new InputStreamReader(fis));
+
+            String line;
+            int lineCounter = 0;
+            while ((line = br.readLine()) != null) {
+                JSONObject dataPoint = new JSONObject();
+                dataPoint.put("no", lineCounter);
+                dataPoint.put("content", line);
+
+                // Check for an annotation that matches this line number & filename
+                for (JsonParser data : postProcData) {
+                    String dataFileName = data.getString("filename");
+                    int dataLineNo = data.getInt("lineno");
+                    if (dataFileName.equals(fileName) && dataLineNo == lineCounter) {
+                        dataPoint.put("annotation", data.getString("text"));
+                    } else {
+                        dataPoint.put("annotation", "ok");
+                    }
+                }
+                lineCounter++;
+                fileData.add(dataPoint);
+            }
+            br.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("Could not find given file");
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return fileData;
+    }
     private void handleGetJob(JsonParser parser, WebSocket conn) {
         String title = parser.getString("title");
         if (title == null || title.isEmpty()) {

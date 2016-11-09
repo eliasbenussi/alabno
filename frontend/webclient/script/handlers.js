@@ -113,12 +113,26 @@ $handlers.handle_postpro_result = function(msgobj) {
     $globals.professor_scope.student_result.student = student;
     
     // change view
-    $globals.professor_scope.show_section('show_student_result');
+    //$globals.professor_scope.show_section('show_student_result');
+    $globals.professor_scope.show_section('show_annotated_file');
     
     // apply
     $globals.professor_scope.$apply();
 };
 
+$handlers.handle_annotated_file = function(msgobj) {
+    var file_name = msgobj.filename;
+    var data = msgobj.data;
+
+    $globals.professor_scope.annotated_file.file_name = file_name;
+    $globals.professor_scope.annotated_file.data = data;
+
+    // change view
+    $globals.professor_scope.show_section('show_annotated_file');
+
+    // apply
+    $globals.professor_scope.$apply();
+};
 
 // TODO remove this after feedback is properly implemented in frontend
 var fake_send_feedback = function(source, type, annotation) {

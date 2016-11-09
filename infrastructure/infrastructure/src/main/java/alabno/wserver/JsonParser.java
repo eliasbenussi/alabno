@@ -18,6 +18,10 @@ public class JsonParser {
 		}
 	}
 
+	public JsonParser(JSONObject jobject) {
+		this.jobject = jobject;
+	}
+
 	public String getString(String key) {
 		Object tmp = jobject.get(key);
 		if (tmp instanceof String) {
@@ -27,10 +31,32 @@ public class JsonParser {
 		}
 	}
 
+	public int getInt(String key) {
+		Object tmp = jobject.get(key);
+		if (tmp instanceof Integer) {
+			Integer theInt = (Integer) tmp;
+			return theInt.intValue();
+		} else if (tmp instanceof Double) {
+			Double theDouble = (Double) tmp;
+			return theDouble.intValue();
+		} else {
+			throw new RuntimeException("Could not parse a number");
+		}
+	}
+
 	public JSONArray getArray(String key) {
 		Object tmp = jobject.get(key);
 		if (tmp instanceof JSONArray) {
 			return (JSONArray) tmp;
+		} else {
+			return null;
+		}
+	}
+
+	public JsonArrayParser getArrayParser(String key) {
+		Object tmp = jobject.get(key);
+		if (tmp instanceof JSONArray) {
+			return new JsonArrayParser((JSONArray)tmp);
 		} else {
 			return null;
 		}

@@ -93,3 +93,12 @@ SERVER -> CLIENT
     	"data": "the json raw data"
     }
     Sends the postprocessor output to the client
+
+    {
+        "type": "annotated_file",
+        "filename": "Sequences.hs",
+        "data": [
+          {"no":1, "content": "import Data.Maybe\n", "annotation": "" }
+        ]
+    }
+    Sends the exercise file with annotations per line to the client

@@ -157,3 +157,59 @@
     </div>
 
 </div>
+
+<!-- DISPLAY ANNOTATED FILE SECTION -->
+
+<div ng-show="show_annotated_file">
+
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand">Annotated File view</a>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <form class="navbar-form navbar-left">
+                    <button class="btn btn-default" ng-click="show_section('show_professor_exercises')">Back</button>
+                </form>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container-fluid -->
+    </nav>
+
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="list-group">
+                <div class="list-group-item">
+                    
+                    <!--Table of annotations-->
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Line number</th>
+                                <th>Line content</th>
+                                <th>Annotation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="tbline in annotated_file.data">
+                                <td>{{tbline.number}}</td>
+                                <td>{{tbline.content}}</td>
+                                <td>{{tbline.annotation}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

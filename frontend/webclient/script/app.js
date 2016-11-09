@@ -77,11 +77,13 @@ theapp.controller('professorController', function($scope) {
     $scope.show_professor_exercises = true;
     $scope.show_professor_new_exercise = false;
     $scope.show_student_result = false;
+    $scope.show_annotated_file = false;
     $scope.show_hide_flags =
     [
         'show_professor_exercises',
         'show_professor_new_exercise',
-        'show_student_result'
+        'show_student_result',
+        'show_annotated_file'
     ];
     
     // Show-hide-buttons
