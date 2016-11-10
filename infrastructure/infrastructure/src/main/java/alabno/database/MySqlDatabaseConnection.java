@@ -1,11 +1,7 @@
 package alabno.database;
 
-import java.sql.Connection;
-        import java.sql.DriverManager;
-        import java.sql.ResultSet;
-        import java.sql.ResultSetMetaData;
-        import java.sql.Statement;
-        import java.util.ArrayList;
+import java.sql.*;
+import java.util.ArrayList;
         import java.util.HashMap;
         import java.util.List;
         import java.util.Map;
@@ -79,22 +75,22 @@ public class MySqlDatabaseConnection {
     }
 
     /**
-     * @param sql the SELECT query
+     * @param query the SELECT query
      * @return results of the query
      */
-    public List<Map<String, Object>> retrieveQuery(String sql) {
-        return retrieveQuery(sql, true);
+    public List<Map<String, Object>> retrieveQuery(String query) {
+        return retrieveQuery(query, true);
     }
 
     // if `retry` is set, the database will try to re-establish
     // a broken connection and query again. Otherwise, it will
     // print the Exception to console
-    private List<Map<String, Object>> retrieveQuery(String sql, boolean retry) {
+    private List<Map<String, Object>> retrieveQuery(String query, boolean retry) {
         List<Map<String, Object>> result = new ArrayList<>();
 
         try {
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(sql);
+            ResultSet rs = stmt.executeQuery(query);
 
             Map<String, Object> row;
             ResultSetMetaData metaData = rs.getMetaData();
@@ -112,7 +108,7 @@ public class MySqlDatabaseConnection {
         } catch (Exception e) {
             connect();
             if (retry) {
-                return retrieveQuery(sql, false);
+                return retrieveQuery(query, false);
             } else {
                 e.printStackTrace();
             }
@@ -121,31 +117,60 @@ public class MySqlDatabaseConnection {
     }
 
     /**
-     * @param sql the INSERT, UPDATE, or DELETE query
+     * @param query the INSERT, UPDATE, or DELETE query
      * @return number of rows returned
      */
-    public int executeQuery(String sql) {
-        return executeQuery(sql, true);
+    public int executeQuery(String query) {
+        return executeQuery(query, true);
     }
 
     // if `retry` is set, the database will try to re-establish
     // a broken connection and query again. Otherwise, it will
     // print the Exception to console
-    private int executeQuery(String sql, boolean retry) {
+    private int executeQuery(String query, boolean retry) {
         int result = 0;
         try {
             Statement stmt = conn.createStatement();
-            result = stmt.executeUpdate(sql);
-
+            result = stmt.executeUpdate(query);
             stmt.close();
         } catch (Exception e) {
             connect();
             if (retry) {
-                return executeQuery(sql, false);
+                return executeQuery(query, false);
             } else {
                 e.printStackTrace();
             }
         }
+        return result;
+    }
+
+    /**
+     * @param query the INSERT, UPDATE, or DELETE query
+     * @param parameters to interpolate in statement
+     * @return number of rows returned
+     */
+    public int executeStatement(String query, String[] parameters) {
+        return executeStatement(query, parameters, true);
+    }
+
+    private int executeStatement(String query, String[] parameters, boolean retry) {
+        int result = 0;
+        try {
+            PreparedStatement stmt = conn.prepareStatement(query);
+            for (int i = 0; i < parameters.length; i++) {
+                stmt.setString(i + 1, parameters[i]);
+            }
+            result = stmt.executeUpdate();
+            stmt.close();
+        } catch (Exception e) {
+            connect();
+            if (retry) {
+                return executeQuery(query, false);
+            } else {
+                e.printStackTrace();
+            }
+        }
+
         return result;
     }
 
