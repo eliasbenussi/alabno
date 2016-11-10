@@ -15,7 +15,10 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
 
     @Override
     public void init() {
-    System.out.println("Abracao");
+        // Read from database all entries, dump them to a temporary text file,
+        // create a classifier, and then dump it out to disk
+        
+        // documentation/feedback_haskell_marker.txt has more details about the formats
     }
 
     @Override

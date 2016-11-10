@@ -1,0 +1,5 @@
+simple-haskell-marker/training/
+is the directory that will contain the training sets and the serialized training data
+
+train001.train
+train001.bin.tmp -> train001.bin

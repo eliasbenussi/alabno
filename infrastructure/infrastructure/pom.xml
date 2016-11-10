@@ -15,6 +15,13 @@
 		<java.version>1.8</java.version>
 	</properties>
 
+	<repositories>
+		<repository>
+			<id>repo</id>
+			<url>file://${project.basedir}/repo</url>
+		</repository>
+	</repositories>
+
 	<build>
 		<plugins>
 			<plugin>
@@ -83,6 +90,12 @@
 			<artifactId>easymock</artifactId>
 			<version>3.4</version>
 			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>stanfordclassifier</groupId>
+			<artifactId>stanfordclassifier</artifactId>
+			<version>20151209</version>
 		</dependency>
 
 	</dependencies>
