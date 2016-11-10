@@ -46,5 +46,5 @@ to start the server in secure mode (both HTTPS and WSS)
 For local testing, use 'albano' as passphrase. Before you can use WSS with a self-signed certificate, you need to browse to https://localhost:4444 and add it to the certificate exceptions of your browser.
 
 Now you can navigate to localhost:8000 (https://localhost:4443 if https)
-and submit a job as professor
 
+and submit a job as professor
