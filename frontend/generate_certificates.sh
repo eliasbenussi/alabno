@@ -6,3 +6,4 @@ openssl pkcs12 -export -name localhost -in selfsigned.crt -inkey server.key -out
 keytool -importkeystore -destkeystore mykeystore.jks -srckeystore keystore.p12 -srcstoretype pkcs12 -alias localhost
 openssl rsa -in server.key -out decserver.key
 cat selfsigned.crt decserver.key > server.pem
+

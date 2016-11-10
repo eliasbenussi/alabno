@@ -19,6 +19,8 @@ public class Main {
 
         boolean secure = args.length > 0 && "https".equals(args[0]);
 
+        System.out.println("Running the server in secure mode");
+
         int port = 0;
 
         if (secure) {
@@ -37,6 +39,11 @@ public class Main {
 
         if (secure) {
             // Set up the WebSocket server in secure mode
+            // Set WSS server certificates and keystores
+            // keytool -genkey -validity 3650 -keystore "keystore.jks"
+            // -storepass "storepassword" -keypass "keypassword" -alias
+            // "default" -dname "CN=127.0.0.1, OU=MyOrgUnit, O=MyOrg, L=MyCity,
+            // S=MyRegion, C=MyCountry"
             String STORETYPE = "JKS";
             String KEYSTORE = "frontend/mykeystore.jks";
             String STOREPASSWORD = "albano";

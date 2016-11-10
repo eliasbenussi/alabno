@@ -1,0 +1,9 @@
+http://stackoverflow.com/questions/17695297/importing-the-private-key-public-certificate-pair-in-the-java-keystore
+
+https://github.com/TooTallNate/Java-WebSocket/blob/master/src/main/example/SSLServerExample.java
+
+http://paste.ubuntu.com/7710792/
+
+https://github.com/TooTallNate/Java-WebSocket/issues/263
+
+http://stackoverflow.com/questions/1201048/allowing-java-to-use-an-untrusted-certificate-for-ssl-https-connection/1201102#1201102
