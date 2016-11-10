@@ -131,23 +131,43 @@ public class WebSocketHandler {
         postProcResultMsg.put("title", title);
         postProcResultMsg.put("student", student);
         postProcResultMsg.put("data", fileContent);
-//        conn.send(postProcResultMsg.toJSONString());
+        conn.send(postProcResultMsg.toJSONString());
 
 
-        // For each file in the set generated, create a message with the content and the generated annotations
-        // and send it.
-        Iterator<String> uniqueFilesIt = uniqueFiles.iterator();
-        while (uniqueFilesIt.hasNext()) {
-            JSONObject annotatedFileMsg = new JSONObject();
-            String fileName = uniqueFilesIt.next();
-            JSONArray data = generateAnnotatedFileData(fileName, fileContent);
+        // Generate a JSON message with an array containing JSON objects - each is made of the file name,
+        // its contents and whether if a line has an annotation, its corresponding error.
+        JSONObject annotatedFilesMsg = new JSONObject();
+        annotatedFilesMsg.put("type", "annotated_files");
+        JSONArray files = generateAnnotatedFileArray(uniqueFiles);
+        annotatedFilesMsg.put("files", files);
+        conn.send(annotatedFilesMsg.toJSONString());
 
-            // Create and send the message
-            annotatedFileMsg.put("type", "annotated_file");
-            annotatedFileMsg.put("filename", fileName);
-            annotatedFileMsg.put("data", data);
-            conn.send(annotatedFileMsg.toJSONString());
+
+//        Iterator<String> uniqueFilesIt = uniqueFiles.iterator();
+//        while (uniqueFilesIt.hasNext()) {
+//
+//            String fileName = uniqueFilesIt.next();
+//            JSONArray data = generateAnnotatedFileData(fileName, fileContent);
+//
+//            // Create and send the message
+//
+//            annotatedFilesMsg.put("filename", fileName);
+//            annotatedFilesMsg.put("data", data);
+//            conn.send(annotatedFilesMsg.toJSONString());
+//        }
+    }
+
+    private JSONArray generateAnnotatedFileArray(Set<String> uniqueFiles) {
+        JSONArray filesWithAnnotations = new JSONArray();
+        Iterator<String> it = uniqueFiles.iterator();
+        while (it.hasNext()) {
+            String fileName = it.next();
+            JSONObject annotatedFile = new JSONObject();
+            //
+            filesWithAnnotations.add(annotatedFile);
         }
+
+        return filesWithAnnotations;
     }
 
     private JSONArray generateAnnotatedFileData(String fileName, String postprocessorOutput) {

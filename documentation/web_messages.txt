@@ -95,10 +95,13 @@ SERVER -> CLIENT
     Sends the postprocessor output to the client
 
     {
-        "type": "annotated_file",
-        "filename": "Sequences.hs",
-        "data": [
-          {"no":1, "content": "import Data.Maybe\n", "annotation": "" }
+        "type": "annotated_files",
+        "files": [
+          { "filename": "Sequences.hs",
+            "data": [
+              {"no":1, "content": "import Data.Maybe\n", "annotation": "" }
+            ]
+          }
         ]
     }
-    Sends the exercise file with annotations per line to the client
+    Sends the exercise files with annotations per line to the client
