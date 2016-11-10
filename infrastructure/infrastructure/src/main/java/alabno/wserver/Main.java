@@ -19,8 +19,6 @@ public class Main {
 
         boolean secure = args.length > 0 && "https".equals(args[0]);
 
-        System.out.println("Running the server in secure mode");
-
         int port = 0;
 
         if (secure) {
