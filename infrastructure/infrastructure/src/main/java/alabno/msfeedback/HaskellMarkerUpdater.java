@@ -25,16 +25,32 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
 
     @Override
     public void init() {
+        updateTraining();
+    }
+
+    @Override
+    public void update(String source, String type, String annotation) {
+        String queryCategories = "INSERT INTO HaskellCategories (name, type, annotation) VALUES (?, ?, ?)";
+        String[] parametersCategories = {createNewName(), type, annotation};
+
+        String queryTraining = "INSERT INTO HaskellTraining (name, text) VALUES (?, ?)";
+        String[] parametersTraining = {createNewName(), source};
+
+        conn.executeStatement(queryCategories, parametersCategories);
+        conn.executeStatement(queryTraining, parametersTraining);
+    }
+    
+    public void updateTraining() {
         // Read from database all entries, dump them to a temporary text file,
         // create a classifier, and then dump it out to disk
         String sql = "SELECT * FROM `HaskellTraining`";
-        
+
         List<Map<String, String>> tuples = conn.retrieveQueryString(sql);
-        
+
         // increase numbering
         currentNumbering++;
         String trainingName = getCurrentTrainingName();
-        
+
         PrintWriter outfile = null;
         try {
             outfile = new PrintWriter(trainingName);
@@ -42,22 +58,22 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
             e.printStackTrace();
             return;
         }
-        
+
         // write the results of the database down to file
         for (Map<String, String> tuple : tuples) {
             String name = tuple.get("name");
             String text = tuple.get("text");
             outfile.println(name + "\t" + text);
         }
-        
+
         outfile.close();
-        
+
         // Retrieve the content of the categories map
         sql = "SELECT * FROM `HaskellCategories`";
         List<Map<String, String>> cats = conn.retrieveQueryString(sql);
-        
+
         // Write categories to categories file
-        
+
         PrintWriter catFile = null;
         try {
             catFile = new PrintWriter(getCurrentCategoriesName());
@@ -65,18 +81,18 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
             e.printStackTrace();
             return;
         }
-        
+
         for (Map<String, String> cat : cats) {
             String name = cat.get("name");
             String type = cat.get("type");
             String annotation = cat.get("annotation");
             catFile.println(name + "\t" + type + "\t" + annotation);
         }
-        
+
         catFile.close();
-        
+
         // TODO train a Column Data Classifier, and serialize it
-        
+
         // rename to effective .bin
         try {
             FileUtils.rename(getCurrentTemporarySerialName(), getCurrentSerializedName());
@@ -84,20 +100,8 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
             e.printStackTrace();
             return;
         }
-        
+
         // documentation/feedback_haskell_marker.txt has more details about the formats
-    }
-
-    @Override
-    public void update(String source, String type, String annotation) {
-        String queryCategories = "INSERT INTO ... () VALUES ()";
-        String[] parametersCategories = {createNewName(), type, annotation};
-
-        String queryTraining = "INSERT INTO ... () VALUES ()";
-        String[] parametersTraining = {createNewName(), source};
-
-        conn.executeStatement(queryCategories, parametersCategories);
-        conn.executeStatement(queryTraining, parametersTraining);
     }
 
     private String createNewName() {
