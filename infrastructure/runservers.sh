@@ -1,4 +1,4 @@
 #! /bin/bash
 
-cd frontend/webclient && python ..//httpserver.py &
+cd frontend/webclient && python ../flaskserver.py &
 ./infrastructure/infrastructure/WebServer
