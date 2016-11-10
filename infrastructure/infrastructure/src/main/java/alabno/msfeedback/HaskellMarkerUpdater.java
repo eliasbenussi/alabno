@@ -14,6 +14,8 @@ import alabno.utils.FileUtils;
  */
 public class HaskellMarkerUpdater implements MicroServiceUpdater {
 
+    private static final String TRAINING_FILE_BASENAME = "simple-haskell-marker/training/train";
+
     private MySqlDatabaseConnection conn;
     private int currentNumbering = 0;
 
@@ -88,14 +90,26 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
 
     @Override
     public void update(String source, String type, String annotation) {
-        conn.executeQuery("INSERT INTO ... () VALUES ()");
+        String queryCategories = "INSERT INTO ... () VALUES ()";
+        String[] parametersCategories = {createNewName(), type, annotation};
+
+        String queryTraining = "INSERT INTO ... () VALUES ()";
+        String[] parametersTraining = {createNewName(), source};
+
+        conn.executeStatement(queryCategories, parametersCategories);
+        conn.executeStatement(queryTraining, parametersTraining);
+    }
+
+    private String createNewName() {
+        // TODO make function that creates valid new name if annotation does not exist already
+        return "Abracao";
     }
     
     private String getCurrentFilename(String ext) {
         
         String numbers = String.format("%05d", currentNumbering);
         
-        return "simple-haskell-marker/training/train" + numbers + ext;
+        return TRAINING_FILE_BASENAME + numbers + ext;
     }
     
     private String getCurrentTrainingName() {
