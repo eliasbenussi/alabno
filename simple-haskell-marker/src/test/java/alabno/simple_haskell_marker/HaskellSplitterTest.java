@@ -10,7 +10,7 @@ public class HaskellSplitterTest {
 
     final boolean PRINT_RESULTS = false;
     
-    String filePath = "samples/sequences_model.hs";
+    String filePath = "samples/macro.hs";
 
     @Test
     public void isEmptyTest() {
@@ -40,16 +40,7 @@ public class HaskellSplitterTest {
                 System.out.println(i + "\t" + output.get(i));
             }
         }
-        assertEquals(output.size(), 20);
-        
-        assertEquals(output.get(1).getLineNumber(), 3);
-        assertEquals(output.get(15).getLineNumber(), 73);
-        assertEquals(output.get(16).getLineNumber(), 77);
-        assertEquals(output.get(19).getLineNumber(), 85);
-        
-        assertTrue(output.get(0).getBlockText().contains("module Sequences"));
-        assertTrue(output.get(10).getBlockText().contains("Char -> Char"));
-        assertTrue(output.get(19).getBlockText().contains("(n + 1)) / (1 - r)"));
+        assertEquals(output.size(), 15);
     }
 
 }
