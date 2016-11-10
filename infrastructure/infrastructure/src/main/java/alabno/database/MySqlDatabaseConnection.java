@@ -1,30 +1,58 @@
 package alabno.database;
 
-import java.sql.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.Statement;
 import java.util.ArrayList;
-        import java.util.HashMap;
-        import java.util.List;
-        import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
+
+import alabno.utils.FileUtils;
 
 public class MySqlDatabaseConnection {
 
     // JDBC driver name and database URL
-    private String DB_URL = " jdbc:mysql:http://tc.jstudios.ovh/phpMyAdmin-4.6.4-english";
+    private String DB_URL = "jdbc:mysql://tc.jstudios.ovh:3306/Automarker";
 
     // Database credentials
     static final String USER = "python";
-    static final String PASS = "python";
+    private String dbPassword = "";
 
     private Connection conn;
 
     public MySqlDatabaseConnection() {
+        setupPassword();
         connect();
+    }
+
+    private void setupPassword() {
+        String workDir = FileUtils.getWorkDir();
+        String passwordPath = workDir + "/dbpass.txt";
+        File passwordFile = new File(passwordPath);
+        Scanner scanner = null;
+        try {
+            scanner = new Scanner(passwordFile);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            System.out.println("Could not find the password file! Make sure to use RunServer");
+            System.exit(1);
+        }
+        String thePassword = scanner.nextLine();
+        scanner.close();
+        this.dbPassword = thePassword;
     }
 
     private void connect() {
         try {
             Class.forName("com.mysql.jdbc.Driver");
-            conn = DriverManager.getConnection(DB_URL, USER, PASS);
+            conn = DriverManager.getConnection(DB_URL, USER, dbPassword);
         } catch (Exception e) {
             e.printStackTrace();
         }

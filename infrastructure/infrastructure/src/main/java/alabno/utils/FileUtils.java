@@ -6,6 +6,16 @@ import java.io.FileReader;
 import java.io.IOException;
 
 public class FileUtils {
+    
+    private static String workDir = ".";
+    
+    public static void initWorkDir() {
+        workDir = System.getProperty("user.dir");
+    }
+    
+    public static String getWorkDir() {
+        return workDir;
+    }
 
     public static String read_file(String file_url) {
         try {

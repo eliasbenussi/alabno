@@ -11,10 +11,17 @@ import javax.net.ssl.TrustManagerFactory;
 import org.java_websocket.WebSocketImpl;
 import org.java_websocket.server.DefaultSSLWebSocketServerFactory;
 
+import alabno.database.MySqlDatabaseConnection;
+import alabno.utils.FileUtils;
+
 public class Main {
 
     public static void main(String[] args) throws Exception {
 
+        FileUtils.initWorkDir();
+        
+        MySqlDatabaseConnection conn = new MySqlDatabaseConnection();
+        
         PropertiesLoader properties_loader = new PropertiesLoader();
 
         boolean secure = args.length > 0 && "https".equals(args[0]);
