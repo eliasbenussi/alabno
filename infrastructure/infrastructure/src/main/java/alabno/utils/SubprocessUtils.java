@@ -14,7 +14,7 @@ public class SubprocessUtils {
             completeCommands.add("-c");
             completeCommands.add(cmd);
             
-            System.out.println(cmd);
+            System.out.println(">> " + cmd);
 
             ProcessBuilder pb = new ProcessBuilder(completeCommands);
             pb.redirectErrorStream(true);

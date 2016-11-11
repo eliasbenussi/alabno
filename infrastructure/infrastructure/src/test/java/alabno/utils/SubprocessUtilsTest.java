@@ -8,7 +8,7 @@ public class SubprocessUtilsTest {
 
     @Test
     public void test() {
-        String cmd = "ls -lha /var";
+        String cmd = "echo test subprocess call";
         int code = SubprocessUtils.call(cmd);
         assertEquals(0, code);
     }
