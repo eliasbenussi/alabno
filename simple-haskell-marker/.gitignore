@@ -8,3 +8,5 @@ repo.tar.gz
 .settings/
 test.json
 *.pyc
+training/
+

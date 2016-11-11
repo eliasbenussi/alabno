@@ -8,6 +8,7 @@ import java.util.Map;
 
 import alabno.database.MySqlDatabaseConnection;
 import alabno.utils.FileUtils;
+import alabno.utils.SubprocessUtils;
 
 /**
  * Created by eb1314 on 08/11/16.
@@ -25,6 +26,11 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
 
     @Override
     public void init() {
+        System.out.println("HaskellMarkerUpdater:init()");
+        
+        // create the directory
+        SubprocessUtils.call("mkdir " + FileUtils.getWorkDir() + "/simple-haskell-marker/training");
+        
         updateTraining();
     }
 
@@ -41,6 +47,8 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
     }
     
     public void updateTraining() {
+        System.out.println("HaskellMarkerUpdater:updateTraining()");
+        
         // Read from database all entries, dump them to a temporary text file,
         // create a classifier, and then dump it out to disk
         String sql = "SELECT * FROM `HaskellTraining`";
@@ -92,16 +100,15 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
         catFile.close();
 
         // TODO train a Column Data Classifier, and serialize it
+        // TODO please name the serialized output file using getCurrentSerializedName()
+        
+        // TODO after writing the serialized file, call alabno/simple-haskell-marker/IncrementSerializedClassifier.py
+        // Which will take care of creating/updating the manifest.txt file for the microservice
+        String alabnoDirectory = FileUtils.getWorkDir();
+        String cmd = "python " + alabnoDirectory + "/simple-haskell-marker/IncrementSerializedClassifier.py";
+        SubprocessUtils.call(cmd);
 
-        // rename to effective .bin
-        try {
-            FileUtils.rename(getCurrentTemporarySerialName(), getCurrentSerializedName());
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
-        }
-
-        // documentation/feedback_haskell_marker.txt has more details about the formats
+        // documentation/feedback_haskell_marker.txt has more details about the formats. PLEASE refer to that
     }
 
     private String createNewName() {

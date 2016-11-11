@@ -13,6 +13,9 @@ public class FileUtils {
         workDir = System.getProperty("user.dir");
     }
     
+    /**
+     * @return the working directory alabno (also root of the git repository)
+     */
     public static String getWorkDir() {
         return workDir;
     }

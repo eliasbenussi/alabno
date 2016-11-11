@@ -8,10 +8,11 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 
-import org.java_websocket.WebSocketImpl;
 import org.java_websocket.server.DefaultSSLWebSocketServerFactory;
 
 import alabno.database.MySqlDatabaseConnection;
+import alabno.msfeedback.HaskellMarkerUpdater;
+import alabno.msfeedback.MicroServiceUpdater;
 import alabno.utils.FileUtils;
 
 public class Main {
@@ -21,6 +22,8 @@ public class Main {
         FileUtils.initWorkDir();
         
         MySqlDatabaseConnection conn = new MySqlDatabaseConnection();
+        MicroServiceUpdater haskellUpdater = new HaskellMarkerUpdater(conn);
+        haskellUpdater.init();
         
         PropertiesLoader properties_loader = new PropertiesLoader();
 
