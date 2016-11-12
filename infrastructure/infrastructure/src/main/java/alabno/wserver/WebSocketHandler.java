@@ -3,10 +3,7 @@ package alabno.wserver;
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 
 import alabno.utils.FileUtils;
@@ -135,81 +132,106 @@ public class WebSocketHandler {
 
 
         // Generate a JSON message with an array containing JSON objects - each is made of the file name,
-        // its contents and whether if a line has an annotation, its corresponding error.
+        // its contents and if a line has an annotation, its corresponding error.
         JSONObject annotatedFilesMsg = new JSONObject();
         annotatedFilesMsg.put("type", "annotated_files");
-        JSONArray files = generateAnnotatedFileArray(uniqueFiles);
+        JSONArray files = generateAnnotatedFileArray(uniqueFiles, fileContent);
         annotatedFilesMsg.put("files", files);
         conn.send(annotatedFilesMsg.toJSONString());
-
-
-//        Iterator<String> uniqueFilesIt = uniqueFiles.iterator();
-//        while (uniqueFilesIt.hasNext()) {
-//
-//            String fileName = uniqueFilesIt.next();
-//            JSONArray data = generateAnnotatedFileData(fileName, fileContent);
-//
-//            // Create and send the message
-//
-//            annotatedFilesMsg.put("filename", fileName);
-//            annotatedFilesMsg.put("data", data);
-//            conn.send(annotatedFilesMsg.toJSONString());
-//        }
     }
 
-    private JSONArray generateAnnotatedFileArray(Set<String> uniqueFiles) {
+    private JSONArray generateAnnotatedFileArray(Set<String> uniqueFiles, String fileContent) {
         JSONArray filesWithAnnotations = new JSONArray();
         Iterator<String> it = uniqueFiles.iterator();
         while (it.hasNext()) {
-            String fileName = it.next();
+            Path filePath = Paths.get(it.next());
+            String fileName = filePath.getFileName().toString();
             JSONObject annotatedFile = new JSONObject();
-            //
+            annotatedFile.put("filename", fileName);
+            JSONArray fileData = generateAnnotatedFile(filePath, fileContent);
+            annotatedFile.put("data", fileData);
             filesWithAnnotations.add(annotatedFile);
         }
-
         return filesWithAnnotations;
     }
 
-    private JSONArray generateAnnotatedFileData(String fileName, String postprocessorOutput) {
-        JSONArray fileData = new JSONArray();
-        JsonParser postProcParser = new JsonParser(postprocessorOutput);
-        JsonArrayParser postProcData = postProcParser.getArrayParser("data");
+    private JSONArray generateAnnotatedFile(Path filePath, String postprocessorOutput) {
+        JsonParser postprocessorParser = new JsonParser(postprocessorOutput);
+        JSONArray annotations = postprocessorParser.getArray("annotations");
+        JsonArrayParser annotationsParser = new JsonArrayParser(annotations);
 
-        Path filePath = Paths.get(fileName);
-        File file = filePath.toFile();
+        Map<Integer, LineFeedback> feedbackMap = new HashMap<>();
+
+
+        Iterator annotationsIt = annotationsParser.iterator();
+        while (annotationsIt.hasNext()) {
+
+            String annotationGroup = (String) annotationsIt.next();
+            JSONArray annotationArray = annotationGroup.
+        }
+
+
+
         try {
-            FileInputStream fis = new FileInputStream(file);
-            BufferedReader br = new BufferedReader(new InputStreamReader(fis));
-
+            BufferedReader br = new BufferedReader(new FileReader(new File(filePath.toString())));
             String line;
-            int lineCounter = 0;
+            int lineCount = 1;
             while ((line = br.readLine()) != null) {
-                JSONObject dataPoint = new JSONObject();
-                dataPoint.put("no", lineCounter);
-                dataPoint.put("content", line);
-
-                // Check for an annotation that matches this line number & filename
-                for (JsonParser data : postProcData) {
-                    String dataFileName = data.getString("filename");
-                    int dataLineNo = data.getInt("lineno");
-                    if (dataFileName.equals(fileName) && dataLineNo == lineCounter) {
-                        dataPoint.put("annotation", data.getString("text"));
-                    } else {
-                        dataPoint.put("annotation", "ok");
-                    }
-                }
-                lineCounter++;
-                fileData.add(dataPoint);
+                feedbackMap.put(lineCount, new LineFeedback());
+                lineCount++;
             }
-            br.close();
+
+
         } catch (FileNotFoundException e) {
-            System.out.println("Could not find given file");
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return fileData;
+
+
+        return null;
     }
+
+//    private JSONArray generateAnnotatedFileData(String fileName, String postprocessorOutput) {
+//        JSONArray fileData = new JSONArray();
+//        JsonParser postProcParser = new JsonParser(postprocessorOutput);
+//        JsonArrayParser postProcData = postProcParser.getArrayParser("data");
+//
+//        Path filePath = Paths.get(fileName);
+//        File file = filePath.toFile();
+//        try {
+//            FileInputStream fis = new FileInputStream(file);
+//            BufferedReader br = new BufferedReader(new InputStreamReader(fis));
+//
+//            String line;
+//            int lineCounter = 0;
+//            while ((line = br.readLine()) != null) {
+//                JSONObject dataPoint = new JSONObject();
+//                dataPoint.put("no", lineCounter);
+//                dataPoint.put("content", line);
+//
+//                // Check for an annotation that matches this line number & filename
+//                for (JsonParser data : postProcData) {
+//                    String dataFileName = data.getString("filename");
+//                    int dataLineNo = data.getInt("lineno");
+//                    if (dataFileName.equals(fileName) && dataLineNo == lineCounter) {
+//                        dataPoint.put("annotation", data.getString("text"));
+//                    } else {
+//                        dataPoint.put("annotation", "ok");
+//                    }
+//                }
+//                lineCounter++;
+//                fileData.add(dataPoint);
+//            }
+//            br.close();
+//        } catch (FileNotFoundException e) {
+//            System.out.println("Could not find given file");
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        return fileData;
+//    }
     private void handleGetJob(JsonParser parser, WebSocket conn) {
         String title = parser.getString("title");
         if (title == null || title.isEmpty()) {
