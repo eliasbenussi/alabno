@@ -6,21 +6,19 @@ import java.util.List;
 public class Arguments {
 
     private List<String> haskellInputs = new ArrayList<>();
-    private String outputJsonPath;
-    private String trainingDataPath;
+    private String outputJsonPath = null;
+    private String trainingDataPath = null;
     
     public Arguments(String[] args) {
-//        if (args == null || args.length < 1) {
-//            System.out.println("Error: invalid command line arguments");
-//            outputJsonPath = null;
-//            return;
-//        }
-//        for (int i = 0; i < args.length - 1; i++) {
-//            haskellInputs.add(args[i]);
-//        }
-//        outputJsonPath = args[args.length - 1];
-        
-        
+        for (int i = 0; i < args.length; i++) {
+            if (i == 0) { // Parse the path to train file
+                this.trainingDataPath = args[i];
+            } else if (i == 1) { // Parse the output json file
+                this.outputJsonPath = args[i];
+            } else { // Parse the list of haskell files
+                haskellInputs.add(args[i]);
+            }
+        }
     }
     
     public List<String> getHaskellInputs() {
@@ -29,6 +27,10 @@ public class Arguments {
     
     public String getOutputJsonPath() {
         return outputJsonPath;
+    }
+    
+    public String getTrainingDataPath() {
+        return trainingDataPath;
     }
 
 }
