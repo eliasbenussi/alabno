@@ -1,13 +1,14 @@
 package alabno.msfeedback;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import alabno.database.MySqlDatabaseConnection;
 import alabno.utils.FileUtils;
+import alabno.utils.StringUtils;
 import alabno.utils.SubprocessUtils;
 
 /**
@@ -19,6 +20,9 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
 
     private MySqlDatabaseConnection conn;
     private int currentNumbering = 0;
+    
+    // Holds a map from annotation to identifiers, which allows to re-use some identifiers for similar annotations
+    private Map<String, String> existingAnnotationsToIdentifiers = new HashMap<>();
 
     public HaskellMarkerUpdater(MySqlDatabaseConnection conn) {
         this.conn = conn;
@@ -37,13 +41,15 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
     @Override
     public void update(String source, String type, String annotation) {
         String queryCategories = "INSERT INTO HaskellCategories (name, type, annotation) VALUES (?, ?, ?)";
-        String[] parametersCategories = {createNewName(), type, annotation};
+        String[] parametersCategories = {createNewName(annotation), type, annotation};
 
         String queryTraining = "INSERT INTO HaskellTraining (name, text) VALUES (?, ?)";
-        String[] parametersTraining = {createNewName(), source};
+        String[] parametersTraining = {createNewName(annotation), source};
 
         conn.executeStatement(queryCategories, parametersCategories);
         conn.executeStatement(queryTraining, parametersTraining);
+        
+        // TODO adapt this to use createNewName properly
     }
     
     public void updateTraining() {
@@ -95,6 +101,7 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
             String type = cat.get("type");
             String annotation = cat.get("annotation");
             catFile.println(name + "\t" + type + "\t" + annotation);
+            existingAnnotationsToIdentifiers.put(annotation, name);
         }
 
         catFile.close();
@@ -111,40 +118,56 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
         // documentation/feedback_haskell_marker.txt has more details about the formats. PLEASE refer to that
     }
 
-    private String createNewName() {
-        // TODO make function that creates valid new name if annotation does not exist already
-        return "Abracao";
+    /**
+     * @param desiredAnnotation the desired annotation string to be used
+     * @return 
+     */
+    private String createNewName(String desiredAnnotation) {
+        int maxAllowedDistance = (int) Math.round(0.05d * desiredAnnotation.length());
+        
+        int minFoundDistance = maxAllowedDistance + 1;
+        String minDistanceAnnotation = null;
+        
+        // Compute the string with minimal distance with the desired one
+        for (String oldAnnotation : existingAnnotationsToIdentifiers.keySet()) {
+            int currentDistance = StringUtils.computeLevenshteinDistance(desiredAnnotation, oldAnnotation);
+            if (currentDistance < minFoundDistance) {
+                minFoundDistance = currentDistance;
+                minDistanceAnnotation = oldAnnotation;
+            }
+        }
+        
+        // If the minimum distance annotation is within threshold, return the same 
+        // category name
+        
+        // Otherwise, create a new name, every time checking that the database doesn't have it already
+        
+        // TODO complete this implementation
+        
+        return "ok";
     }
     
     private String getCurrentFilename(String ext) {
-        
         String numbers = String.format("%05d", currentNumbering);
-        
         return TRAINING_FILE_BASENAME + numbers + ext;
     }
     
     private String getCurrentTrainingName() {
-        
         return getCurrentFilename(".train");
-
     }
     
     private String getCurrentSerializedName() {
-        
         return getCurrentFilename(".bin");
-
     }
     
     private String getCurrentTemporarySerialName() {
-        
         return getCurrentFilename(".bin.tmp");
-        
     }
     
     private String getCurrentCategoriesName() {
-        
         return getCurrentFilename(".csv");
-        
     }
+    
+    
 
 }

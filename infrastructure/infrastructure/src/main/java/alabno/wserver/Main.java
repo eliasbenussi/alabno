@@ -24,7 +24,6 @@ public class Main {
         MySqlDatabaseConnection conn = new MySqlDatabaseConnection();
         MicroServiceUpdater haskellUpdater = new HaskellMarkerUpdater(conn);
         haskellUpdater.init();
-        haskellUpdater.init();
         
         PropertiesLoader properties_loader = new PropertiesLoader();
 
