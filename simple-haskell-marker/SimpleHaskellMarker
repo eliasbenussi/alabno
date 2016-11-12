@@ -4,6 +4,7 @@ import sys
 import subprocess
 import os
 import json
+import traceback
 
 # function to exit with an error message and dump the error message in the output
 # json
@@ -30,8 +31,10 @@ def exit_with_error(msg, output_json_path):
     sys.exit(1)
 
 # calculate classpaths
+# exec_dir = alabno/simple-haskell-marker
 exec_dir = os.path.abspath(os.path.dirname(os.path.abspath(__file__)))
-# exec_dir is simple-haskell-marker
+# alabno_dir = alabno
+alabno_dir = os.path.abspath(exec_dir + os.sep + '..')
 jar_path = os.path.abspath(exec_dir + os.sep + 'target' + os.sep + 'simple-haskell-marker-dev0.1-jar-with-dependencies.jar') + ':' + os.path.abspath('{}/samples/'.format(exec_dir))
 
 # read arguments
@@ -44,7 +47,7 @@ if len(sys.argv) != 3:
     sys.exit(1)
 
 input_json_path = sys.argv[1]
-output_json_path = sys.argv[2]
+output_json_path = os.path.abspath(sys.argv[2])
 
 # read the input json
 input_json_file = open(input_json_path, 'r')
@@ -62,11 +65,8 @@ except:
 
 print('Read input directory {}'.format(input_directory))
 
-# chdir into the input directory
-try:
-    os.chdir(input_directory)
-except:
-    exit_with_error('Error: input directory {} is invalid or non-accessible'.format(input_directory), output_json_path)
+# chdir into alabno
+os.chdir(alabno_dir)
 
 # walk the input directory to find haskell files
 haskell_file_paths = []
@@ -76,7 +76,27 @@ for root, dirs, files in os.walk(input_directory, topdown=False):
         filename = os.path.relpath(os.path.join(root,name))
         stem, ext = os.path.splitext(filename)
         if ext == '.hs':
-            haskell_file_paths.append(filename)
+            haskell_file_paths.append(os.path.abspath(filename))
+
+# read the manifest file and get the training file
+
+# alabno/simple-haskell-marker/training/manifest.txt
+training_path = None
+try:
+    manifest_path = exec_dir + os.sep + 'training' + os.sep + 'manifest.txt'
+    manifest_file = open(manifest_path, 'r')
+    for line in manifest_file:
+        training_path = line
+        break
+    manifest_file.close()
+except:
+    print(traceback.format_exc())
+    exit_with_error('Error when loading the manifest file for the Simple Haskell Marker training data', output_json_path)
+# alabno/simple-haskell-marker/training/trainXXXXX.train
+training_path = os.path.abspath(exec_dir + os.sep + 'training' + os.sep + training_path + '.train')
+# Check that it exists
+if not os.path.isfile(training_path):
+    exit_with_error('The training file {} does not exist'.format(training_path), output_json_path)
 
 # make subprocess call
 # java -cp jar_path alabno.simple_haskell_marker.Main haskell1 haskell2 output_json_path
@@ -86,8 +106,9 @@ cmd = [
     jar_path,
     'alabno.simple_haskell_marker.Main'
     ]
-cmd = cmd + haskell_file_paths
+cmd.append(training_path)
 cmd.append(output_json_path)
+cmd = cmd + haskell_file_paths
 
 code = subprocess.call(cmd, shell=False)
 if code != 0:
