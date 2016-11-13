@@ -40,16 +40,21 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
 
     @Override
     public void update(String source, String type, String annotation) {
+        String newName = createNewName(annotation);
+        // add it to the map
+        existingAnnotationsToIdentifiers.put(annotation, newName);
+        
         String queryCategories = "INSERT INTO HaskellCategories (name, type, annotation) VALUES (?, ?, ?)";
-        String[] parametersCategories = {createNewName(annotation), type, annotation};
+        String[] parametersCategories = {newName, type, annotation};
 
         String queryTraining = "INSERT INTO HaskellTraining (name, text) VALUES (?, ?)";
-        String[] parametersTraining = {createNewName(annotation), source};
+        String[] parametersTraining = {newName, source};
 
         conn.executeStatement(queryCategories, parametersCategories);
         conn.executeStatement(queryTraining, parametersTraining);
         
-        // TODO adapt this to use createNewName properly
+        // update Training set
+        updateTraining();
     }
     
     public void updateTraining() {
@@ -106,10 +111,7 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
 
         catFile.close();
 
-        // TODO train a Column Data Classifier, and serialize it
-        // TODO please name the serialized output file using getCurrentSerializedName()
-        
-        // TODO after writing the serialized file, call alabno/simple-haskell-marker/IncrementSerializedClassifier.py
+        // after writing the serialized file, call alabno/simple-haskell-marker/IncrementSerializedClassifier.py
         // Which will take care of creating/updating the manifest.txt file for the microservice
         String alabnoDirectory = FileUtils.getWorkDir();
         String cmd = "python " + alabnoDirectory + "/simple-haskell-marker/IncrementSerializedClassifier.py";
@@ -120,10 +122,11 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
 
     /**
      * @param desiredAnnotation the desired annotation string to be used
-     * @return 
+     * @return the new name for the annotation, or the existing one if an annotation with very similar text was already available.
      */
     private String createNewName(String desiredAnnotation) {
-        int maxAllowedDistance = (int) Math.round(0.05d * desiredAnnotation.length());
+        int maxAllowedDistance = 
+                (int) Math.floor(0.05d * desiredAnnotation.length());
         
         int minFoundDistance = maxAllowedDistance + 1;
         String minDistanceAnnotation = null;
@@ -139,12 +142,25 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
         
         // If the minimum distance annotation is within threshold, return the same 
         // category name
+        if (minFoundDistance <= maxAllowedDistance) {
+            return minDistanceAnnotation;
+        }
         
         // Otherwise, create a new name, every time checking that the database doesn't have it already
-        
-        // TODO complete this implementation
-        
-        return "ok";
+        int retryAttempts = 100;
+        for (int i = 0; i < retryAttempts; i++) {
+            String newName = "hs" + StringUtils.randomAsciiStringNumerical(10);
+            
+            // Test that the database doesn't have it already
+            String query = "SELECT `name`, `type`, `annotation` FROM `HaskellCategories` WHERE `name` = ?";
+            String[] parameters = {};
+            List<Map<String, Object>> results = conn.retrieveStatement(query, parameters);
+            if (results.size() == 0) {
+                return newName;
+            }
+        }
+
+        return "invalid";
     }
     
     private String getCurrentFilename(String ext) {

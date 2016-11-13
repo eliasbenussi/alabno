@@ -10,6 +10,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -107,18 +108,26 @@ public class MySqlDatabaseConnection {
      * @return results of the query
      */
     public List<Map<String, Object>> retrieveQuery(String query) {
-        return retrieveQuery(query, true);
+        return retrieveQuery(query, new String[0],true);
+    }
+    
+    public List<Map<String, Object>> retrieveStatement(String query, String[] parameters) {
+        return retrieveQuery(query, parameters, true);
     }
 
     // if `retry` is set, the database will try to re-establish
     // a broken connection and query again. Otherwise, it will
     // print the Exception to console
-    private List<Map<String, Object>> retrieveQuery(String query, boolean retry) {
+    private List<Map<String, Object>> retrieveQuery(String query, String[] parameters, boolean retry) {
         List<Map<String, Object>> result = new ArrayList<>();
 
         try {
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(query);
+            PreparedStatement stmt = conn.prepareStatement(query);
+            for (int i = 0; i < parameters.length; i++) {
+                stmt.setString(i + 1, parameters[i]);
+            }
+            
+            ResultSet rs = stmt.executeQuery();
 
             Map<String, Object> row;
             ResultSetMetaData metaData = rs.getMetaData();
@@ -136,13 +145,15 @@ public class MySqlDatabaseConnection {
         } catch (Exception e) {
             connect();
             if (retry) {
-                return retrieveQuery(query, false);
+                return retrieveQuery(query, parameters, false);
             } else {
                 e.printStackTrace();
             }
         }
         return result;
     }
+    
+    
 
     /**
      * @param query the INSERT, UPDATE, or DELETE query
