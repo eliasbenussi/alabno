@@ -55,7 +55,7 @@
                     <input type="text" placeholder="username" ng-model="username">
                 </div>
                 <div class="col-xs-4">
-                    <input type="password" placeholder="password" ng-model="password">
+                    <input type="password" placeholder="password" ng-model="password" ng-keypress="login_enter($event)">
                 </div>
                 <div class="col-xs-4">
                     <button ng-click="login_clicked()">Login</button>
