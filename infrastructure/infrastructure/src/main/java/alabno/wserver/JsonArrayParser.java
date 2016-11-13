@@ -22,7 +22,7 @@ public class JsonArrayParser implements Iterable<JsonParser> {
 
             @Override
             public boolean hasNext() {
-                return currentIndex < jarray.size();
+                return jarray != null && currentIndex < jarray.size() && jarray.get(currentIndex) != null;
             }
 
             @Override

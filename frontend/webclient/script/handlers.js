@@ -113,8 +113,8 @@ $handlers.handle_postpro_result = function(msgobj) {
     $globals.professor_scope.student_result.student = student;
     
     // change view
-    //$globals.professor_scope.show_section('show_student_result');
-    $globals.professor_scope.show_section('show_annotated_file');
+    $globals.professor_scope.show_section('show_student_result');
+    //$globals.professor_scope.show_section('show_annotated_file');
     
     // apply
     $globals.professor_scope.$apply();
@@ -126,6 +126,13 @@ $handlers.handle_annotated_file = function(msgobj) {
 
     $globals.professor_scope.annotated_file.file_name = file_name;
     $globals.professor_scope.annotated_file.data = data;
+
+    console.log("Should have received an annotated file");
+    console.log("Contents are:");
+    console.log(file_name);
+    console.log(data);
+    console.log("Msgobj is:");
+    console.log(msgobj);
 
     // change view
     $globals.professor_scope.show_section('show_annotated_file');

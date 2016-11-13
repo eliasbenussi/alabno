@@ -180,6 +180,17 @@ theapp.controller('professorController', function($scope) {
         $scope.student_result.title = 'NA';
         $scope.student_result.student = 'NA'
     };
+
+
+    // Annotated files
+    $scope.reset_annotated_result = function() {
+        $scope.annotated_file = {};
+        $scope.annotated_file.file_name = 'NA';
+        $scope.annotated_file.data = 'NA';
+    };
+
+
     $scope.reset_result_postpro();
+    $scope.reset_annotated_result();
 ;
 });

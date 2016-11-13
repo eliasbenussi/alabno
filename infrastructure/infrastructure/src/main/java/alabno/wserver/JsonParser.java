@@ -39,6 +39,9 @@ public class JsonParser {
 		} else if (tmp instanceof Double) {
 			Double theDouble = (Double) tmp;
 			return theDouble.intValue();
+		} else if (tmp instanceof Long) {
+			Long theLong = (Long) tmp;
+			return theLong.intValue();
 		} else {
 			throw new RuntimeException("Could not parse a number");
 		}

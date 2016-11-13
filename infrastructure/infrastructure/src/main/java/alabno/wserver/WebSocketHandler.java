@@ -116,6 +116,8 @@ public class WebSocketHandler {
 
         // Holds annotation information for each student-submitted file
         Map<String, List<AnnotationWrapper>> submissionFeedbackMap = generateSubmissionFeedbackMap(fileContent);
+        System.out.println("SUBMISSION FEEDBACK MAP after creation:");
+        System.out.println(submissionFeedbackMap);
 
         // Create a set of file names from the annotations in the JSON output
         Set<String> uniqueFiles = new HashSet<>();
@@ -140,6 +142,8 @@ public class WebSocketHandler {
         JSONObject annotatedFilesMsg = new JSONObject();
         annotatedFilesMsg.put("type", "annotated_files");
         JSONArray files = generateAnnotatedFileArray(uniqueFiles, submissionFeedbackMap);
+        System.out.println("FILES JSONARRAY HERE");
+        System.out.println(files);
         annotatedFilesMsg.put("files", files);
         conn.send(annotatedFilesMsg.toJSONString());
     }
@@ -157,63 +161,43 @@ public class WebSocketHandler {
 
         JsonParser postprocessorParser = new JsonParser(postProcessorOutput);
         JSONArray annotations = postprocessorParser.getArray("annotations");
+        System.out.println("THESE ARE THE SUPPOSED ANNOTATIONS");
+        System.out.println(annotations);
         JsonArrayParser annotationsParser = new JsonArrayParser(annotations);
-
         Iterator<JsonParser> annotationsIterator = annotationsParser.iterator();
+
 
         JsonParser curr;
         JSONArray annotationGroup;
 
         while (annotationsIterator.hasNext()) {
-
-            // TODO
-            // This is ugly. Could be improved extracting the error types
-            // in an enum (as in the postProcessor module) and iterating
-            // on the enum entries. This would also allow for expandability
-            // of the code, given that on new error type introductions,
-            // only the enum would be changed.
             curr = annotationsIterator.next();
-
-            // The assumption here is that, given there's a next annotation group,
-            // it must be under one of the pre-defined error types.
-            annotationGroup = curr.getArray("syntax");
-            if (annotationGroup == null) {
-                annotationGroup = curr.getArray("semantic");
-            }
-            if (annotationGroup == null) {
-                annotationGroup = curr.getArray("style");
-            }
-            addToSubmissionFeedbackMap(submissionFeedbackMap, annotationGroup);
+            addToSubmissionFeedbackMap(submissionFeedbackMap, curr);
+            System.out.println("SUPPOSEDLY ADDING TO MAP HERE");
+            System.out.println(submissionFeedbackMap);
         }
         return submissionFeedbackMap;
     }
 
-    private void addToSubmissionFeedbackMap(Map<String, List<AnnotationWrapper>> map, JSONArray annotations) {
+    private void addToSubmissionFeedbackMap(Map<String, List<AnnotationWrapper>> map, JsonParser annotation) {
 
-        JsonArrayParser annotationsParser = new JsonArrayParser(annotations);
-        Iterator<JsonParser> iterator = annotationsParser.iterator();
+        String fileName = annotation.getString("filename");
+        int lineNumber = annotation.getInt("lineno");
+        String text = annotation.getString("text");
 
-        JsonParser curr;
-        while (iterator.hasNext()) {
-
-            curr = iterator.next();
-            String fileName = curr.getString("filename");
-            int lineNumber = curr.getInt("lineno");
-            String text = curr.getString("text");
-
-            List<AnnotationWrapper> value = map.containsKey(fileName) ? map.get(fileName) : new ArrayList<>();
-            value.add(new AnnotationWrapper(lineNumber, text));
-            map.put(fileName, value);
-
-        }
+        List<AnnotationWrapper> value = map.containsKey(fileName) ? map.get(fileName) : new ArrayList<>();
+        value.add(new AnnotationWrapper(lineNumber, text));
+        map.put(fileName, value);
+        System.out.println("ADDING THIS TO THE MAP:");
+        System.out.println("KEY: " + fileName + "\nVALUE: " + value);
     }
 
     /**
      * This inner class acts as a wrapper for the information
-     * hold in each object within the "annotations" JSON array of
+     * held in each object within the "annotations" JSON array of
      * the post processor JSON output.
      * It makes that information easier to access, so
-     * removing the need to parse JSON everytime.
+     * removing the need to parse JSON every time.
      */
     private class AnnotationWrapper {
 
@@ -243,7 +227,9 @@ public class WebSocketHandler {
             String fileName = filePath.getFileName().toString();
             JSONObject annotatedFile = new JSONObject();
             annotatedFile.put("filename", fileName);
-            JSONArray fileData = generateAnnotatedFile(fileName, feedbackMap, fileLines);
+            JSONArray fileData = generateAnnotatedFile(filePath.toString(), feedbackMap, fileLines);
+            System.out.println("DATA FOR FILE HERE");
+            System.out.println(fileData);
             annotatedFile.put("data", fileData);
             filesWithAnnotations.add(annotatedFile);
         }
@@ -257,15 +243,30 @@ public class WebSocketHandler {
      *     {"no": 3, "content": "import Data.Maybe", "annotation": ""}
      * ]
      * </pre>
-     * @param fileName
+     * @param filePath
      * @param feedbackMap
      * @param fileLines
      * @return fileData
      */
-    private JSONArray generateAnnotatedFile(String fileName, Map<String, List<AnnotationWrapper>> feedbackMap, List<String> fileLines) {
-        List<AnnotationWrapper> annotations = feedbackMap.get(fileName);
+    private JSONArray generateAnnotatedFile(String filePath, Map<String, List<AnnotationWrapper>> feedbackMap, List<String> fileLines) {
+        System.out.println("FEEDBACK MAP HERE");
+        Iterator it = feedbackMap.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry) it.next();
+            System.out.println("KEY:");
+            System.out.println(pair.getKey());
+            System.out.println("\nVALUE:");
+            System.out.println(pair.getValue());
+        }
+
+        System.out.println("Filename being given:");
+        System.out.println(filePath);
+        System.out.println("LIST OF WRAPPERS HERE");
+        System.out.println(feedbackMap.get(filePath));
+        List<AnnotationWrapper> annotations = feedbackMap.get(filePath);
 
         JSONArray fileData = new JSONArray();
+        
         for (AnnotationWrapper annotation : annotations) {
             JSONObject jsonObject = new JSONObject();
             int lineNumber = annotation.getLineNumber();

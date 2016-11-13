@@ -40,7 +40,7 @@ $globals.socket.onmessage = function(message) {
         $handlers.handle_job_group(msgobj);
     } else if (msgobj.type == 'postpro_result') {
         $handlers.handle_postpro_result(msgobj);
-    } else if (msgobj.type == 'annotated_file') {
+    } else if (msgobj.type == 'annotated_files') {
         $handlers.handle_annotated_file(msgobj);
     } else {
         console.log("message type not recognized: " + msgobj.type);
