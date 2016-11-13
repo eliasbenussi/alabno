@@ -175,15 +175,9 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
     private String getCurrentSerializedName() {
         return getCurrentFilename(".bin");
     }
-    
-    private String getCurrentTemporarySerialName() {
-        return getCurrentFilename(".bin.tmp");
-    }
-    
+
     private String getCurrentCategoriesName() {
         return getCurrentFilename(".csv");
     }
-    
-    
 
 }
