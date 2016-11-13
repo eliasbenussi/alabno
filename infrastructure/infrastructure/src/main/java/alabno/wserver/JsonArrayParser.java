@@ -5,9 +5,6 @@ import org.json.simple.JSONObject;
 
 import java.util.Iterator;
 
-/**
- * Created by ap2314 on 09/11/16.
- */
 public class JsonArrayParser implements Iterable<JsonParser> {
 
 
