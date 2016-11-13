@@ -14,7 +14,6 @@ dir_content.sort()
 # remove anything that isn't starting with train
 new_dir = []
 for a_dir in dir_content:
-    print(a_dir)
     stem, ext = os.path.splitext(a_dir)
     if stem[:5] == 'train' and ext == '.train':
         new_dir.append(a_dir)

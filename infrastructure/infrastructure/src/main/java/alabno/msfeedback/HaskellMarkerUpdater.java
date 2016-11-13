@@ -40,17 +40,20 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
 
     @Override
     public void update(String source, String type, String annotation) {
-        String newName = createNewName(annotation);
+        System.out.println("HaskellMarkerUpdater:update(" + source + "," + type + "," + annotation + ")");
+        CategoryName newName = createNewName(annotation);
         // add it to the map
-        existingAnnotationsToIdentifiers.put(annotation, newName);
+        existingAnnotationsToIdentifiers.put(annotation, newName.name);
         
         String queryCategories = "INSERT INTO HaskellCategories (name, type, annotation) VALUES (?, ?, ?)";
-        String[] parametersCategories = {newName, type, annotation};
+        String[] parametersCategories = {newName.name, type, annotation};
 
         String queryTraining = "INSERT INTO HaskellTraining (name, text) VALUES (?, ?)";
-        String[] parametersTraining = {newName, source};
+        String[] parametersTraining = {newName.name, source};
 
-        conn.executeStatement(queryCategories, parametersCategories);
+        if (newName.insert) {
+            conn.executeStatement(queryCategories, parametersCategories);
+        }
         conn.executeStatement(queryTraining, parametersTraining);
         
         // update Training set
@@ -120,13 +123,22 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
         // documentation/feedback_haskell_marker.txt has more details about the formats. PLEASE refer to that
     }
 
+    private class CategoryName {
+        boolean insert; // True if a database insertion is required
+        String name;
+        CategoryName(boolean insert, String name) {
+            this.insert = insert;
+            this.name = name;
+        }
+    }
+    
     /**
      * @param desiredAnnotation the desired annotation string to be used
      * @return the new name for the annotation, or the existing one if an annotation with very similar text was already available.
      */
-    private String createNewName(String desiredAnnotation) {
+    private CategoryName createNewName(String desiredAnnotation) {
         int maxAllowedDistance = 
-                (int) Math.floor(0.05d * desiredAnnotation.length());
+                (int) Math.floor(0.1d * desiredAnnotation.length());
         
         int minFoundDistance = maxAllowedDistance + 1;
         String minDistanceAnnotation = null;
@@ -139,28 +151,28 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
                 minDistanceAnnotation = oldAnnotation;
             }
         }
-        
+
         // If the minimum distance annotation is within threshold, return the same 
         // category name
         if (minFoundDistance <= maxAllowedDistance) {
-            return minDistanceAnnotation;
+            return new CategoryName(false, existingAnnotationsToIdentifiers.get(minDistanceAnnotation));
         }
         
         // Otherwise, create a new name, every time checking that the database doesn't have it already
         int retryAttempts = 100;
         for (int i = 0; i < retryAttempts; i++) {
             String newName = "hs" + StringUtils.randomAsciiStringNumerical(10);
-            
+
             // Test that the database doesn't have it already
             String query = "SELECT `name`, `type`, `annotation` FROM `HaskellCategories` WHERE `name` = ?";
             String[] parameters = {};
             List<Map<String, Object>> results = conn.retrieveStatement(query, parameters);
             if (results.size() == 0) {
-                return newName;
+                return new CategoryName(true, newName);
             }
         }
 
-        return "invalid";
+        return new CategoryName(false, "invalid");
     }
     
     private String getCurrentFilename(String ext) {

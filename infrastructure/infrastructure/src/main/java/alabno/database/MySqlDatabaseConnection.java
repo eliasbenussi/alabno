@@ -204,7 +204,7 @@ public class MySqlDatabaseConnection {
         } catch (Exception e) {
             connect();
             if (retry) {
-                return executeQuery(query, false);
+                return executeStatement(query, parameters, false);
             } else {
                 e.printStackTrace();
             }

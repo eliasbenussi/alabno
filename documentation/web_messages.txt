@@ -36,7 +36,7 @@ CLIENT -> SERVER
     }
     Asks for final results of an exercise of specific student
     
-    TODO SERVER CLIENT
+    TODO CLIENT
     {
         "type": "feedback",
         "id": "687ba687de5",
