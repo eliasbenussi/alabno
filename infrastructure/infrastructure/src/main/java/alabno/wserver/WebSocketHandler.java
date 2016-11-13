@@ -1,12 +1,6 @@
 package alabno.wserver;
 
-import java.io.*;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
-import java.util.concurrent.ExecutorService;
-
-import alabno.utils.FileUtils;
+import alabno.utils.ConnUtils;
 import org.java_websocket.WebSocket;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -14,6 +8,15 @@ import org.json.simple.JSONObject;
 import alabno.msfeedback.FeedbackUpdaters;
 import alabno.utils.ConnUtils;
 import org.json.simple.parser.JSONParser;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
 
 public class WebSocketHandler {
 
@@ -206,7 +209,7 @@ public class WebSocketHandler {
 
         AnnotationWrapper(int lineNumber, String text) {
             this.lineNumber = lineNumber;
-            this.text = text;
+            this.text = text != null ? text : "";
         }
 
         public int getLineNumber() {
