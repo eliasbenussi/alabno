@@ -76,12 +76,14 @@ theapp.controller('professorController', function($scope) {
     // Show-hide flags
     $scope.show_professor_exercises = true;
     $scope.show_professor_new_exercise = false;
+    $scope.show_final_result_tabs = false;
     $scope.show_student_result = false;
     $scope.show_annotated_file = false;
     $scope.show_hide_flags =
     [
         'show_professor_exercises',
         'show_professor_new_exercise',
+        'show_final_result_tabs',
         'show_student_result',
         'show_annotated_file'
     ];
@@ -94,6 +96,16 @@ theapp.controller('professorController', function($scope) {
             $scope[$scope.show_hide_flags[i]] = false;
         }
         $scope[to_show] = true;
+    };
+
+    //Show multiple sections (same as above, without hiding everything else)
+    $scope.show_sections = function() {
+        for (var i = 0; i < $scope.show_hide_flags.length; i++) {
+            $scope[$scope.show_hide_flags[i]] = false;
+        }
+        for (var j = 0; j < arguments.length; j++) {
+          $scope[arguments[j]] = true;
+        }
     };
     
     $scope.entries = 
@@ -154,20 +166,36 @@ theapp.controller('professorController', function($scope) {
     };
     
     // #########################################################################
+    // Display tabs with selection of view to show results in
+    
+    $scope.final_result_select_group = function(job_title, student_id) {
+        console.log("Showing tabs for final results");
+        $scope.show_sections('show_final_result_tabs', 'show_professor_exercises');
+        $scope.current_job_title = job_title;
+        $scope.current_student_id = student_id; 
+    };
+
+    // #########################################################################
     // List of jobs
     
     // all_jobs contains objects of the type {title: "title", display: function(title), students: []}
     $scope.all_jobs = [];
     
     // get data for specific job and student
-    $scope.get_data = function(title, studentid) {
-        $scope.reset_result_postpro();
-        console.log("Get data called with title [" + title + "], studentid [" + studentid + "]");
+    $scope.get_data = function(subtype) {
+        if (subtype == 'postprocessor') {
+          $scope.reset_result_postpro();
+        } else if (subtype == 'annotated') {
+          $scope.reset_annotated_result();
+        }
+
+        console.log("Get data called with title [" + $scope.current_job_title + "], studentid [" + $scope.current_studentid + "]");
         var msgobj = {};
         msgobj.type = 'retrieve_result';
+        msgobj.subtype = subtype;
         msgobj.id = $globals.token;
-        msgobj.title = title;
-        msgobj.student = studentid;
+        msgobj.title = $scope.current_job_title;
+        msgobj.student = $scope.current_student_id;
         $globals.send(JSON.stringify(msgobj));
     };
     
@@ -184,13 +212,13 @@ theapp.controller('professorController', function($scope) {
 
     // Annotated files
     $scope.reset_annotated_result = function() {
-        $scope.annotated_file = {};
-        $scope.annotated_file.file_name = 'NA';
-        $scope.annotated_file.data = 'NA';
+        $scope.annotated_files = {};
+        // $scope.annotated_file.files = 'NA';
+        // $scope.annotated_file.data = 'NA';
     };
 
 
-    $scope.reset_result_postpro();
-    $scope.reset_annotated_result();
+    // $scope.reset_result_postpro();
+    // $scope.reset_annotated_result();
 ;
 });

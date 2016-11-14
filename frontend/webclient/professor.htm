@@ -30,7 +30,8 @@
         <div class="row" ng-repeat="student in job.students">
             <div class="col-xs-3"></div>
             <div class="col-xs-3">
-                <button ng-click="get_data(job.title,student.id)">Show</button>
+                <!-- <button ng-click="get_data(job.title,student.id)">Show</button> -->
+                <button ng-click="final_result_select_group(job.title, student.id)">Show Results</button>
             </div>
             <div class="col-xs-6">
                 <p>{{student.id}}</p>
@@ -93,6 +94,15 @@
         </div>
     </div>
 
+</div>
+
+
+<!--DISPLAY TABS TO GO INTO DIFFERENT VIEWS-->
+<div ng-show="show_final_result_tabs">
+  <ul class="nav nav-pills">
+    <li role="presentation"><a href ng-click="get_data('postprocessor')">Postprocessor</a></li>
+    <li role="presentation"><a href ng-click="get_data('annotated')">Annotated</a></li>
+  </ul>
 </div>
 
 <!--DISPLAY STUDENT RESULT SECTION-->
@@ -190,6 +200,8 @@
             <div class="list-group">
                 <div class="list-group-item">
                     
+                    <p>{{annotated_file.data}}</p>
+
                     <!--Table of annotations-->
                     <table class="table table-hover">
                         <thead>
@@ -200,10 +212,12 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr ng-repeat="tbline in annotated_file.data">
-                                <td>{{tbline.number}}</td>
+                            <tr ng-repeat="file in annotated_files">
+                              <tr ng-repeat="tbline in file.data">
+                                <td>{{tbline.no}}</td>
                                 <td>{{tbline.content}}</td>
                                 <td>{{tbline.annotation}}</td>
+                              </tr>
                             </tr>
                         </tbody>
                     </table>

@@ -30,11 +30,14 @@ CLIENT -> SERVER
     
     {
         "type": "retrieve_result",
+        "subtype": "annotated",
         "id": "687ba687de5",
         "title": "haskell23",
         "student": "1"
     }
-    Asks for final results of an exercise of specific student
+    Asks for the final results of an exercise of specific student
+    Subtype used to determine which view to render (can currently be 'annotated' or 'postprocessor')
+    TODO: These should be sent once then cached per student
     
     TODO CLIENT
     {

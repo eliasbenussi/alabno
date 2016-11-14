@@ -114,25 +114,26 @@ $handlers.handle_postpro_result = function(msgobj) {
     
     // change view
     $globals.professor_scope.show_section('show_student_result');
-    //$globals.professor_scope.show_section('show_annotated_file');
     
     // apply
     $globals.professor_scope.$apply();
 };
 
 $handlers.handle_annotated_file = function(msgobj) {
-    var file_name = msgobj.filename;
-    var data = msgobj.data;
+    var files = msgobj.files;
 
-    $globals.professor_scope.annotated_file.file_name = file_name;
-    $globals.professor_scope.annotated_file.data = data;
+    var filesObj = JSON.parse(files);
+    for (var i = 0; i < filesObj.files.length; i++) {
+      var fileObj = JSON.parse(filesObj.files[i])
+      $globals.professor_scope.annotated_files[i].filename = fileObj.filename;
+      for (var j = 0; j < fileObj.data.length; j++) {
+        var fileDataObj = JSON.parse(fileObj.data[j])
+        $globals.professor_scope.annotated_files[i].data[j].no = fileDataObj.no; 
+        $globals.professor_scope.annotated_files[i].data[j].content = fileDataObj.content; 
+        $globals.professor_scope.annotated_files[i].data[j].annotation = fileDataObj.annotation; 
+      }
+    }
 
-    console.log("Should have received an annotated file");
-    console.log("Contents are:");
-    console.log(file_name);
-    console.log(data);
-    console.log("Msgobj is:");
-    console.log(msgobj);
 
     // change view
     $globals.professor_scope.show_section('show_annotated_file');

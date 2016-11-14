@@ -83,6 +83,12 @@ public class WebSocketHandler {
 
     private void handleRetrieveResult(JsonParser parser, WebSocket conn) {
 
+        String subtype = parser.getString("subtype");
+        if (subtype == null || subtype.isEmpty()) {
+            ConnUtils.sendAlert(conn, "retrieve_results: subtype can't be empty");
+            return;
+        }
+
         String title = parser.getString("title");
         if (title == null || title.isEmpty()) {
             ConnUtils.sendAlert(conn, "retrieve_results: title can't be empty");
@@ -121,8 +127,6 @@ public class WebSocketHandler {
 
         // Holds annotation information for each student-submitted file
         Map<String, List<AnnotationWrapper>> submissionFeedbackMap = generateSubmissionFeedbackMap(fileContent);
-        System.out.println("SUBMISSION FEEDBACK MAP after creation:");
-        System.out.println(submissionFeedbackMap);
 
         // Create a set of file names from the annotations in the JSON output
         Set<String> uniqueFiles = new HashSet<>();
@@ -133,22 +137,34 @@ public class WebSocketHandler {
             uniqueFiles.add(filePath);
         }
 
-        // Prepare output message
+        switch (subtype) {
+          case "postprocessor":
+            sendPostprocessorMsg(title, student, fileContent, conn);
+            break;
+          case "annotated":
+            sendAnnotatedMsg(uniqueFiles, submissionFeedbackMap, conn);
+            break;
+          default:
+            System.out.println("Unrecognized result message subtype");
+        }
+        
+    }
+
+    private void sendPostprocessorMsg(String title, String student, String fileContent, WebSocket conn) {
         JSONObject postProcResultMsg = new JSONObject();
         postProcResultMsg.put("type", "postpro_result");
         postProcResultMsg.put("title", title);
         postProcResultMsg.put("student", student);
         postProcResultMsg.put("data", fileContent);
         conn.send(postProcResultMsg.toJSONString());
+    }
 
-
+    private void sendAnnotatedMsg(Set<String> uniqueFiles, Map<String, List<AnnotationWrapper>> submissionFeedbackMap, WebSocket conn) {
         // Generate a JSON message with an array containing JSON objects - each is made of the file name,
         // its contents and if a line has an annotation, its corresponding error.
         JSONObject annotatedFilesMsg = new JSONObject();
         annotatedFilesMsg.put("type", "annotated_files");
         JSONArray files = generateAnnotatedFileArray(uniqueFiles, submissionFeedbackMap);
-        System.out.println("FILES JSONARRAY HERE");
-        System.out.println(files);
         annotatedFilesMsg.put("files", files);
         conn.send(annotatedFilesMsg.toJSONString());
     }
@@ -166,8 +182,6 @@ public class WebSocketHandler {
 
         JsonParser postprocessorParser = new JsonParser(postProcessorOutput);
         JSONArray annotations = postprocessorParser.getArray("annotations");
-        System.out.println("THESE ARE THE SUPPOSED ANNOTATIONS");
-        System.out.println(annotations);
         JsonArrayParser annotationsParser = new JsonArrayParser(annotations);
         Iterator<JsonParser> annotationsIterator = annotationsParser.iterator();
 
@@ -178,8 +192,6 @@ public class WebSocketHandler {
         while (annotationsIterator.hasNext()) {
             curr = annotationsIterator.next();
             addToSubmissionFeedbackMap(submissionFeedbackMap, curr);
-            System.out.println("SUPPOSEDLY ADDING TO MAP HERE");
-            System.out.println(submissionFeedbackMap);
         }
         return submissionFeedbackMap;
     }
@@ -193,8 +205,6 @@ public class WebSocketHandler {
         List<AnnotationWrapper> value = map.containsKey(fileName) ? map.get(fileName) : new ArrayList<>();
         value.add(new AnnotationWrapper(lineNumber, text));
         map.put(fileName, value);
-        System.out.println("ADDING THIS TO THE MAP:");
-        System.out.println("KEY: " + fileName + "\nVALUE: " + value);
     }
 
     /**
@@ -233,8 +243,6 @@ public class WebSocketHandler {
             JSONObject annotatedFile = new JSONObject();
             annotatedFile.put("filename", fileName);
             JSONArray fileData = generateAnnotatedFile(filePath.toString(), feedbackMap, fileLines);
-            System.out.println("DATA FOR FILE HERE");
-            System.out.println(fileData);
             annotatedFile.put("data", fileData);
             filesWithAnnotations.add(annotatedFile);
         }
@@ -254,22 +262,10 @@ public class WebSocketHandler {
      * @return fileData
      */
     private JSONArray generateAnnotatedFile(String filePath, Map<String, List<AnnotationWrapper>> feedbackMap, List<String> fileLines) {
-        System.out.println("FEEDBACK MAP HERE");
         Iterator it = feedbackMap.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry pair = (Map.Entry) it.next();
-            System.out.println("KEY:");
-            System.out.println(pair.getKey());
-            System.out.println("\nVALUE:");
-            System.out.println(pair.getValue());
         }
-
-        System.out.println("Filename being given:");
-        System.out.println(filePath);
-        System.out.println("LIST OF WRAPPERS HERE");
-        System.out.println(feedbackMap.get(filePath));
-
-
         List<AnnotationWrapper> annotations = feedbackMap.get(filePath);
 
         // Ensure every line has a corresponding annotation string
@@ -296,7 +292,6 @@ public class WebSocketHandler {
      */
     private void addEmptyAnnotationsForGoodLines(List<AnnotationWrapper> annotations, int numbOfFileLines) {
 
-        // For Domenico <3
         // Get index referenced in feedback annotations
         Set<Integer> indicesWithFeedback;
         indicesWithFeedback = annotations.stream().map(AnnotationWrapper::getLineNumber).collect(Collectors.toSet());
