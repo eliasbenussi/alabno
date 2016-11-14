@@ -21,7 +21,7 @@ public class HaskellMarkerTest {
         replay(scriptClassifier);
         replay(categoryConverter);
         
-        Arguments arguments = new Arguments(new String[] {"samples/marker_test.hs", "test.json"});
+        Arguments arguments = new Arguments(new String[] {"samples/hs_basic_training.train", "test.json", "samples/marker_test.hs"});
         HaskellMarker haskellMarker = new HaskellMarker(scriptClassifier, arguments, categoryConverter);
         
         haskellMarker.mark();

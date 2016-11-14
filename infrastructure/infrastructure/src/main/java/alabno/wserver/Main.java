@@ -8,12 +8,19 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 
-import org.java_websocket.WebSocketImpl;
 import org.java_websocket.server.DefaultSSLWebSocketServerFactory;
+
+import alabno.database.MySqlDatabaseConnection;
+import alabno.msfeedback.FeedbackUpdaters;
+import alabno.msfeedback.HaskellMarkerUpdater;
+import alabno.msfeedback.MicroServiceUpdater;
+import alabno.utils.FileUtils;
 
 public class Main {
 
     public static void main(String[] args) throws Exception {
+
+        FileUtils.initWorkDir();
 
         PropertiesLoader properties_loader = new PropertiesLoader();
 
@@ -31,9 +38,15 @@ public class Main {
             System.out.println("Error when reading properties");
             System.exit(1);
         }
+        
+        // Setup microservices feedback
+        MySqlDatabaseConnection conn = new MySqlDatabaseConnection();
+        FeedbackUpdaters updaters = new FeedbackUpdaters();
+        updaters.register(new HaskellMarkerUpdater(conn));
 
+        // Start WebSocket server
         System.out.println("Starting WebSocket server on port " + port);
-        AutoMarkerWSServer the_server = new AutoMarkerWSServer(port);
+        AutoMarkerWSServer the_server = new AutoMarkerWSServer(port, updaters);
 
         if (secure) {
             // Set up the WebSocket server in secure mode

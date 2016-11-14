@@ -36,6 +36,16 @@ CLIENT -> SERVER
     }
     Asks for final results of an exercise of specific student
     
+    TODO CLIENT
+    {
+        "type": "feedback",
+        "id": "687ba687de5",
+        "source": "public static void main(String[] args)",
+        "ann_type": "semantic",
+        "annotation": "don't call main main"
+    }
+    Tell all microservices about a new feedback annotation, with source code, type and annotation.
+    
 SERVER -> CLIENT
 
     {

@@ -3,6 +3,28 @@
 import os
 import sys
 import subprocess
+import argparse
+import getpass
+
+parser = argparse.ArgumentParser()
+    
+parser.add_argument('action',
+                    help='start|stop|show',
+                    default=None
+                    )
+
+parser.add_argument('--https',
+                    help='Enable secure mode',
+                    action='store_true',
+                    default=False
+                    )
+
+parser.add_argument('--dbpass',
+                    help='Password for database',
+                    default=None
+                    )
+
+args = parser.parse_args()
 
 # Starts all the necessary server components as a background process
 # Also allows to reattach to the multiplexed terminal,
@@ -10,14 +32,9 @@ import subprocess
 
 screen_name = 'alabnodaemonservice'
 
+# exec dir is alabno/
 exec_dir = os.path.abspath(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(exec_dir)
-
-def check_https(args):
-    for a in args:
-        if a == 'https':
-            return True
-    return False
 
 def start_server(https):
     if https:
@@ -47,16 +64,28 @@ def show_server():
     subprocess.call(cmd, shell=True)
 
 def exit_with_error():
-    print('Usage: ./RunServer start|stop|show [https]')
+    parser.print_help()
     sys.exit(1)
 
-if len(sys.argv) < 2 or len(sys.argv) > 3:
-    exit_with_error()
+https = args.https
 
-https = check_https(sys.argv)
+command = args.action
 
-command = sys.argv[1]
+# Ask for password if necessary
+if not os.path.isfile(exec_dir + os.sep + 'dbpass.txt'):
+    the_pass = ''
+    if args.dbpass is None:
+        print('Please enter the password for the database account "python"')
+        the_pass = getpass.getpass()
+    else:
+        the_pass = args.dbpass
+        
+    pass_path = exec_dir + os.sep + 'dbpass.txt'
+    pass_file = open(pass_path, 'w')
+    pass_file.write(the_pass)
+    pass_file.close()
 
+# Start the server
 if command == 'show':
     show_server()
 elif command == 'start':

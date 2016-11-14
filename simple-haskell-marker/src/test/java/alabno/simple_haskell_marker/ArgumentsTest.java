@@ -19,7 +19,7 @@ public class ArgumentsTest {
     
     @Test
     public void standardCase() {
-        String[] args = {"input1.hs", "dir/input2.hs", "output.json"};
+        String[] args = {"/tmp/someTrain.train", "output.json", "input1.hs", "dir/input2.hs", };
         
         Arguments arguments = new Arguments(args);
         
@@ -28,6 +28,7 @@ public class ArgumentsTest {
         assertEquals(arguments.getHaskellInputs().size(), 2);
         
         assertEquals(arguments.getOutputJsonPath(), "output.json");
+        assertEquals(arguments.getTrainingDataPath(), "/tmp/someTrain.train");
     }
 
 }

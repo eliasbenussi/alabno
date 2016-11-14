@@ -6,7 +6,7 @@ public class Main {
         Arguments arguments = new Arguments(args);
 
         // Start the machine learning algorithm
-        ScriptClassifier haskellClassifier = new HaskellClassifier();
+        ScriptClassifier haskellClassifier = new HaskellClassifier(arguments);
 
         // Start the category converter
         CategoryConverterInterface categoryConverter = new CategoryConverter();

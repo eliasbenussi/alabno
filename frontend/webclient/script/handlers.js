@@ -118,3 +118,15 @@ $handlers.handle_postpro_result = function(msgobj) {
     // apply
     $globals.professor_scope.$apply();
 };
+
+
+// TODO remove this after feedback is properly implemented in frontend
+var fake_send_feedback = function(source, type, annotation) {
+    var msgobj = {};
+    msgobj.type = 'feedback';
+    msgobj.id = $globals.token;
+    msgobj.source = source;
+    msgobj.ann_type = type;
+    msgobj.annotation = annotation;
+    $globals.send(JSON.stringify(msgobj));
+}

@@ -47,7 +47,12 @@ ARGUMENTS
     commitX/extension/Ext.hs
     
     Java will receive the following arguments
+
+    - path_to_train_file
+    - output json file
+    - .hs file
+    - .hs file...
     
-    Sequences.hs extension/Ext.hs /var/tmp/alabno/tmp/64af8c684/output/simple_haskell_marker_out.json
+    the file paths are absolute
     
     and the working directory is commitX

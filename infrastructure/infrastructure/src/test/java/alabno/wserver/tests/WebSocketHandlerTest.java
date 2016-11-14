@@ -9,6 +9,7 @@ import org.easymock.EasyMock;
 import org.java_websocket.WebSocket;
 import org.junit.Test;
 
+import alabno.msfeedback.FeedbackUpdaters;
 import alabno.wserver.AssignmentCreator;
 import alabno.wserver.WebSocketHandler;
 
@@ -18,7 +19,7 @@ public class WebSocketHandlerTest {
     WebSocket mockWebSocketConnection = mock(WebSocket.class);
     ExecutorService mockExecutorService = mock(ExecutorService.class);
 
-    WebSocketHandler handler = new WebSocketHandler(mockExecutorService);
+    WebSocketHandler handler = new WebSocketHandler(mockExecutorService, new FeedbackUpdaters());
 
     @Test
     public void handleMessageEmpty() {

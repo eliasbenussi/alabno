@@ -1,5 +1,6 @@
 package alabno.simple_haskell_marker;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 
 import edu.stanford.nlp.classify.Classifier;
@@ -18,8 +19,13 @@ public class HaskellClassifier implements ScriptClassifier {
     private ColumnDataClassifier cdc;
     private Classifier<String, String> cl;
     
-    public HaskellClassifier() {
-        this.trainingSetPath = this.getClass().getClassLoader().getResource("hs_basic_training.train");
+    public HaskellClassifier(Arguments args) {
+        try {
+            this.trainingSetPath = new URL("file:" + args.getTrainingDataPath());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            System.out.println("Training file is not valid. The Classifier will NOT work correctly!");
+        }
         this.propertiesPath = this.getClass().getClassLoader().getResource("hs_basic_training.prop");
         
         // Initialize the classifier
