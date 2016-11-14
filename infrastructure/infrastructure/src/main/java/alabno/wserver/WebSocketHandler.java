@@ -17,6 +17,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 public class WebSocketHandler {
 
@@ -209,7 +211,7 @@ public class WebSocketHandler {
 
         AnnotationWrapper(int lineNumber, String text) {
             this.lineNumber = lineNumber;
-            this.text = text != null ? text : "";
+            this.text = text;
         }
 
         public int getLineNumber() {
@@ -266,7 +268,12 @@ public class WebSocketHandler {
         System.out.println(filePath);
         System.out.println("LIST OF WRAPPERS HERE");
         System.out.println(feedbackMap.get(filePath));
+
+
         List<AnnotationWrapper> annotations = feedbackMap.get(filePath);
+
+        // Ensure every line has a corresponding annotation string
+        addEmptyAnnotationsForGoodLines(annotations, fileLines.size());
 
         JSONArray fileData = new JSONArray();
         
@@ -279,6 +286,27 @@ public class WebSocketHandler {
             fileData.add(jsonObject);
         }
         return fileData;
+    }
+
+    /**
+     * Complete the list of annotations to process into the JSON response (see generateAnnotatedFile)
+     * with empty annotations for lines that did not receive any feedback.
+     * @param annotations
+     * @param numbOfFileLines
+     */
+    private void addEmptyAnnotationsForGoodLines(List<AnnotationWrapper> annotations, int numbOfFileLines) {
+
+        // For Domenico <3
+        // Get index referenced in feedback annotations
+        Set<Integer> indicesWithFeedback;
+        indicesWithFeedback = annotations.stream().map(AnnotationWrapper::getLineNumber).collect(Collectors.toSet());
+
+        // Add empty annotation for lines without feedback
+        for (int i = 1; i <= numbOfFileLines; i++) {
+            if (!indicesWithFeedback.contains(i)) {
+                annotations.add(new AnnotationWrapper(i, ""));
+            }
+        }
     }
 
     /**
