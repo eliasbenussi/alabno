@@ -12,8 +12,6 @@ repo:
 
 clean:
 	mvn clean -q
-	- rm -rf repo
-	- rm -rf repo.tar.gz
 	- rm -rf training
 
 .PHONY: test clean

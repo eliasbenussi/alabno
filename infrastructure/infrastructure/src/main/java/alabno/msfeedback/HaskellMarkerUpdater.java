@@ -11,9 +11,6 @@ import alabno.utils.FileUtils;
 import alabno.utils.StringUtils;
 import alabno.utils.SubprocessUtils;
 
-/**
- * Created by eb1314 on 08/11/16.
- */
 public class HaskellMarkerUpdater implements MicroServiceUpdater {
 
     private static final String TRAINING_FILE_BASENAME = "simple-haskell-marker/training/train";
@@ -145,7 +142,7 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
         
         // Compute the string with minimal distance with the desired one
         for (String oldAnnotation : existingAnnotationsToIdentifiers.keySet()) {
-            int currentDistance = StringUtils.computeLevenshteinDistance(desiredAnnotation, oldAnnotation);
+            int currentDistance = StringUtils.computeLevenshteinDistance(desiredAnnotation.toLowerCase(), oldAnnotation.toLowerCase());
             if (currentDistance < minFoundDistance) {
                 minFoundDistance = currentDistance;
                 minDistanceAnnotation = oldAnnotation;
@@ -165,7 +162,7 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
 
             // Test that the database doesn't have it already
             String query = "SELECT `name`, `type`, `annotation` FROM `HaskellCategories` WHERE `name` = ?";
-            String[] parameters = {};
+            String[] parameters = {newName};
             List<Map<String, Object>> results = conn.retrieveStatement(query, parameters);
             if (results.size() == 0) {
                 return new CategoryName(true, newName);

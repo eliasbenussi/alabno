@@ -11,7 +11,6 @@ repo:
 
 clean:
 	- cd infrastructure && mvn clean -q
-	- cd infrastructure && make clean
 
 .PHONY: clean jobmanager repo
 

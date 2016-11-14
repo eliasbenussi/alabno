@@ -4,6 +4,7 @@ import os
 import sys
 import subprocess
 import argparse
+import getpass
 
 parser = argparse.ArgumentParser()
     
@@ -75,7 +76,7 @@ if not os.path.isfile(exec_dir + os.sep + 'dbpass.txt'):
     the_pass = ''
     if args.dbpass is None:
         print('Please enter the password for the database account "python"')
-        the_pass = raw_input()
+        the_pass = getpass.getpass()
     else:
         the_pass = args.dbpass
         
