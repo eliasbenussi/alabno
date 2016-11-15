@@ -1,0 +1,4 @@
+tr.noBorder td {
+  border: 0;
+  border-style: hidden;
+}
