@@ -271,6 +271,11 @@ public class WebSocketHandler {
         // Ensure every line has a corresponding annotation string
         addEmptyAnnotationsForGoodLines(annotations, fileLines.size());
 
+        Comparator<AnnotationWrapper> byLineNumber = (a1, a2) -> Integer.compare(
+                a1.getLineNumber(), a2.getLineNumber());
+
+        annotations = annotations.stream().sorted(byLineNumber).collect(Collectors.toList());
+
         JSONArray fileData = new JSONArray();
         
         for (AnnotationWrapper annotation : annotations) {
