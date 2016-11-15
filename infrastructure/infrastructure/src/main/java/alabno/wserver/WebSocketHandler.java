@@ -7,6 +7,7 @@ import org.java_websocket.WebSocket;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import alabno.msfeedback.FeedbackUpdaters;
 import alabno.utils.ConnUtils;
 
 public class WebSocketHandler {
@@ -14,9 +15,11 @@ public class WebSocketHandler {
     private SessionManager sessionManager = new SessionManager();
     private ExecutorService executor;
     private JobsCollection allJobs = new JobsCollection(this);
+    private FeedbackUpdaters updaters;
 
-    public WebSocketHandler(ExecutorService executor) {
+    public WebSocketHandler(ExecutorService executor, FeedbackUpdaters updaters) {
         this.executor = executor;
+        this.updaters = updaters;
     }
 
     public void handleMessage(WebSocket conn, String message) {
@@ -53,9 +56,19 @@ public class WebSocketHandler {
         case "retrieve_result":
             handleRetrieveResult(parser, conn);
             break;
+        case "feedback":
+            handleFeedback(parser, conn);
+            break;
         default:
             System.out.println("Unrecognized client message type " + type);
         }
+    }
+
+    private void handleFeedback(JsonParser parser, WebSocket conn) {
+        String source = parser.getString("source");
+        String annType = parser.getString("ann_type");
+        String annotation = parser.getString("annotation");
+        this.updaters.updateAll(source, annType, annotation);
     }
 
     private void handleRetrieveResult(JsonParser parser, WebSocket conn) {

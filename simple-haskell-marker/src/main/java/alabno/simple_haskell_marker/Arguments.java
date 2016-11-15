@@ -6,26 +6,32 @@ import java.util.List;
 public class Arguments {
 
     private List<String> haskellInputs = new ArrayList<>();
-    private String outputJsonPath;
-    
+    private String outputJsonPath = null;
+    private String trainingDataPath = null;
+
     public Arguments(String[] args) {
-        if (args == null || args.length < 1) {
-            System.out.println("Error: invalid command line arguments");
-            outputJsonPath = null;
-            return;
+        try {
+            this.trainingDataPath = args[0];
+            this.outputJsonPath = args[1];
+        } catch (Exception e) {
+            System.out.println("Not enough arguments...");
         }
-        for (int i = 0; i < args.length - 1; i++) {
+
+        for (int i = 2; i < args.length; i++) {
             haskellInputs.add(args[i]);
         }
-        outputJsonPath = args[args.length - 1];
     }
-    
+
     public List<String> getHaskellInputs() {
         return haskellInputs;
     }
-    
+
     public String getOutputJsonPath() {
         return outputJsonPath;
+    }
+
+    public String getTrainingDataPath() {
+        return trainingDataPath;
     }
 
 }

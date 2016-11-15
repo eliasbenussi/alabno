@@ -56,7 +56,7 @@ call_and_check('make')
 
 # change domain endpoint
 endpoint_js_path = destination_directory + '/frontend/webclient/script/endpoint.js'
-cmd = "echo \"var ws_address = '://{}:';\" > {}".format(domain_name, endpoint_js_path)
+cmd = "echo \"var ws_address_stem = '://{}:';\" > {}".format(domain_name, endpoint_js_path)
 call_and_check(cmd)
 
 # copy over pem and jks files

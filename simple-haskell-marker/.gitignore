@@ -7,3 +7,6 @@ repo.tar.gz
 .idea/
 .settings/
 test.json
+*.pyc
+training/
+
