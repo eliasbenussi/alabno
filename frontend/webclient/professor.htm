@@ -214,9 +214,9 @@
 								<th>Annotation</th>
 							</tr>
 						</thead>
-						<tbody>
-							<tr ng-repeat="data_entry in annotated_files[0].data">
-								<td>{{annotated_files[0].filename}}</td>
+						<tbody ng-repeat="file in annotated_files">
+							<tr ng-repeat="data_entry in file.data">
+								<td>{{file.filename}}</td>
 								<td>{{data_entry.no}}</td>
 								<td>{{data_entry.content}}</td>
 								<td>{{data_entry.annotation}}</td>
