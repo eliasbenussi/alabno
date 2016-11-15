@@ -120,18 +120,22 @@ $handlers.handle_postpro_result = function(msgobj) {
 };
 
 $handlers.handle_annotated_file = function(msgobj) {
+    
+    $globals.professor_scope.annotated_files = [];
+
     var files = msgobj.files;
 
-    var filesObj = JSON.parse(files);
-    for (var i = 0; i < filesObj.files.length; i++) {
-      var fileObj = JSON.parse(filesObj.files[i])
-      $globals.professor_scope.annotated_files[i].filename = fileObj.filename;
+    for (var i = 0; i < files.length; i++) {
+      $globals.professor_scope.annotated_files.push(files[i]);
+      
+    //console.log('FILES: ' + filesObj.files);
+      /*$globals.professor_scope.annotated_files[i].filename = fileObj.filename;
       for (var j = 0; j < fileObj.data.length; j++) {
         var fileDataObj = JSON.parse(fileObj.data[j])
         $globals.professor_scope.annotated_files[i].data[j].no = fileDataObj.no; 
         $globals.professor_scope.annotated_files[i].data[j].content = fileDataObj.content; 
         $globals.professor_scope.annotated_files[i].data[j].annotation = fileDataObj.annotation; 
-      }
+      }*/
     }
 
 
