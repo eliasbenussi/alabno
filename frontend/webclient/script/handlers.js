@@ -126,8 +126,26 @@ $handlers.handle_annotated_file = function(msgobj) {
     var files = msgobj.files;
 
     for (var i = 0; i < files.length; i++) {
-      $globals.professor_scope.annotated_files.push(files[i]);
-      
+			var file = {};
+			file.filename = files[i].filename;
+			var data_list = [];
+			
+			var data_list_length = files[i].data.length;
+			for (var j = 0; j < data_list_length; j++) {
+				var data_entry = {};
+				data_entry.no = files[i].data[j].no;
+				data_entry.content = files[i].data[j].content;
+				data_entry.annotation = files[i].data[j].annotation;
+				//console.log('data pushed: ' + data_entry.no + ' ' + data_entry.content);
+				data_list.push(data_entry);
+			}
+			file.data = data_list;
+      $globals.professor_scope.annotated_files.push(file);
+    }
+    
+    //for (var i = 0; i < files.length; i++) {
+    //}
+
     //console.log('FILES: ' + filesObj.files);
       /*$globals.professor_scope.annotated_files[i].filename = fileObj.filename;
       for (var j = 0; j < fileObj.data.length; j++) {
@@ -136,8 +154,10 @@ $handlers.handle_annotated_file = function(msgobj) {
         $globals.professor_scope.annotated_files[i].data[j].content = fileDataObj.content; 
         $globals.professor_scope.annotated_files[i].data[j].annotation = fileDataObj.annotation; 
       }*/
-    }
 
+		//console.log('print one value: ' + $globals.professor_scope.annotated_files[0].data[0].content);	
+		console.log("PRINT ANNOTATED FILE DATA");
+		console.log($globals.professor_scope.annotated_files[0].data[0]);
 
     // change view
     $globals.professor_scope.show_section('show_annotated_file');
