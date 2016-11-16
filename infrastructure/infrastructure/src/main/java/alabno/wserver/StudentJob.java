@@ -54,14 +54,13 @@ public class StudentJob {
 
         for (JsonParser ann : annotations) {
             
-            String aFileName = ann.getString("filename");
-            int aLineNo = ann.getInt("lineno");
+            Annotation anAnnotation = new Annotation(ann);
+            
+            String aFileName = anAnnotation.getFilename();
+            int aLineNo = anAnnotation.getLineno();
             
             if (desiredFile.equals(aFileName) && lineno == aLineNo) {
-                JSONObject amended = ann.getObject();
-                amended.put("errortype", annType);
-                amended.put("text", annotation);
-                
+                anAnnotation.amendError(ann.getObject(), annType, annotation);
                 rewriteJson(parser);
                 return;
             }
@@ -69,12 +68,8 @@ public class StudentJob {
         
         // If loop reaches, nothing was found
         System.out.println("Could not find entry to be amended. Adding a new one...");
-        JSONObject newAnn = new JSONObject();
-        newAnn.put("errortype", annType);
-        newAnn.put("filename", desiredFile);
-        newAnn.put("lineno", lineno);
-        newAnn.put("charno", 1);
-        newAnn.put("text", annotation);
+        Annotation newAnnotation = new Annotation(annType, desiredFile, lineno, 1, annotation);
+        JSONObject newAnn = newAnnotation.toJsonObject();
         
         // append to the existing array
         JSONArray annotationsArray = parser.getArray("annotations");

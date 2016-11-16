@@ -79,7 +79,6 @@ public class WebSocketHandler {
             String source = parser.getString("source");
             String annType = parser.getString("ann_type");
             String annotation = parser.getString("annotation");
-
             String fileName = parser.getString("filename");
             int lineno = parser.getInt("lineno");
             String token = parser.getString("id");

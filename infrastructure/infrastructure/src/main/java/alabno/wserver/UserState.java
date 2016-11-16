@@ -6,9 +6,6 @@ public class UserState {
     private String title = null;
     private String student = null;
 
-    public UserState() {
-    }
-
     /**
      * @return the title of the document the user is currently viewing
      */
