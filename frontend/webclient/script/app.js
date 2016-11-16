@@ -225,6 +225,8 @@ theapp.controller('professorController', function($scope) {
   
   $scope.editing_data_entry = null;
   
+  $scope.editing_lineno = 0;
+  
   // The source code being used
   // each element has lineno and text
   $scope.editing_source = [];
@@ -260,6 +262,7 @@ theapp.controller('professorController', function($scope) {
           $scope.editing_file = filename;
           $scope.editing_annotation = oldannotation;
           $scope.editing_ann_type = "semantic";
+          $scope.editing_lineno = lineno;
           $scope.add_editing_source(lineno, text);
           console.log('opening editor...')
           data_entry.show_editor = true;
@@ -275,6 +278,19 @@ theapp.controller('professorController', function($scope) {
       }
   }
   
+  $scope.delete_feedback_annotation = function(filename, lineno, sourcetext, oldannotation, data_entry) {
+      var msgobj = {};
+      msgobj.type = 'feedback';
+      msgobj.id = $globals.token;
+      msgobj.filename = filename;
+      msgobj.source = sourcetext;
+      msgobj.ann_type = "";
+      msgobj.annotation = "ok";
+      msgobj.lineno = lineno;
+      
+      $globals.send(JSON.stringify(msgobj));
+  }
+  
   $scope.submit_feedback_annotation = function() {
       var msgobj = {};
       msgobj.type = 'feedback';
@@ -283,6 +299,7 @@ theapp.controller('professorController', function($scope) {
       msgobj.source = $scope.editing_source_cache;
       msgobj.ann_type = $scope.editing_ann_type;
       msgobj.annotation = $scope.editing_annotation;
+      msgobj.lineno = $scope.editing_lineno;
       
       $globals.send(JSON.stringify(msgobj));
   }
@@ -295,6 +312,7 @@ theapp.controller('professorController', function($scope) {
       $scope.editing_data_entry = null;
       $scope.editing_source = [];
       $scope.editing_source_cache = "";
+      $scope.editing_lineno = 0;
   }
 
 });
