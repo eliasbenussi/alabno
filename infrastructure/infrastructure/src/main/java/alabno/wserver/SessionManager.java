@@ -10,6 +10,7 @@ public class SessionManager {
     // Maps user identification token with their actual connection
     private final Map<String, WebSocket> activeSessions = new HashMap<>();
     private final Map<WebSocket, String> reverseMap = new HashMap<>();
+    private final Map<String, UserState> userViewStates = new HashMap<>();
     
     /**
      * @param token the token that identifies the new user
@@ -33,6 +34,8 @@ public class SessionManager {
         // This can override
         reverseMap.put(connection, token);
         
+        userViewStates.put(token, new UserState());
+        
         System.out.println("Session created for token " + token);
     }
     
@@ -51,6 +54,7 @@ public class SessionManager {
         
         activeSessions.remove(token);
         reverseMap.remove(conn);
+        userViewStates.remove(token);
     }
     
     /**
@@ -72,6 +76,10 @@ public class SessionManager {
      */
     public WebSocket getConnection(String token) {
         return activeSessions.get(token);
+    }
+    
+    public UserState getUserState(String token) {
+        return userViewStates.get(token);
     }
 
 }
