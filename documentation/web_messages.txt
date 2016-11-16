@@ -39,10 +39,11 @@ CLIENT -> SERVER
     Subtype used to determine which view to render (can currently be 'annotated' or 'postprocessor')
     TODO: These should be sent once then cached per student
     
-    TODO CLIENT
+    TODO SERVER
     {
         "type": "feedback",
         "id": "687ba687de5",
+        "filename": "sequences.hs", // TODO SERVER
         "source": "public static void main(String[] args)",
         "ann_type": "semantic",
         "annotation": "don't call main main"

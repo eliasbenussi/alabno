@@ -221,17 +221,34 @@ theapp.controller('professorController', function($scope) {
   // The annotation being edited by the user
   $scope.editing_annotation = "";
   
+  $scope.editing_ann_type = "";
+  
   // The source code being used
   // each element has lineno and text
   $scope.editing_source = [];
   $scope.editing_source_cache = "";
-  $scope.sort_editing_source = function() {
+  $scope.add_editing_source = function(lineno, text) {
+      // check if this line number already exists
+      for (var i = 0; i < $scope.editing_source.length; i++) {
+        if (lineno == $scope.editing_source[i].lineno) {
+          return;
+        }
+      }
+      
+      var source_obj = {};
+      source_obj.lineno = lineno;
+      source_obj.text = text;
+      $scope.editing_source.push(source_obj);
+      
       // sort
       $scope.editing_source.sort(function(a, b) {return a.lineno - b.lineno});
       
       var acc = '';
       for (var i = 0; i < $scope.editing_source.length; i++) {
           acc += $scope.editing_source[i].text;
+          if (i < $scope.editing_source.length - 1) {
+              acc += '\n';
+          }
       }
       $scope.editing_source_cache = acc;
   }
@@ -240,11 +257,8 @@ theapp.controller('professorController', function($scope) {
       if (!$scope.editing_file) {
           $scope.editing_file = filename;
           $scope.editing_annotation = oldannotation;
-          var source_obj = {};
-          source_obj.lineno = lineno;
-          source_obj.text = text;
-          $scope.editing_source.push(source_obj);
-          $scope.sort_editing_source();
+
+          $scope.add_editing_source(lineno, text);
           console.log('opening editor...')
           data_entry.show_editor = true;
       } else {
@@ -254,12 +268,20 @@ theapp.controller('professorController', function($scope) {
               return;
           }
           
-          var source_obj = {};
-          source_obj.lineno = lineno;
-          source_obj.text = text;
-          $scope.editing_source.push(source_obj);
-          $scope.sort_editing_source()
+          $scope.add_editing_source(lineno, text);
       }
+  }
+  
+  $scope.submit_feedback_annotation = function() {
+      var msgobj = {};
+      msgobj.type = 'feedback';
+      msgobj.id = $globals.token;
+      msgobj.filename = $scope.editing_file;
+      msgobj.source = $scope.editing_source_cache;
+      msgobj.ann_type = $scope.editing_ann_type;
+      msgobj.annotation = $scope.editing_annotation;
+      
+      $globals.send(JSON.stringify(msgobj));
   }
 
   ;
