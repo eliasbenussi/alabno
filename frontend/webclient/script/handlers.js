@@ -120,7 +120,7 @@ $handlers.handle_postpro_result = function(msgobj) {
 };
 
 $handlers.handle_annotated_file = function(msgobj) {
-    
+
     $globals.professor_scope.annotated_files = [];
 
     var files = msgobj.files;
@@ -129,7 +129,7 @@ $handlers.handle_annotated_file = function(msgobj) {
 			var file = {};
 			file.filename = files[i].filename;
 			var data_list = [];
-			
+
 			var data_list_length = files[i].data.length;
 			for (var j = 0; j < data_list_length; j++) {
 				var data_entry = {};
@@ -142,10 +142,6 @@ $handlers.handle_annotated_file = function(msgobj) {
 			file.data = data_list;
       $globals.professor_scope.annotated_files.push(file);
     }
-    
-		//console.log('print one value: ' + $globals.professor_scope.annotated_files[0].data[0].content);	
-		console.log("PRINT ANNOTATED FILE DATA");
-		console.log($globals.professor_scope.annotated_files[0].data[0]);
 
     // change view
     $globals.professor_scope.show_section('show_annotated_file');

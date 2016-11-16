@@ -213,12 +213,7 @@ theapp.controller('professorController', function($scope) {
     // Annotated files
     $scope.reset_annotated_result = function() {
         $scope.annotated_files = {};
-        // $scope.annotated_file.files = 'NA';
-        // $scope.annotated_file.data = 'NA';
     };
 
-
-    // $scope.reset_result_postpro();
-    // $scope.reset_annotated_result();
 ;
 });

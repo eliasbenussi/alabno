@@ -7,13 +7,11 @@ import java.util.Iterator;
 
 public class JsonArrayParser implements Iterable<JsonParser> {
 
-
     private final JSONArray jarray;
 
     public JsonArrayParser(JSONArray jarray) {
         this.jarray = jarray;
     }
-
 
     @Override
     public Iterator<JsonParser> iterator() {
