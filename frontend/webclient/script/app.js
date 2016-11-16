@@ -223,6 +223,8 @@ theapp.controller('professorController', function($scope) {
   
   $scope.editing_ann_type = "";
   
+  $scope.editing_data_entry = null;
+  
   // The source code being used
   // each element has lineno and text
   $scope.editing_source = [];
@@ -257,10 +259,11 @@ theapp.controller('professorController', function($scope) {
       if (!$scope.editing_file) {
           $scope.editing_file = filename;
           $scope.editing_annotation = oldannotation;
-
+          $scope.editing_ann_type = "semantic";
           $scope.add_editing_source(lineno, text);
           console.log('opening editor...')
           data_entry.show_editor = true;
+          $scope.editing_data_entry = data_entry;
       } else {
           // check that it's the same filename
           if (filename != $scope.editing_file) {
@@ -283,6 +286,15 @@ theapp.controller('professorController', function($scope) {
       
       $globals.send(JSON.stringify(msgobj));
   }
+  
+  $scope.feedback_clear = function() {
+      $scope.editing_data_entry.show_editor = false;
+      $scope.editing_file = null;
+      $scope.editing_annotation = "";
+      $scope.editing_ann_type = "";
+      $scope.editing_data_entry = null;
+      $scope.editing_source = [];
+      $scope.editing_source_cache = "";
+  }
 
-  ;
 });
