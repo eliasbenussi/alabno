@@ -39,15 +39,14 @@ CLIENT -> SERVER
     Subtype used to determine which view to render (can currently be 'annotated' or 'postprocessor')
     TODO: These should be sent once then cached per student
     
-    TODO SERVER
     {
         "type": "feedback",
         "id": "687ba687de5",
-        "filename": "sequences.hs", // TODO SERVER
+        "filename": "sequences.hs", 
         "source": "public static void main(String[] args)",
         "ann_type": "semantic",
         "annotation": "don't call main main",
-        "lineno": 69 // TODO SERVER
+        "lineno": 69 
     }
     Tell all microservices about a new feedback annotation, with source code, type and annotation.
     
