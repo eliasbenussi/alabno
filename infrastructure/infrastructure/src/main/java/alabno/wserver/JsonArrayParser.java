@@ -13,31 +13,33 @@ public class JsonArrayParser implements Iterable<JsonParser> {
         this.jarray = jarray;
     }
 
+
+    private final Iterator<JsonParser> it = new Iterator<JsonParser>() {
+        private int currentIndex = 0;
+
+        @Override
+        public boolean hasNext() {
+            return jarray != null && currentIndex < jarray.size() && jarray.get(currentIndex) != null;
+        }
+
+        @Override
+        public JsonParser next() {
+            Object theObject = jarray.get(currentIndex);
+            if (!(theObject instanceof JSONObject)) {
+                currentIndex++;
+                return null;
+            }
+
+            JsonParser out = new JsonParser((JSONObject) theObject);
+
+            currentIndex++;
+
+            return out;
+        }
+    };
+
     @Override
     public Iterator<JsonParser> iterator() {
-        return new Iterator<JsonParser>() {
-            private int currentIndex = 0;
-
-            @Override
-            public boolean hasNext() {
-                return jarray != null && currentIndex < jarray.size() && jarray.get(currentIndex) != null;
-            }
-
-            @Override
-            public JsonParser next() {
-                Object theObject = jarray.get(currentIndex);
-                if (!(theObject instanceof JSONObject)) {
-                    currentIndex++;
-                    return null;
-                }
-
-                JsonParser out = new JsonParser((JSONObject) theObject);
-
-                currentIndex++;
-
-                return out;
-            }
-
-        };
+        return it;
     }
 }

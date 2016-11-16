@@ -183,15 +183,9 @@ public class WebSocketHandler {
         JsonParser postprocessorParser = new JsonParser(postProcessorOutput);
         JSONArray annotations = postprocessorParser.getArray("annotations");
         JsonArrayParser annotationsParser = new JsonArrayParser(annotations);
-        Iterator<JsonParser> annotationsIterator = annotationsParser.iterator();
 
-
-        JsonParser curr;
-        JSONArray annotationGroup;
-
-        while (annotationsIterator.hasNext()) {
-            curr = annotationsIterator.next();
-            addToSubmissionFeedbackMap(submissionFeedbackMap, curr);
+        for (JsonParser jp : annotationsParser) {
+            addToSubmissionFeedbackMap(submissionFeedbackMap, jp);
         }
         return submissionFeedbackMap;
     }
@@ -235,9 +229,8 @@ public class WebSocketHandler {
 
     private JSONArray generateAnnotatedFileArray(Set<String> uniqueFiles, Map<String, List<AnnotationWrapper>> feedbackMap) {
         JSONArray filesWithAnnotations = new JSONArray();
-        Iterator<String> it = uniqueFiles.iterator();
-        while (it.hasNext()) {
-            Path filePath = Paths.get(it.next());
+        for (String uniqueFile : uniqueFiles) {
+            Path filePath = Paths.get(uniqueFile);
             List<String> fileLines = splitFileOnNewLine(filePath);
             String fileName = filePath.getFileName().toString();
             JSONObject annotatedFile = new JSONObject();
@@ -262,10 +255,6 @@ public class WebSocketHandler {
      * @return fileData
      */
     private JSONArray generateAnnotatedFile(String filePath, Map<String, List<AnnotationWrapper>> feedbackMap, List<String> fileLines) {
-        Iterator it = feedbackMap.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry pair = (Map.Entry) it.next();
-        }
         List<AnnotationWrapper> annotations = feedbackMap.get(filePath);
 
         // Ensure every line has a corresponding annotation string
@@ -296,7 +285,6 @@ public class WebSocketHandler {
      * @param numbOfFileLines
      */
     private void addEmptyAnnotationsForGoodLines(List<AnnotationWrapper> annotations, int numbOfFileLines) {
-
         // Get index referenced in feedback annotations
         Set<Integer> indicesWithFeedback;
         indicesWithFeedback = annotations.stream().map(AnnotationWrapper::getLineNumber).collect(Collectors.toSet());
@@ -317,7 +305,6 @@ public class WebSocketHandler {
      * @return list of lines
      */
     private List<String> splitFileOnNewLine(Path filePath) {
-
         List<String> linesList = new ArrayList<>();
         File file = new File(filePath.toString());
         try {

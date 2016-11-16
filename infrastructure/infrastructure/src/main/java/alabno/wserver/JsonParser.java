@@ -34,8 +34,7 @@ public class JsonParser {
 	public int getInt(String key) {
 		Object tmp = jobject.get(key);
 		if (tmp instanceof Integer) {
-			Integer theInt = (Integer) tmp;
-			return theInt.intValue();
+			return (Integer) tmp;
 		} else if (tmp instanceof Double) {
 			Double theDouble = (Double) tmp;
 			return theDouble.intValue();
