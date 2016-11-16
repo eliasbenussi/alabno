@@ -25,5 +25,8 @@ public class StudentJob {
     public String readPostProcessorOutput() {
         return FileUtils.read_file(jsonLocation);
     }
-    
+
+    public String getJsonLocation() {
+        return jsonLocation;
+    }
 }

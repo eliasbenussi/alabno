@@ -1,14 +1,24 @@
 package alabno.wserver;
 
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-
+import alabno.utils.ConnUtils;
 import org.java_websocket.WebSocket;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import alabno.msfeedback.FeedbackUpdaters;
 import alabno.utils.ConnUtils;
+import org.json.simple.parser.JSONParser;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 public class WebSocketHandler {
 
@@ -73,6 +83,12 @@ public class WebSocketHandler {
 
     private void handleRetrieveResult(JsonParser parser, WebSocket conn) {
 
+        String subtype = parser.getString("subtype");
+        if (subtype == null || subtype.isEmpty()) {
+            ConnUtils.sendAlert(conn, "retrieve_results: subtype can't be empty");
+            return;
+        }
+
         String title = parser.getString("title");
         if (title == null || title.isEmpty()) {
             ConnUtils.sendAlert(conn, "retrieve_results: title can't be empty");
@@ -109,13 +125,198 @@ public class WebSocketHandler {
         // Read the JSON file
         String fileContent = studentJob.readPostProcessorOutput();
 
-        // Prepare output message
-        JSONObject msgobj = new JSONObject();
-        msgobj.put("type", "postpro_result");
-        msgobj.put("title", title);
-        msgobj.put("student", student);
-        msgobj.put("data", fileContent);
-        conn.send(msgobj.toJSONString());
+        // Holds annotation information for each student-submitted file
+        Map<String, List<AnnotationWrapper>> submissionFeedbackMap = generateSubmissionFeedbackMap(fileContent);
+
+        // Create a set of file names from the annotations in the JSON output
+        Set<String> uniqueFiles = new HashSet<>();
+        JsonParser jsonParser = new JsonParser(fileContent);
+        JsonArrayParser annotations = jsonParser.getArrayParser("annotations");
+        for (JsonParser a : annotations) {
+            String filePath = a.getString("filename");
+            uniqueFiles.add(filePath);
+        }
+
+        switch (subtype) {
+          case "postprocessor":
+            sendPostprocessorMsg(title, student, fileContent, conn);
+            break;
+          case "annotated":
+            sendAnnotatedMsg(uniqueFiles, submissionFeedbackMap, conn);
+            break;
+          default:
+            System.out.println("Unrecognized result message subtype");
+        }
+        
+    }
+
+    private void sendPostprocessorMsg(String title, String student, String fileContent, WebSocket conn) {
+        JSONObject postProcResultMsg = new JSONObject();
+        postProcResultMsg.put("type", "postpro_result");
+        postProcResultMsg.put("title", title);
+        postProcResultMsg.put("student", student);
+        postProcResultMsg.put("data", fileContent);
+        conn.send(postProcResultMsg.toJSONString());
+    }
+
+    private void sendAnnotatedMsg(Set<String> uniqueFiles, Map<String, List<AnnotationWrapper>> submissionFeedbackMap, WebSocket conn) {
+        // Generate a JSON message with an array containing JSON objects - each is made of the file name,
+        // its contents and if a line has an annotation, its corresponding error.
+        JSONObject annotatedFilesMsg = new JSONObject();
+        annotatedFilesMsg.put("type", "annotated_files");
+        JSONArray files = generateAnnotatedFileArray(uniqueFiles, submissionFeedbackMap);
+        annotatedFilesMsg.put("files", files);
+        conn.send(annotatedFilesMsg.toJSONString());
+    }
+
+    /**
+     * Parses the postProcessor output, extracts info from annotations,
+     * puts info in AnnotationWrapper and finally creates a mapping
+     * between filename and list of associated annotations.
+     * @param postProcessorOutput
+     * @return map (filename, list of AnnotationWrappers)
+     */
+    private Map<String,List<AnnotationWrapper>> generateSubmissionFeedbackMap(String postProcessorOutput) {
+
+        Map<String,List<AnnotationWrapper>> submissionFeedbackMap = new HashMap<>();
+
+        JsonParser postprocessorParser = new JsonParser(postProcessorOutput);
+        JSONArray annotations = postprocessorParser.getArray("annotations");
+        JsonArrayParser annotationsParser = new JsonArrayParser(annotations);
+
+        for (JsonParser jp : annotationsParser) {
+            addToSubmissionFeedbackMap(submissionFeedbackMap, jp);
+        }
+        return submissionFeedbackMap;
+    }
+
+    private void addToSubmissionFeedbackMap(Map<String, List<AnnotationWrapper>> map, JsonParser annotation) {
+
+        String fileName = annotation.getString("filename");
+        int lineNumber = annotation.getInt("lineno");
+        String text = annotation.getString("text");
+
+        List<AnnotationWrapper> value = map.containsKey(fileName) ? map.get(fileName) : new ArrayList<>();
+        value.add(new AnnotationWrapper(lineNumber, text));
+        map.put(fileName, value);
+    }
+
+    /**
+     * This inner class acts as a wrapper for the information
+     * held in each object within the "annotations" JSON array of
+     * the post processor JSON output.
+     * It makes that information easier to access, so
+     * removing the need to parse JSON every time.
+     */
+    private class AnnotationWrapper {
+
+        private int lineNumber;
+        private String text;
+
+        AnnotationWrapper(int lineNumber, String text) {
+            this.lineNumber = lineNumber;
+            this.text = text;
+        }
+
+        public int getLineNumber() {
+            return lineNumber;
+        }
+
+        public String getText() {
+            return text;
+        }
+    }
+
+    private JSONArray generateAnnotatedFileArray(Set<String> uniqueFiles, Map<String, List<AnnotationWrapper>> feedbackMap) {
+        JSONArray filesWithAnnotations = new JSONArray();
+        for (String uniqueFile : uniqueFiles) {
+            Path filePath = Paths.get(uniqueFile);
+            List<String> fileLines = splitFileOnNewLine(filePath);
+            String fileName = filePath.getFileName().toString();
+            JSONObject annotatedFile = new JSONObject();
+            annotatedFile.put("filename", fileName);
+            JSONArray fileData = generateAnnotatedFile(filePath.toString(), feedbackMap, fileLines);
+            annotatedFile.put("data", fileData);
+            filesWithAnnotations.add(annotatedFile);
+        }
+        return filesWithAnnotations;
+    }
+
+    /**
+     * Builds the fileData JSONArray, as follows:
+     * <pre>
+     * "data": [
+     *     {"no": 3, "content": "import Data.Maybe", "annotation": ""}
+     * ]
+     * </pre>
+     * @param filePath
+     * @param feedbackMap
+     * @param fileLines
+     * @return fileData
+     */
+    private JSONArray generateAnnotatedFile(String filePath, Map<String, List<AnnotationWrapper>> feedbackMap, List<String> fileLines) {
+        List<AnnotationWrapper> annotations = feedbackMap.get(filePath);
+
+        // Ensure every line has a corresponding annotation string
+        addEmptyAnnotationsForGoodLines(annotations, fileLines.size());
+
+        Comparator<AnnotationWrapper> byLineNumber = (a1, a2) -> Integer.compare(
+                a1.getLineNumber(), a2.getLineNumber());
+
+        annotations = annotations.stream().sorted(byLineNumber).collect(Collectors.toList());
+
+        JSONArray fileData = new JSONArray();
+        
+        for (AnnotationWrapper annotation : annotations) {
+            JSONObject jsonObject = new JSONObject();
+            int lineNumber = annotation.getLineNumber();
+            jsonObject.put("no", lineNumber);
+            jsonObject.put("content", fileLines.get(lineNumber - 1));
+            jsonObject.put("annotation", annotation.getText());
+            fileData.add(jsonObject);
+        }
+        return fileData;
+    }
+
+    /**
+     * Complete the list of annotations to process into the JSON response (see generateAnnotatedFile)
+     * with empty annotations for lines that did not receive any feedback.
+     * @param annotations
+     * @param numbOfFileLines
+     */
+    private void addEmptyAnnotationsForGoodLines(List<AnnotationWrapper> annotations, int numbOfFileLines) {
+        // Get index referenced in feedback annotations
+        Set<Integer> indicesWithFeedback;
+        indicesWithFeedback = annotations.stream().map(AnnotationWrapper::getLineNumber).collect(Collectors.toSet());
+
+        // Add empty annotation for lines without feedback
+        for (int i = 1; i <= numbOfFileLines; i++) {
+            if (!indicesWithFeedback.contains(i)) {
+                annotations.add(new AnnotationWrapper(i, ""));
+            }
+        }
+    }
+
+    /**
+     * Split the file on new-line
+     * and group the lines in a list.
+     * N.B.: the lines are indexed from 0 in the list.
+     * @param filePath
+     * @return list of lines
+     */
+    private List<String> splitFileOnNewLine(Path filePath) {
+        List<String> linesList = new ArrayList<>();
+        File file = new File(filePath.toString());
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            String line;
+            while ((line = br.readLine()) != null) {
+                linesList.add(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return linesList;
     }
 
     private void handleGetJob(JsonParser parser, WebSocket conn) {
