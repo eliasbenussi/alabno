@@ -12,20 +12,20 @@ $globals.socket.onopen = function() {
 
 $globals.socket.onmessage = function(message) {
     console.log(message.data);
-    
+
     var msgobj = undefined;
-    
+
     try {
         msgobj = JSON.parse(message.data);
     } catch (err) {
         console.log(err);
         return;
     }
-    
+
     if (!msgobj.type) {
         console.log("message is missing type info");
     }
-    
+
     if (msgobj.type == 'login_success') {
         $handlers.handle_login_success(msgobj);
     } else if (msgobj.type == 'login_fail') {
