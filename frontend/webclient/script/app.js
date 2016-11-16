@@ -222,6 +222,8 @@ theapp.controller('professorController', function($scope) {
   
   $scope.editing_lineno = 0;
   
+  $scope.feedback_sent = '';
+  
   // The source code being used
   // each element has lineno and text
   $scope.editing_source = [];
@@ -283,6 +285,8 @@ theapp.controller('professorController', function($scope) {
       msgobj.annotation = "ok";
       msgobj.lineno = lineno;
       
+      data_entry.annotation = "";
+      
       $globals.send(JSON.stringify(msgobj));
   }
   
@@ -296,7 +300,11 @@ theapp.controller('professorController', function($scope) {
       msgobj.annotation = $scope.editing_data_entry.editing_annotation;
       msgobj.lineno = $scope.editing_lineno;
       
+      $scope.editing_data_entry.annotation = $scope.editing_data_entry.editing_annotation;
+      
       $globals.send(JSON.stringify(msgobj));
+      
+      $scope.feedback_sent = "Sent";
   }
   
   $scope.feedback_clear = function() {
@@ -308,6 +316,7 @@ theapp.controller('professorController', function($scope) {
       $scope.editing_source = [];
       $scope.editing_source_cache = "";
       $scope.editing_lineno = 0;
+      $scope.feedback_sent = '';
   }
 
 });
