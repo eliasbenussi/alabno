@@ -213,7 +213,7 @@
               <tbody>
                 <tr class="noBorder" ng-class="(data_entry.annotation === '') ? '' : 'danger'" ng-repeat="data_entry in file.data" ng-mouseenter="data_entry.show_icons=true" ng-mouseleave="data_entry.show_icons=false">
                   <td>{{data_entry.no}}</td>
-                  <td>{{data_entry.content}}</td>
+                  <td><pre class="sourcecode">{{data_entry.content}}</pre></td>
                   <td>
                     <div class="row">
                       {{data_entry.annotation}}
@@ -233,13 +233,13 @@
                       <!--Annotation -->
                       <div class="row">
                         <div class="col-xs-12">
-                          <textarea class="form-control" ng-model="editing_annotation"></textarea>
+                          <textarea class="form-control" ng-model="data_entry.editing_annotation"></textarea>
                         </div>
                       </div>
                       <!--Annotation type-->
                       <div class="row">
                         <div class="col-xs-12">
-                          <textarea class="form-control" ng-model="editing_ann_type"></textarea>
+                          <textarea class="form-control" ng-model="data_entry.editing_ann_type"></textarea>
                         </div>
                       </div>
                       <!--Buttons-->

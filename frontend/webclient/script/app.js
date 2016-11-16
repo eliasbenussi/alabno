@@ -217,12 +217,7 @@ theapp.controller('professorController', function($scope) {
   
   // editlist: list of old annotations that need to be changed/removed
   $scope.editing_file = null;
-  
-  // The annotation being edited by the user
-  $scope.editing_annotation = "";
-  
-  $scope.editing_ann_type = "";
-  
+
   $scope.editing_data_entry = null;
   
   $scope.editing_lineno = 0;
@@ -259,14 +254,14 @@ theapp.controller('professorController', function($scope) {
   
   $scope.add_feedback_annotation = function(filename, lineno, text, oldannotation, data_entry) {
       if (!$scope.editing_file) {
+          $scope.editing_data_entry = data_entry;
           $scope.editing_file = filename;
-          $scope.editing_annotation = oldannotation;
-          $scope.editing_ann_type = "semantic";
+          $scope.editing_data_entry.editing_annotation = oldannotation;
+          $scope.editing_data_entry.editing_ann_type = "semantic";
           $scope.editing_lineno = lineno;
           $scope.add_editing_source(lineno, text);
           console.log('opening editor...')
           data_entry.show_editor = true;
-          $scope.editing_data_entry = data_entry;
       } else {
           // check that it's the same filename
           if (filename != $scope.editing_file) {
@@ -284,7 +279,7 @@ theapp.controller('professorController', function($scope) {
       msgobj.id = $globals.token;
       msgobj.filename = filename;
       msgobj.source = sourcetext;
-      msgobj.ann_type = "";
+      msgobj.ann_type = "ok";
       msgobj.annotation = "ok";
       msgobj.lineno = lineno;
       
@@ -297,8 +292,8 @@ theapp.controller('professorController', function($scope) {
       msgobj.id = $globals.token;
       msgobj.filename = $scope.editing_file;
       msgobj.source = $scope.editing_source_cache;
-      msgobj.ann_type = $scope.editing_ann_type;
-      msgobj.annotation = $scope.editing_annotation;
+      msgobj.ann_type = $scope.editing_data_entry.editing_ann_type;
+      msgobj.annotation = $scope.editing_data_entry.editing_annotation;
       msgobj.lineno = $scope.editing_lineno;
       
       $globals.send(JSON.stringify(msgobj));
@@ -307,8 +302,8 @@ theapp.controller('professorController', function($scope) {
   $scope.feedback_clear = function() {
       $scope.editing_data_entry.show_editor = false;
       $scope.editing_file = null;
-      $scope.editing_annotation = "";
-      $scope.editing_ann_type = "";
+      $scope.editing_data_entry.editing_annotation = "";
+      $scope.editing_data_entry.editing_ann_type = "";
       $scope.editing_data_entry = null;
       $scope.editing_source = [];
       $scope.editing_source_cache = "";

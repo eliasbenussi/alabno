@@ -42,6 +42,11 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
         // add it to the map
         existingAnnotationsToIdentifiers.put(annotation, newName.name);
         
+        // format source, type and annotation
+        source = source.replace("\n", "\\n").replace("\t", "\\t");
+        type = type.replace("\n", "\\n").replace("\t", "\\t");
+        annotation = annotation.replace("\n", "\\n").replace("\t", "\\t");
+        
         String queryCategories = "INSERT INTO HaskellCategories (name, type, annotation) VALUES (?, ?, ?)";
         String[] parametersCategories = {newName.name, type, annotation};
 

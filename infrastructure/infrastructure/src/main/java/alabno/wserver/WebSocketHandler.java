@@ -79,13 +79,14 @@ public class WebSocketHandler {
             String source = parser.getString("source");
             String annType = parser.getString("ann_type");
             String annotation = parser.getString("annotation");
-            this.updaters.updateAll(source, annType, annotation);
-            
+
             String fileName = parser.getString("filename");
             int lineno = parser.getInt("lineno");
             String token = parser.getString("id");
             
             amendFile(fileName, lineno, annType, annotation, token);
+            
+            updaters.updateAll(source, annType, annotation);
         } catch (Exception e) {
             e.printStackTrace();
         }
