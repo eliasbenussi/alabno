@@ -1,23 +1,16 @@
 package alabno.wserver;
 
+import alabno.msfeedback.FeedbackUpdaters;
 import alabno.utils.ConnUtils;
+import alabno.utils.FileUtils;
 import org.java_websocket.WebSocket;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import alabno.msfeedback.FeedbackUpdaters;
-import alabno.utils.ConnUtils;
-import org.json.simple.parser.JSONParser;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 public class WebSocketHandler {
@@ -231,8 +224,8 @@ public class WebSocketHandler {
         JSONArray filesWithAnnotations = new JSONArray();
         for (String uniqueFile : uniqueFiles) {
             Path filePath = Paths.get(uniqueFile);
-            List<String> fileLines = splitFileOnNewLine(filePath);
-            String fileName = filePath.getFileName().toString();
+            List<String> fileLines = FileUtils.splitFileOnNewLine(filePath);
+            String fileName = FileUtils.getFileName(filePath);
             JSONObject annotatedFile = new JSONObject();
             annotatedFile.put("filename", fileName);
             JSONArray fileData = generateAnnotatedFile(filePath.toString(), feedbackMap, fileLines);
@@ -295,28 +288,6 @@ public class WebSocketHandler {
                 annotations.add(new AnnotationWrapper(i, ""));
             }
         }
-    }
-
-    /**
-     * Split the file on new-line
-     * and group the lines in a list.
-     * N.B.: the lines are indexed from 0 in the list.
-     * @param filePath
-     * @return list of lines
-     */
-    private List<String> splitFileOnNewLine(Path filePath) {
-        List<String> linesList = new ArrayList<>();
-        File file = new File(filePath.toString());
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(file));
-            String line;
-            while ((line = br.readLine()) != null) {
-                linesList.add(line);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return linesList;
     }
 
     private void handleGetJob(JsonParser parser, WebSocket conn) {
