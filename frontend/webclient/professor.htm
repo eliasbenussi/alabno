@@ -217,12 +217,16 @@
                   <td>{{data_entry.annotation}}</td>
                   <td>
                       <div class="row">
-                        <img ng-show="data_entry.show_icons" src="icon/edit.png">
+                        <button ng-show="data_entry.show_icons" class="btn btn-default">
+                          <img src="icon/edit.png">
+                        </button>
                       </div>
                   </td>
                   <td>
                       <div class="row">
-                        <img ng-show="data_entry.show_icons" src="icon/delete.png">
+                        <button ng-show="data_entry.show_icons" class="btn btn-default">
+                          <img src="icon/delete.png">
+                        </button>
                       </div>
                   </td>
                 </tr>
