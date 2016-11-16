@@ -104,7 +104,7 @@
   </ul>
 </div>
 
-<!--DISPLAY STUDENT RESULT SECTION-->
+<!--DISPLAY STUDENT RESULT SECTION (OLD) -->
 <div ng-show="show_student_result">
 
   <div class="page-header">
@@ -167,7 +167,7 @@
 
 </div>
 
-<!-- DISPLAY ANNOTATED FILE SECTION -->
+<!-- DISPLAY ANNOTATED FILE SECTION (NEW)-->
 
 <div ng-show="show_annotated_file">
 
@@ -211,10 +211,20 @@
                 </tr>
               </thead>
               <tbody>
-                <tr class="noBorder" ng-class="(data_entry.annotation === '') ? '' : 'danger'" ng-repeat="data_entry in file.data">
+                <tr class="noBorder" ng-class="(data_entry.annotation === '') ? '' : 'danger'" ng-repeat="data_entry in file.data" ng-mouseenter="data_entry.show_icons=true" ng-mouseleave="data_entry.show_icons=false">
                   <td>{{data_entry.no}}</td>
                   <td>{{data_entry.content}}</td>
                   <td>{{data_entry.annotation}}</td>
+                  <td>
+                      <div class="row">
+                        <img ng-show="data_entry.show_icons" src="icon/edit.png">
+                      </div>
+                  </td>
+                  <td>
+                      <div class="row">
+                        <img ng-show="data_entry.show_icons" src="icon/delete.png">
+                      </div>
+                  </td>
                 </tr>
               </tbody>
             </table>
