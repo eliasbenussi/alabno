@@ -202,7 +202,7 @@
           <!--Table of annotations-->
           <div class="row" ng-repeat="file in annotated_files">
             <p>File: {{file.filename}}</p>
-            <table class="table table-hover borderless">
+            <table class="table table-sm borderless">
               <thead>
                 <tr>
                   <th>Line Number</th>
@@ -217,7 +217,7 @@
                   <td>{{data_entry.annotation}}</td>
                   <td>
                       <div class="row">
-                        <button ng-show="data_entry.show_icons" class="btn btn-default">
+                        <button ng-show="data_entry.show_icons" class="btn btn-default" ng-click="add_feedback_annotation(file.filename,data_entry.no,data_entry.content,data_entry.annotation,data_entry)">
                           <img src="icon/edit.png">
                         </button>
                       </div>
@@ -227,6 +227,18 @@
                         <button ng-show="data_entry.show_icons" class="btn btn-default">
                           <img src="icon/delete.png">
                         </button>
+                      </div>
+                      <div class="row" ng-show="data_entry.show_editor">
+                        <p>Editor</p>
+                        <!--Source code -->
+                        <div class="row">
+                            <div class="col-xs-12">
+                              <div class="panel panel-default">
+                                {{editing_source_cache}}
+                              </div>
+                            </div>
+                        </div>
+                        <!--Annotation -->
                       </div>
                   </td>
                 </tr>

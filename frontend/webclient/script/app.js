@@ -211,6 +211,56 @@ theapp.controller('professorController', function($scope) {
   $scope.reset_annotated_result = function() {
     $scope.annotated_files = {};
   };
+  
+  // ###################################################################
+  // Feedback management and annotation editing
+  
+  // editlist: list of old annotations that need to be changed/removed
+  $scope.editing_file = null;
+  
+  // The annotation being edited by the user
+  $scope.editing_annotation = "";
+  
+  // The source code being used
+  // each element has lineno and text
+  $scope.editing_source = [];
+  $scope.editing_source_cache = "";
+  $scope.sort_editing_source = function() {
+      // sort
+      $scope.editing_source.sort(function(a, b) {return a.lineno - b.lineno});
+      
+      var acc = '';
+      for (var i = 0; i < $scope.editing_source.length; i++) {
+          acc += $scope.editing_source[i].text;
+      }
+      $scope.editing_source_cache = acc;
+  }
+  
+  $scope.add_feedback_annotation = function(filename, lineno, text, oldannotation, data_entry) {
+      if (!$scope.editing_file) {
+          $scope.editing_file = filename;
+          $scope.editing_annotation = oldannotation;
+          var source_obj = {};
+          source_obj.lineno = lineno;
+          source_obj.text = text;
+          $scope.editing_source.push(source_obj);
+          $scope.sort_editing_source();
+          console.log('opening editor...')
+          data_entry.show_editor = true;
+      } else {
+          // check that it's the same filename
+          if (filename != $scope.editing_file) {
+              alert('You cannot add a source line from a different file');
+              return;
+          }
+          
+          var source_obj = {};
+          source_obj.lineno = lineno;
+          source_obj.text = text;
+          $scope.editing_source.push(source_obj);
+          $scope.sort_editing_source()
+      }
+  }
 
   ;
 });
