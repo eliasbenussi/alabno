@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 public class FileUtils {
 
     private static String workDir = ".";
+    private static final Pattern pattern = Pattern.compile("commit.");
 
     public static void initWorkDir() {
         workDir = System.getProperty("user.dir");
@@ -78,7 +79,6 @@ public class FileUtils {
 
         // Work backwards to get everything up to .../commitX/
         Path parentPath = filePath.getParent();
-        Pattern pattern = Pattern.compile("commit.");
 
         String parentDir = "";
         String out = "";
