@@ -68,5 +68,9 @@ public class JsonParser {
 	{
 		return jobject != null;
 	}
+	
+	public JSONObject getObject() {
+	    return jobject;
+	}
 
 }

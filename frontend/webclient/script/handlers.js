@@ -136,6 +136,8 @@ $handlers.handle_annotated_file = function(msgobj) {
       data_entry.no = files[i].data[j].no;
       data_entry.content = files[i].data[j].content;
       data_entry.annotation = files[i].data[j].annotation;
+      data_entry.show_icons = false;
+      data_entry.show_editor = false;
       data_list.push(data_entry);
     }
     file.data = data_list;

@@ -75,10 +75,31 @@ public class WebSocketHandler {
     }
 
     private void handleFeedback(JsonParser parser, WebSocket conn) {
-        String source = parser.getString("source");
-        String annType = parser.getString("ann_type");
-        String annotation = parser.getString("annotation");
-        this.updaters.updateAll(source, annType, annotation);
+        try {
+            String source = parser.getString("source");
+            String annType = parser.getString("ann_type");
+            String annotation = parser.getString("annotation");
+            String fileName = parser.getString("filename");
+            int lineno = parser.getInt("lineno");
+            String token = parser.getString("id");
+            
+            amendFile(fileName, lineno, annType, annotation, token);
+            
+            updaters.updateAll(source, annType, annotation);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void amendFile(String fileName, int lineno, String annType, String annotation, String token) {
+        // get the postpro.json file
+        UserState userSession = sessionManager.getUserState(token);
+        String title = userSession.getTitle();
+        String studentNumber = userSession.getStudent();
+        
+        List<StudentJob> group = allJobs.getJobGroupByTitle(title);
+        StudentJob studentJob = group.get(Integer.parseInt(studentNumber));
+        studentJob.amend(fileName, lineno, annType, annotation);
     }
 
     private void handleRetrieveResult(JsonParser parser, WebSocket conn) {
@@ -119,6 +140,11 @@ public class WebSocketHandler {
             ConnUtils.sendAlert(conn, "retrieve_results: student id out of range");
             return;
         }
+        
+        UserState userState = sessionManager.getUserState(parser.getString("id"));
+        // update user state
+        userState.setTitle(title);
+        userState.setStudent(student);
 
         StudentJob studentJob = group.get(studentNumber);
 

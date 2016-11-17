@@ -104,7 +104,7 @@
   </ul>
 </div>
 
-<!--DISPLAY STUDENT RESULT SECTION-->
+<!--DISPLAY STUDENT RESULT SECTION (OLD) -->
 <div ng-show="show_student_result">
 
   <div class="page-header">
@@ -167,7 +167,7 @@
 
 </div>
 
-<!-- DISPLAY ANNOTATED FILE SECTION -->
+<!-- DISPLAY ANNOTATED FILE SECTION (NEW)-->
 
 <div ng-show="show_annotated_file">
 
@@ -202,7 +202,7 @@
           <!--Table of annotations-->
           <div class="row" ng-repeat="file in annotated_files">
             <p>File: {{file.filename}}</p>
-            <table class="table table-hover borderless">
+            <table class="table table-sm borderless">
               <thead>
                 <tr>
                   <th>Line Number</th>
@@ -211,10 +211,68 @@
                 </tr>
               </thead>
               <tbody>
-                <tr class="noBorder" ng-class="(data_entry.annotation === '') ? '' : 'danger'" ng-repeat="data_entry in file.data">
+                <tr class="noBorder" ng-class="(data_entry.annotation === '') ? '' : 'danger'" ng-repeat="data_entry in file.data" ng-mouseenter="data_entry.show_icons=true" ng-mouseleave="data_entry.show_icons=false">
                   <td>{{data_entry.no}}</td>
-                  <td>{{data_entry.content}}</td>
-                  <td>{{data_entry.annotation}}</td>
+                  <td><pre class="sourcecode">{{data_entry.content}}</pre></td>
+                  <td>
+                    <div class="row">
+                      {{data_entry.annotation}}
+                    </div>
+                    
+                    <!--EDITOR-->
+                    <div class="row" ng-show="data_entry.show_editor">
+                      <p>Editor</p>
+                      <!--Source code -->
+                      <div class="row">
+                          <div class="col-xs-12">
+                            <div class="panel panel-default pre-wrap-panel">
+                              <p>{{editing_source_cache}}</p>
+                            </div>
+                          </div>
+                      </div>
+                      <!--Annotation -->
+                      <div class="row">
+                        <div class="col-xs-12">
+                          <textarea class="form-control" ng-model="data_entry.editing_annotation"></textarea>
+                        </div>
+                      </div>
+                      <!--Annotation type-->
+                      <div class="row">
+                        <div class="col-xs-12">
+                          <textarea class="form-control" ng-model="data_entry.editing_ann_type"></textarea>
+                        </div>
+                      </div>
+                      <!--Buttons-->
+                      <div class="row">
+                        <div class="col-xs-4">
+                          <button class="btn btn-default" ng-click="submit_feedback_annotation()">Submit</button>
+                        </div>
+                        <div class="col-xs-4">
+                          <p><font color="green">{{feedback_sent}}</font></p>
+                        </div>
+                        <div class="col-xs-4">
+                          <button class="btn btn-default" ng-click="feedback_clear()">Close</button>
+                        </div>
+                      </div>
+                    </div>
+                    <!--END EDITOR-->
+                    
+                  </td>
+                  <td>
+                      <div class="row">
+                        <button ng-show="data_entry.show_icons" class="btn btn-default" ng-click="add_feedback_annotation(file.filename,data_entry.no,data_entry.content,data_entry.annotation,data_entry)">
+                          <img src="icon/edit.png">
+                        </button>
+                      </div>
+                  </td>
+                  <td>
+                      <div class="row">
+                        <button ng-show="data_entry.show_icons" class="btn btn-default" ng-click="delete_feedback_annotation(file.filename, data_entry.no, data_entry.content, data_entry.annotation, data_entry)">
+                          <img src="icon/delete.png">
+                        </button>
+                      </div>
+
+                  </td>
                 </tr>
               </tbody>
             </table>
