@@ -98,6 +98,7 @@ public class StudentJob {
 
     String toAbsolute(String relpath) {
         // utility to convert to absolute path based on the relative one
+        // the 17 removes the final part of the path containing _out/postpro.json
         return jsonLocation.substring(0, Math.max(0, jsonLocation.length() - 17)) + "/" + relpath;
     }
 }
