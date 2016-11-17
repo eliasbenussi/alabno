@@ -27,7 +27,8 @@ object App {
       annotations = a
       score = s
     } catch {
-      case e: Exception => errors += e.getMessage
+      case e: Exception => e.printStackTrace()
+        errors += e.getMessage
     }
     MicroServiceOutputParser.writeFile(new File(args apply 1), score,
       annotations.asJava, errors.asJava)

@@ -48,16 +48,17 @@ class HaskellProcessor(modelAnswer: File, studentAnswer: File) {
     * Copies the Model test suite to the student, just in case they changed it
     */
   def prepare(): Unit = {
-    val benchFile = "/Bench.hs"
+    val benchFile = "backend/complexity_analyser/res/Bench.hs"
     val tests = "/Tests.hs"
-    val bench = new File(getClass.getResource(benchFile).toURI)
+    val bench = new File(benchFile)
     if (!bench.exists()) throw new Exception("Missing resource Bench.hs")
     if (!modelAnswer.isDirectory) throw new Exception("Model solution should be a directory")
     if (!studentAnswer.isDirectory) throw new Exception("Student submission should be a directory")
-    val mod = new File(modelAnswer.toPath.toString + benchFile)
+    val mod = new File(modelAnswer.toPath.toString + bench.getName)
     val modTest = new File(modelAnswer.toPath.toString + tests).toPath
     val studTest = new File(studentAnswer.toPath.toString + tests).toPath
-    val stud = new File(studentAnswer.toPath.toString + benchFile)
+    println(modTest, studTest)
+    val stud = new File(studentAnswer.toPath.toString + bench.getName)
     studentAnswer.listFiles().filter(hFilter).foreach(findFunctions)
     // Ensure that both versions have the same Tests.hs file
     copy(modTest, studTest, REPLACE_EXISTING)
