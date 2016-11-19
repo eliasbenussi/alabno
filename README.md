@@ -48,3 +48,28 @@ For local testing, use 'albano' as passphrase. Before you can use WSS with a sel
 Now you can navigate to localhost:8000 (https://localhost:4443 if https)
 
 and submit a job as professor
+
+
+# File downloads
+
+The flask server allows to use special tokens for file downloads.
+
+Example: to create the token for file alabno/tmp/test.txt
+run script alabno/frontend/CreateDownloadToken with argument
+alabno/tmp/test.txt
+CreateDownloadToken will print to stdout the token that can be used to retrieve the file.
+
+It's also possible to write the token to file with
+```
+./CreateDownloadToken alabno/tmp/test.txt --out /tmp/token.txt
+```
+
+To give users access to the file, use the link
+```
+http://localhost:8000/result/token
+```
+or
+```
+http://tc.jstudios.ovh:8000/result/token
+```
+replacing token with the token, and replacing https and ports with the correct combination.

@@ -1,0 +1,65 @@
+#!/usr/bin/env python
+
+import os
+import sys
+import subprocess
+import argparse
+import binascii
+
+parser = argparse.ArgumentParser()
+    
+parser.add_argument('downloadpath',
+                    )
+
+parser.add_argument('--out',
+                    default=None
+                    )
+
+args = parser.parse_args()
+
+
+
+# CALCULATE DIRECTORIES ######################
+
+# alabno/frontend
+exec_dir = os.path.abspath(os.path.dirname(os.path.abspath(__file__)))
+# alabno/
+alabno_dir = os.path.abspath(exec_dir + os.sep + '..')
+
+# import database
+mysqldb_dir = exec_dir + os.sep + '..' + os.sep + 'simple-haskell-marker'
+sys.path.append(mysqldb_dir)
+import mysqldb
+db = mysqldb.MysqlConn()
+
+# UTILITY FUNCTIONS ##########################
+
+def get_random_hash():
+    return binascii.hexlify(os.urandom(16))
+
+def get_random_token(db):
+    for i in range(100):
+        rand_hash = get_random_hash()
+        sql = 'SELECT `token` FROM `PdfPaths` WHERE `token` = %s'
+        results = db.query(sql, [rand_hash])
+        if len(results) == 0:
+            return rand_hash
+
+# relative download path
+download_rel_path = os.path.relpath(args.downloadpath, alabno_dir)
+
+# generate a random token
+rand_token = get_random_token(db)
+
+# insert into database
+sql = 'INSERT INTO `PdfPaths`(`token`, `path`) VALUES (%s,%s)'
+db.execute(sql, [rand_token, download_rel_path])
+
+# print out result
+print(rand_token)
+
+# write to file if necessary
+if args.out is not None:
+    out_file = open(args.out, 'w')
+    out_file.write(rand_token)
+    out_file.close()
