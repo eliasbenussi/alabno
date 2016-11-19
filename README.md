@@ -73,3 +73,5 @@ or
 http://tc.jstudios.ovh:8000/result/token
 ```
 replacing token with the token, and replacing https and ports with the correct combination.
+
+A token will be valid only for a limited amount of time. By default this is 20 minutes.
