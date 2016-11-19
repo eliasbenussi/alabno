@@ -4,96 +4,72 @@ import os
 import sys
 import pymysql.cursors
 import subprocess
+import datetime
+import imp
 
-class MysqlConn:
-    def __init__(self):
-        self.connection = None
-        
-    def dbconnect(self):
-        try:
-            self.connection = pymysql.connect(host='tc.jstudios.ovh',
-                                user='python',
-                                password='python',
-                                db='Automarker',
-                                charset='utf8mb4',
-                                cursorclass=pymysql.cursors.DictCursor)
-        except:
-            print(traceback.format_exc())
-            
-    def query(self, sql):
-        try:
-            self.dbconnect()
-            with self.connection.cursor() as cursor:
-                cursor.execute(sql)
-                result = cursor.fetchall()
-                return result
-        except:
-            print(traceback.format_exc())
-            self.dbconnect()
-            return None
-    
-    def execute(self, sql):
-        try:
-            self.dbconnect()
-            with self.connection.cursor() as cursor:
-                cursor.execute(sql)
-                self.connection.commit()
-                return
-        except:
-            print(traceback.format_exc())
-            self.dbconnect()
-            return None
 
-def get_pdf_path(db, token):
-    sql = 'SELECT path FROM PdfPaths WHERE token="{}"'.format(token)
-    results = db.query(sql)
-    print('results')
-    print(results)
-    if results is None:
-        print('No path given token {} found'.format(token))
-        return None
-    try:
-        final = results[0]['path']
-        print('final is ')
-        print(final)
-        # now delete the entry
-        sql = 'DELETE FROM `PdfPaths` WHERE `token`="{}"'.format(token)
-        db.execute(sql)
-        return final
-    except:
-        print(traceback.format_exc())
-        return None
-    
-def get_upload_path(db, token):
-    sql = 'SELECT path FROM UploadPaths WHERE token="{}"'.format(token)
-    results = db.query(sql)
-    print('results')
-    print(results)
-    if results is None:
-        print('No path given token {} found'.format(token))
-        return None
-    try:
-        final = results[0]['path']
-        print('final is ')
-        print(final)
-        # now delete the entry
-        sql = 'DELETE FROM `UploadPaths` WHERE `token`="{}"'.format(token)
-        db.execute(sql)
-        return final
-    except:
-        print(traceback.format_exc())
-        return None
-
-db = MysqlConn()
-
-app = flask.Flask(__name__)
-
+# alabno/frontend
 exec_dir = os.path.abspath(os.path.dirname(os.path.abspath(__file__)))
 
 pdf_path_dir = os.path.abspath(exec_dir + '/..')
 
 upload_path_dir = os.path.abspath(exec_dir + '/../uploads')
 subprocess.call('mkdir {}'.format(upload_path_dir), shell=True)
+
+# import mysqldb.py
+mysqldb_dir = exec_dir + os.sep + '..' + os.sep + 'simple-haskell-marker'
+sys.path.append(mysqldb_dir)
+import mysqldb
+
+
+def datetime_past_seconds(time):
+    now = datetime.datetime.now()
+    difference = now - time
+    return difference.total_seconds()
+    
+
+def get_pdf_path(db, token):
+    sql = 'SELECT path, created FROM PdfPaths WHERE token=%s'
+    results = db.query(sql, [token])
+    print('results')
+    print(results)
+    if results is None:
+        print('No path given token {} found'.format(token))
+        return None
+    try:
+        final_path = results[0]['path']
+        final_timestamp = results[0]['created']
+        seconds_past = datetime_past_seconds(final_timestamp)
+        print('seconds past {}'.format(seconds_past))
+        if seconds_past > (60 * 20): # expiration is after 1 hour
+            sql = 'DELETE FROM `PdfPaths` WHERE `token`=%s'
+            db.execute(sql, [token])
+            return None
+        return final_path
+    except:
+        print(traceback.format_exc())
+        return None
+    
+def get_upload_path(db, token):
+    sql = 'SELECT path FROM UploadPaths WHERE token=%s'
+    results = db.query(sql, [token])
+    print('results')
+    print(results)
+    if results is None:
+        print('No path given token {} found'.format(token))
+        return None
+    try:
+        final = results[0]['path']
+        print('final is ')
+        print(final)
+        return final
+    except:
+        print(traceback.format_exc())
+        return None
+
+db = mysqldb.MysqlConn()
+
+app = flask.Flask(__name__)
 
 secure = False
 if len(sys.argv) >= 2 and sys.argv[1] == 'https':
