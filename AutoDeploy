@@ -41,6 +41,7 @@ original_parent = os.path.abspath(exec_dir + os.sep + '..')
 screen_name = 'alabnodaemonservice'
 
 def call_and_check(cmd):
+    print('>> {}'.format(cmd))
     code = subprocess.call(cmd, shell=True)
     if code != 0:
         print('Command <{}> returned code {}'.format(cmd, code))
@@ -66,7 +67,7 @@ domain_name = args.domain
 os.chdir(parent_directory)
 
 # remove the existing directory
-call_and_check('rm -rf {}'.format(target_directory_name))
+call_and_check('rm -rf {}'.format(destination_directory))
 
 # clone the repository
 if args.simulate:
