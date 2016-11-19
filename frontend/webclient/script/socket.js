@@ -12,20 +12,20 @@ $globals.socket.onopen = function() {
 
 $globals.socket.onmessage = function(message) {
     console.log(message.data);
-    
+
     var msgobj = undefined;
-    
+
     try {
         msgobj = JSON.parse(message.data);
     } catch (err) {
         console.log(err);
         return;
     }
-    
+
     if (!msgobj.type) {
         console.log("message is missing type info");
     }
-    
+
     if (msgobj.type == 'login_success') {
         $handlers.handle_login_success(msgobj);
     } else if (msgobj.type == 'login_fail') {
@@ -40,8 +40,9 @@ $globals.socket.onmessage = function(message) {
         $handlers.handle_job_group(msgobj);
     } else if (msgobj.type == 'postpro_result') {
         $handlers.handle_postpro_result(msgobj);
-    }
-    else {
+    } else if (msgobj.type == 'annotated_files') {
+        $handlers.handle_annotated_file(msgobj);
+    } else {
         console.log("message type not recognized: " + msgobj.type);
     }
 };
