@@ -1,4 +1,4 @@
-all: infrastructure backend simple-haskell-marker
+all: frontend infrastructure backend simple-haskell-marker
 
 test: all backendtest infrastructuretest simple-haskell-marker-test
 
@@ -20,10 +20,13 @@ simple-haskell-marker:
 simple-haskell-marker-test:
 	cd simple-haskell-marker && make test
 
+frontend:
+	cd frontend && make
+
 clean:
 	- cd backend && mvn clean -q
 	- cd infrastructure/infrastructure && mvn clean -q
 	- cd simple-haskell-marker && make clean
 	- rm -rf tmp
 
-.PHONY: clean infrastructure backend simple-haskell-marker simple-haskell-marker-test
+.PHONY: clean infrastructure backend simple-haskell-marker simple-haskell-marker-test frontend

@@ -3,50 +3,79 @@
 import os
 import sys
 import subprocess
+import argparse
+
+parser = argparse.ArgumentParser()
+    
+parser.add_argument('destination'
+                    )
+
+parser.add_argument('domain'
+                    )
+
+parser.add_argument('pem',
+                    nargs='?',
+                    default=None
+                    )
+
+parser.add_argument('jks',
+                    nargs='?',
+                    default=None
+                    )
+
+parser.add_argument('--simulate',
+                    action='store_true',
+                    default=False
+                    )
+
+args = parser.parse_args()
+
+# SETUP PATHS ##############################
+
+# exec dir is alabno/
+exec_dir = os.path.abspath(os.path.dirname(os.path.abspath(__file__)))
+original_parent = os.path.abspath(exec_dir + os.sep + '..')
+
+
 
 screen_name = 'alabnodaemonservice'
 
 def call_and_check(cmd):
+    print('>> {}'.format(cmd))
     code = subprocess.call(cmd, shell=True)
     if code != 0:
         print('Command <{}> returned code {}'.format(cmd, code))
         sys.exit(1)
     return
 
-# get output directory
-if len(sys.argv) < 3:
-    print('Usage: ./AutoDeploy <destination> <example.com> [server.pem][mykeystore.jks]')
-    sys.exit(1)
-
-pem_file = None
-if len(sys.argv) >= 4:
-    pem_file = os.path.abspath(sys.argv[3])
-
-jks_file = None
-if len(sys.argv) >= 5:
-    jks_file = os.path.abspath(sys.argv[4])
+pem_file = args.pem
+jks_file = args.jks
 
 # stop any running servers
 cmd = 'screen -X -S {} quit'.format(screen_name)
 subprocess.call(cmd, shell=True)
 
 # calculate directory paths
-destination_directory = os.path.abspath(sys.argv[1])
+destination_directory = os.path.abspath(args.destination)
 parent_directory = os.path.abspath(destination_directory + os.sep + '..')
 target_directory_name = os.path.basename(os.path.normpath(destination_directory))
 
 # get domain name
-domain_name = sys.argv[2]
+domain_name = args.domain
 
 # go to the parent directory
 os.chdir(parent_directory)
 
 # remove the existing directory
-call_and_check('rm -rf {}'.format(target_directory_name))
+call_and_check('rm -rf {}'.format(destination_directory))
 
 # clone the repository
-cmd = 'git clone https://github.com/ke00n/alabno --depth 1 {}'.format(target_directory_name)
-call_and_check(cmd)
+if args.simulate:
+    cmd = 'cp -R {} {}'.format(exec_dir, destination_directory)
+    call_and_check(cmd)
+else:
+    cmd = 'git clone https://github.com/ke00n/alabno --depth 1 {}'.format(target_directory_name)
+    call_and_check(cmd)
 
 # cd into it
 os.chdir(destination_directory)
