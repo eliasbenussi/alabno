@@ -73,7 +73,6 @@ call_and_check('rm -rf {}'.format(destination_directory))
 if args.simulate:
     cmd = 'cp -R {} {}'.format(exec_dir, destination_directory)
     call_and_check(cmd)
-
 else:
     cmd = 'git clone https://github.com/ke00n/alabno --depth 1 {}'.format(target_directory_name)
     call_and_check(cmd)
