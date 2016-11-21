@@ -30,7 +30,7 @@
   </head>
 
   <body>
-    <div id="wrapper">
+    <div ng-app="myapp" ng-controller="mycontroller" id="wrapper">
       <!--Sidebar-->
       <div id="sidebar-wrapper">
         <ul class="sidebar-nav">
@@ -38,15 +38,15 @@
             <a href="#">ALABNO</a>
           </li>
           <li>
-            <a href="#">Professor View</a>
+            <a href ng-click="professor_button_clicked()">Professor View</a>
           </li>
           <li>
-            <a href="#">Student View</a>
+            <a href ng-click="student_button_clicked()">Student View</a>
           </li>
         </ul>
       </div><!-- /#sidebar-wrapper -->
 
-      <div ng-app="myapp" ng-controller="mycontroller" id="page-content-wrapper">
+      <div id="page-content-wrapper">
 
         <div class="row">
           <div class="col-xs-6">
@@ -55,35 +55,21 @@
         </div>
         <a href="#menu-toggle" class="btn btn-default" id="menu-toggle">Toggle menu</a>
 
-        <!--The switch between professor and student view will be managed automatically-->
-        <div class="row">
-          <div class="col-xs-6">
-            <button ng-click="professor_button_clicked()">Professor View</button>
-          </div>
-          <div class="col-xs-6">
-            <button ng-click="student_button_clicked()">Student View</button>
-          </div>
-        </div>
-
         <!--Login section-->
-        <div class="row">
-          <div class="col-xs-12">
+        <form>
+          <div class="row form-group">
             <p>Warning: login not implemented yet, do not insert a sensitive password</p>
+            <div class="col-xs-4">
+              <input class="form-control" type="text" placeholder="username" ng-model="username">
+            </div>
+            <div class="col-xs-4">
+              <input type="password" placeholder="password" ng-model="password" ng-keypress="login_enter($event)">
+            </div>
+            <div class="col-xs-4">
+              <button ng-click="login_clicked()">Login</button>
+            </div>
           </div>
-        </div>
-
-        <div class="row">
-          <div class="col-xs-4">
-            <input type="text" placeholder="username" ng-model="username">
-          </div>
-          <div class="col-xs-4">
-            <input type="password" placeholder="password" ng-model="password" ng-keypress="login_enter($event)">
-          </div>
-          <div class="col-xs-4">
-            <button ng-click="login_clicked()">Login</button>
-          </div>
-        </div>
-
+        </form>
         <div ng-view></div>
 
       </div><!-- /#page-content-wrapper -->
