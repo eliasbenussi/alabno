@@ -10,7 +10,6 @@ import java.sql.ResultSetMetaData;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -53,6 +52,7 @@ public class MySqlDatabaseConnection {
     private void connect() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
+            DriverManager.setLoginTimeout(10);
             conn = DriverManager.getConnection(DB_URL, USER, dbPassword);
         } catch (Exception e) {
             e.printStackTrace();
@@ -60,7 +60,8 @@ public class MySqlDatabaseConnection {
     }
 
     /**
-     * @param sql the SELECT query
+     * @param sql
+     *            the SELECT query
      * @return results of the query where columns content is all strings
      */
     public List<Map<String, String>> retrieveQueryString(String sql) {
@@ -104,13 +105,14 @@ public class MySqlDatabaseConnection {
     }
 
     /**
-     * @param query the SELECT query
+     * @param query
+     *            the SELECT query
      * @return results of the query
      */
     public List<Map<String, Object>> retrieveQuery(String query) {
-        return retrieveQuery(query, new String[0],true);
+        return retrieveQuery(query, new String[0], true);
     }
-    
+
     public List<Map<String, Object>> retrieveStatement(String query, String[] parameters) {
         return retrieveQuery(query, parameters, true);
     }
@@ -126,7 +128,7 @@ public class MySqlDatabaseConnection {
             for (int i = 0; i < parameters.length; i++) {
                 stmt.setString(i + 1, parameters[i]);
             }
-            
+
             ResultSet rs = stmt.executeQuery();
 
             Map<String, Object> row;
@@ -152,11 +154,10 @@ public class MySqlDatabaseConnection {
         }
         return result;
     }
-    
-    
 
     /**
-     * @param query the INSERT, UPDATE, or DELETE query
+     * @param query
+     *            the INSERT, UPDATE, or DELETE query
      * @return number of rows returned
      */
     public int executeQuery(String query) {
@@ -184,8 +185,10 @@ public class MySqlDatabaseConnection {
     }
 
     /**
-     * @param query the INSERT, UPDATE, or DELETE query
-     * @param parameters to interpolate in statement
+     * @param query
+     *            the INSERT, UPDATE, or DELETE query
+     * @param parameters
+     *            to interpolate in statement
      * @return number of rows returned
      */
     public int executeStatement(String query, String[] parameters) {
