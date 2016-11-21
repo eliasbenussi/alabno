@@ -21,56 +21,78 @@
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular-route.js"></script>
 
-    <!--Customized CSS-->
-    <link rel="stylesheet" type="text/css" href="custom.css">
+    <!--Custom CSS-->
+    <!--Template-->
+    <link rel="stylesheet" type="text/css" href="css/simple-sidebar.css">
+    <!--Ours-->
+    <link rel="stylesheet" type="text/css" href="css/custom.css">
 
   </head>
 
   <body>
+    <div id="wrapper">
+      <!--Sidebar-->
+      <div id="sidebar-wrapper">
+        <ul class="sidebar-nav">
+          <li class="sidebar-brand">
+            <a href="#">ALABNO</a>
+          </li>
+          <li>
+            <a href="#">Professor View</a>
+          </li>
+          <li>
+            <a href="#">Student View</a>
+          </li>
+        </ul>
+      </div><!-- /#sidebar-wrapper -->
 
-    <div ng-app="myapp" ng-controller="mycontroller">
+      <div ng-app="myapp" ng-controller="mycontroller" id="page-content-wrapper">
 
-      <div class="row">
-        <div class="col-xs-6">
-          <h1><a href="index.html">Auto-Marker</a></h1>
+        <div class="row">
+          <div class="col-xs-6">
+            <h1><a href="index.html">Auto-Marker</a></h1>
+          </div>
         </div>
-      </div>
+        <a href="#menu-toggle" class="btn btn-default" id="menu-toggle">Toggle menu</a>
 
-      <!--The switch between professor and student view will be managed automatically-->
-      <div class="row">
-        <div class="col-xs-6">
-          <button ng-click="professor_button_clicked()">Professor View</button>
+        <!--The switch between professor and student view will be managed automatically-->
+        <div class="row">
+          <div class="col-xs-6">
+            <button ng-click="professor_button_clicked()">Professor View</button>
+          </div>
+          <div class="col-xs-6">
+            <button ng-click="student_button_clicked()">Student View</button>
+          </div>
         </div>
-        <div class="col-xs-6">
-          <button ng-click="student_button_clicked()">Student View</button>
-        </div>
-      </div>
 
-      <!--Login section-->
-      <div class="row">
-        <div class="col-xs-12">
-          <p>Warning: login not implemented yet, do not insert a sensitive password</p>
+        <!--Login section-->
+        <div class="row">
+          <div class="col-xs-12">
+            <p>Warning: login not implemented yet, do not insert a sensitive password</p>
+          </div>
         </div>
-      </div>
 
-      <div class="row">
-        <div class="col-xs-4">
-          <input type="text" placeholder="username" ng-model="username">
+        <div class="row">
+          <div class="col-xs-4">
+            <input type="text" placeholder="username" ng-model="username">
+          </div>
+          <div class="col-xs-4">
+            <input type="password" placeholder="password" ng-model="password" ng-keypress="login_enter($event)">
+          </div>
+          <div class="col-xs-4">
+            <button ng-click="login_clicked()">Login</button>
+          </div>
         </div>
-        <div class="col-xs-4">
-          <input type="password" placeholder="password" ng-model="password" ng-keypress="login_enter($event)">
-        </div>
-        <div class="col-xs-4">
-          <button ng-click="login_clicked()">Login</button>
-        </div>
-      </div>
 
-      <div ng-view></div>
+        <div ng-view></div>
 
-    </div>
+      </div><!-- /#page-content-wrapper -->
+
+    </div><!-- /#wrapper -->
 
   </body>
 
+  <script src="script/menutoggle.js"></script>
   <script src="script/handlers.js"></script>
   <script src="script/endpoint.js"></script>
   <script src="script/socket.js"></script>
