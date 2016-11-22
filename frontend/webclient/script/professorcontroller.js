@@ -101,23 +101,15 @@ theapp.controller('professorController', function($scope) {
   };
 
   // #########################################################################
-  // Display tabs with selection of view to show results in
-
-  $scope.final_result_select_group = function(job_title, student_id) {
-    console.log("Showing tabs for final results");
-    $scope.show_sections('show_final_result_tabs', 'show_professor_exercises');
-    $scope.current_job_title = job_title;
-    $scope.current_student_id = student_id;
-  };
-
-  // #########################################################################
   // List of jobs
 
   // all_jobs contains objects of the type {title: "title", display: function(title), students: []}
   $scope.all_jobs = [];
 
   // get data for specific job and student
-  $scope.get_data = function(subtype) {
+  $scope.get_data = function(job_title, student_id, subtype) {
+    $scope.current_job_title = job_title;
+    $scope.current_student_id = student_id;
     if (subtype == 'postprocessor') {
       $scope.reset_result_postpro();
     } else if (subtype == 'annotated') {

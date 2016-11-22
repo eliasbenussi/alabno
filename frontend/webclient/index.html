@@ -35,13 +35,21 @@
       <div id="sidebar-wrapper">
         <ul class="sidebar-nav">
           <li class="sidebar-brand" class="col-xs-offset-1 col-xs-10">
-            <a href="#">ALABNO</a>
+            <a href="/">ALABNO</a>
           </li>
           <br>
 
-          <li class="col-xs-10">
-            <a href="#">Login below:</a>
+          <li class="col-xs-offset-1 col-xs-10">
+            <div class="alert alert-danger" role="alert">
+              <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+              <span class="sr-only">Error:</span>
+              <strong>Warning:</strong> Login not implemented yet; do not enter a sensitive password!
+            </div>
           </li>
+          <li class="col-xs-10">
+            <p>Login below:</p>
+          </li>
+          <!--Login section-->
           <form class="col-xs-offset-1 col-xs-10">
             <li>
               <div class="form-group">
@@ -56,34 +64,19 @@
             <li>
               <button class="btn btn-success btn-block" ng-click="login_clicked()">Login</button>
             </li>
-          </form>
+          </form><!-- /login -->
         </ul>
       </div><!-- /#sidebar-wrapper -->
 
       <div id="page-content-wrapper">
 
-        <div class="row">
-          <div class="col-xs-6">
-            <h1><a href="index.html">Auto-Marker</a></h1>
-          </div>
+        <div class="page-header">
+          <h1>Welcome to ALABNO - Your trusty Auto-Marker</h1>
         </div>
+
+        <!-- BUTTON TO TOGGLE SIDEBAR APPEARING -->
         <!-- <a href="#menu-toggle" class="btn btn-default" id="menu-toggle">Toggle menu</a> -->
 
-        <!--Login section-->
-        <form>
-          <div class="row form-group">
-            <p>Warning: login not implemented yet, do not insert a sensitive password</p>
-            <div class="col-xs-4">
-              <input class="form-control" type="text" placeholder="username" ng-model="username">
-            </div>
-            <div class="col-xs-4">
-              <input type="password" placeholder="password" ng-model="password" ng-keypress="login_enter($event)">
-            </div>
-            <div class="col-xs-4">
-              <button ng-click="login_clicked()">Login</button>
-            </div>
-          </div>
-        </form>
         <div ng-view></div>
 
       </div><!-- /#page-content-wrapper -->

@@ -7,101 +7,106 @@
 <!--PROFESSOR VISIBLE EXERCISES LIST SECTION-->
 <div ng-show="show_professor_exercises">
 
-  <div class="row">
-    <div class="col-xs-8">
-      <h2>Exercises: {{all_jobs.length}}</h2>
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <div class="btn-group pull-right">
+        <button class="btn btn-primary" ng-click="new_exercise_clicked()"><h5>Create new exercise</h5></button>
+      </div>
+      <h3>Exercises: {{all_jobs.length}}</h3>
+
+
     </div>
 
-    <div class="col-xs-4">
-      <button ng-click="new_exercise_clicked()">New</button>
+    <div class="panel-body">
+      <!--Here goes the list of processed exercises-->
+      <ul class="list-group" ng-repeat="job in all_jobs">
+        <li class="list-group-item">
+          <div class="row">
+            <div class="col-xs-2">
+              <h4>Exercise name: <strong>{{job.title}}</strong></h4>
+            </div>
+            <div class="col-xs-2">
+              <button ng-click="job.display(job.title)" class="btn btn-info">Show students taking exercise <span class="caret"></span></button>
+            </div>
+          </div>
+          <table class="table" ng-show="job.students.length != 0">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Results</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="student in job.students">
+                <td>
+                  <p>Student <strong>{{student.id}}</strong>
+                </td>
+                <td>
+                  <button class="btn btn-success" ng-click="get_data(job.title, student.id, 'annotated')">Annotated</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </li>
+      </ul>
+
     </div>
+
   </div>
-
-  <!--Here goes the list of processed exercises-->
-  <div class="row" ng-repeat="job in all_jobs">
-    <div class="row">
-      <div class="col-xs-3">
-        <button ng-click="job.display(job.title)">Show</button>
-      </div>
-      <div class="col-xs-9">
-        <p>{{job.title}}</p>
-      </div>
-    </div>
-    <div class="row" ng-repeat="student in job.students">
-      <div class="col-xs-3"></div>
-      <div class="col-xs-3">
-        <button ng-click="final_result_select_group(job.title, student.id)">Show Results</button>
-      </div>
-      <div class="col-xs-6">
-        <p>{{student.id}}</p>
-      </div>
-    </div>
-  </div>
-
 </div>
 
 <!--NEW EXERCISE SECTION-->
 <div ng-show="show_professor_new_exercise">
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h3>Create a new exercise</h3>
+    </div>
 
-  <div class="row">
-    <div class="col-xs-12">
-      <input type="text" placeholder="Title" ng-model="exercise_title">
+    <div class="panel-body">
+      <form class="col-xs-4">
+        <div class="form-group">
+          <label>Exercise Title</label>
+          <input class="form-control" type="text" ng-model="exercise_title">
+        </div>
+
+        <div class="form-group">
+          <label>Exercise Type</label>
+          <input class="form-control" type="text" placeholder="haskell / java" ng-model="exercise_type">
+        </div>
+
+        <div class="form-group">
+          <label>Model solution git repository</label>
+          <!-- <div class="input-group"> -->
+            <input class="form-control" type="text" ng-model="exercise_model">
+            <!-- <span class="input-group-addon">.git</span> -->
+          <!-- </div> -->
+        </div>
+
+        <label>Student git repository</label>
+        <div class="form-group" data-ng-repeat="entry in entries">
+          <input class="form-control" type="text" ng-model="entry.git">
+        </div>
+
+        <div class="form-group">
+          <button class="btn btn-info" ng-click="add_new_student_field()">Add more students</button>
+        </div>
+
+        <br>
+        <br>
+        <br>
+
+        <div class="form-group col-xs-6">
+          <button class="btn btn-primary btn-block" ng-click="submit_new_exercise()">Submit Exercise</button>
+        </div>
+
+        <div class="form-group col-xs-6">
+          <button class="btn btn-danger btn-block" ng-click="cancel_new_exercise()">Cancel Submission</button>
+        </div>
+
+      </form>
+
     </div>
   </div>
-
-  <div class="row">
-    <div class="col-xs-12">
-      <input type="text" placeholder="Type" ng-model="exercise_type">
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="col-xs-12">
-      <input type="text" placeholder="Model Solution git repo" ng-model="exercise_model">
-    </div>
-  </div>
-
-
-  <div class="row" data-ng-repeat="entry in entries">
-    <div class="col-xs-12">
-      <input type="text" ng-model="entry.git" placeholder="Student git repo">
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="col-xs-12">
-      <button ng-click="add_new_student_field()">Add more students</button>
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="col-xs-12">
-      <p>Entries: {{entries}}</p>
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="col-xs-3">
-    </div>
-    <div class="col-xs-3">
-      <button ng-click="cancel_new_exercise()">Cancel</button>
-    </div>
-    <div class="col-xs-3">
-      <button ng-click="submit_new_exercise()">Submit</button>
-    </div>
-    <div class="col-xs-3">
-    </div>
-  </div>
-
-</div>
-
-
-<!--DISPLAY TABS TO GO INTO DIFFERENT VIEWS-->
-<div ng-show="show_final_result_tabs">
-  <ul class="nav nav-pills">
-    <li role="presentation"><a href ng-click="get_data('postprocessor')">Postprocessor</a></li>
-    <li role="presentation"><a href ng-click="get_data('annotated')">Annotated</a></li>
-  </ul>
 </div>
 
 <!--DISPLAY STUDENT RESULT SECTION (OLD) -->

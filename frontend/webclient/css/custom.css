@@ -13,3 +13,11 @@ tr.noBorder td {
     border: 0; 
     background-color: transparent;
 }
+
+#sidebar-wrapper p {
+    color: white;
+}
+
+#sidebar-wrapper .alert {
+    line-height: 100%;
+}

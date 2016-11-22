@@ -52,7 +52,7 @@ $handlers.handle_job_list = function(msgobj) {
     var a_job = {};
     a_job.title = jobs[i];
     a_job.display = function(title) {
-      console.log("Clicked Display on job " + title);
+      console.log("Clicked display on job " + title);
       var msgobj = {};
       msgobj.type = "get_job";
       msgobj.id = $globals.token;
