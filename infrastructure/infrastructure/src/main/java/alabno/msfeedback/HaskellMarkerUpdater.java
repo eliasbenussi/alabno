@@ -42,6 +42,9 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
     public void update(SourceDocument doc, int lineNumber, String type, String annotation) { 
         HaskellSplitter haskellSplitter = new HaskellSplitter(doc.getAllLines());
         String source = haskellSplitter.getBlockAt(lineNumber);
+        if (source == null || source.isEmpty()) {
+            return;
+        }
         
         System.out.println("HaskellMarkerUpdater:update(" + type + "," + annotation + ")");
         CategoryName newName = createNewName(annotation);

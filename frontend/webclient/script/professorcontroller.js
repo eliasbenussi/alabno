@@ -188,7 +188,7 @@ theapp.controller('professorController', function($scope) {
           $scope.editing_source_cache = text;
           console.log('opening editor...')
           data_entry.show_editor = true;
-          # hide buttons from all other lines
+          // hide buttons from all other lines
           $scope.show_edit_buttons(false);
       } else {
           // check that it's the same filename
@@ -209,8 +209,11 @@ theapp.controller('professorController', function($scope) {
       msgobj.lineno = lineno;
       
       data_entry.annotation = "";
-      
+
       $globals.send(JSON.stringify(msgobj));
+      
+      // show buttons in all lines
+      $scope.show_edit_buttons(true);
   }
   
   $scope.submit_feedback_annotation = function() {
@@ -239,7 +242,7 @@ theapp.controller('professorController', function($scope) {
       $scope.editing_lineno = 0;
       $scope.feedback_sent = '';
       
-      # show buttons in all lines
+      // show buttons in all lines
       $scope.show_edit_buttons(true);
   }
 
