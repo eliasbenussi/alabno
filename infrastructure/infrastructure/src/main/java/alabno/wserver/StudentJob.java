@@ -37,12 +37,15 @@ public class StudentJob {
         return jsonLocation;
     }
 
-    public void amend(String fileName, int lineno, String annType, String annotation) {
+    public SourceDocument amend(String fileName, int lineno, String annType, String annotation) {
         if ("ok".equals(annotation)) {
             annotation = "";
         }
         
         String desiredFile = toAbsolute(fileName);
+        
+        // Read the source file
+        SourceDocument doc = new SourceDocument(fileName, desiredFile);
         
         // Read the postpro file
         String postproContent = readPostProcessorOutput();
@@ -62,7 +65,7 @@ public class StudentJob {
             if (desiredFile.equals(aFileName) && lineno == aLineNo) {
                 anAnnotation.amendError(ann.getObject(), annType, annotation);
                 rewriteJson(parser);
-                return;
+                return doc;
             }
         }
         
@@ -80,7 +83,7 @@ public class StudentJob {
         parser.getObject().put("annotations", annotationsArray);
         
         rewriteJson(parser);
-        return;
+        return doc;
         
     }
     
