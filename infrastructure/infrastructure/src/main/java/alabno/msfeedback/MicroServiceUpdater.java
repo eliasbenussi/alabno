@@ -1,9 +1,11 @@
 package alabno.msfeedback;
 
+import alabno.wserver.SourceDocument;
+
 public interface MicroServiceUpdater {
 
     public void init();
 
-    public void update(String source, String type, String annotation);
+    public void update(SourceDocument source, int lineNumber, String type, String annotation);
 
 }

@@ -7,9 +7,11 @@ import java.util.List;
 import java.util.Map;
 
 import alabno.database.MySqlDatabaseConnection;
+import alabno.simple_haskell_marker.HaskellSplitter;
 import alabno.utils.FileUtils;
 import alabno.utils.StringUtils;
 import alabno.utils.SubprocessUtils;
+import alabno.wserver.SourceDocument;
 
 public class HaskellMarkerUpdater implements MicroServiceUpdater {
 
@@ -34,10 +36,15 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
         
         updateTraining();
     }
+    
 
     @Override
-    public void update(String source, String type, String annotation) {
-        System.out.println("HaskellMarkerUpdater:update(" + source + "," + type + "," + annotation + ")");
+    public void update(SourceDocument doc, int lineNumber, String type, String annotation) { // TODO fix this
+
+        HaskellSplitter haskellSplitter = new HaskellSplitter(doc.getAllLines());
+        String source = haskellSplitter.getBlockAt(lineNumber);
+        
+        System.out.println("HaskellMarkerUpdater:update(" + type + "," + annotation + ")");
         CategoryName newName = createNewName(annotation);
         // add it to the map
         existingAnnotationsToIdentifiers.put(annotation, newName.name);
@@ -193,5 +200,6 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
     private String getCurrentCategoriesName() {
         return getCurrentFilename(".csv");
     }
+
 
 }
