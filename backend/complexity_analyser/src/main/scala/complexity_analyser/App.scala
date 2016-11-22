@@ -42,6 +42,11 @@ object App {
         val (errors, score) = h.runTests()
         val (compErrors, compScore) = h.runBench()
         (errors ++ compErrors, compScore - score)
+      case "java" =>
+        val j = new JavaProcessor(modelAnswer, inputPath)
+        j.prepare()
+        j.benchmark()
+        (Seq[Error](), 100.0d)
       case _ => throw new IllegalArgumentException("Wrong language")
     }
   }

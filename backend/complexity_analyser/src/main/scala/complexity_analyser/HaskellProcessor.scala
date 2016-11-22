@@ -194,13 +194,6 @@ class HaskellProcessor(modelAnswer: File, studentAnswer: File) {
     (annotations, Math.max(score, 0))
   }
 
-  private class Caller(command: String) extends Callable[(String, Int)] {
-    override def call(): (String, Int) = {
-      val lines = new ArrayBuffer[String]
-      val exitStatus = command ! ProcessLogger(line => lines.append(line))
 
-      (lines.mkString("\n"), exitStatus)
-    }
-  }
 
 }
