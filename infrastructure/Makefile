@@ -1,6 +1,6 @@
 all: jobmanager
 
-test: jobmanager
+test:
 	cd infrastructure && ./Test
 
 jobmanager: repo

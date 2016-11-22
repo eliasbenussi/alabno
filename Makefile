@@ -1,6 +1,9 @@
-all: frontend infrastructure backend simple-haskell-marker
+all: frontend simple-haskell-marker infrastructure backend
 
-test: all backendtest infrastructuretest simple-haskell-marker-test
+test: all
+	make backendtest
+	make infrastructuretest
+	make simple-haskell-marker-test
 
 backend:
 	cd backend && mvn -T 1C package -q -Dmaven.test.skip=true
@@ -8,7 +11,7 @@ backend:
 backendtest:
 	cd backend && mvn -T 1C test -q
 
-infrastructure:
+infrastructure: simple-haskell-marker
 	cd infrastructure && make
 
 infrastructuretest:

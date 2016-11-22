@@ -39,8 +39,7 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
     
 
     @Override
-    public void update(SourceDocument doc, int lineNumber, String type, String annotation) { // TODO fix this
-
+    public void update(SourceDocument doc, int lineNumber, String type, String annotation) { 
         HaskellSplitter haskellSplitter = new HaskellSplitter(doc.getAllLines());
         String source = haskellSplitter.getBlockAt(lineNumber);
         
