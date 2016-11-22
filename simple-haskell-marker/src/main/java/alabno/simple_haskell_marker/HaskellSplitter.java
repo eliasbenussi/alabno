@@ -162,7 +162,7 @@ public class HaskellSplitter {
         
         int nextIndex = 1;
         
-        while (next != null && next.getLineNumber() >= lineNumber) {
+        while (next != null && next.getLineNumber() <= lineNumber) {
             current = next;
             nextIndex += 1;
             next = tryGet(blocks, nextIndex);

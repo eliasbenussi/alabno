@@ -57,7 +57,7 @@ public class SourceDocument {
         }
     }
 
-    public String getAllLines() {
+    public List<String> getAllLines() {
         return source;
     }
     
