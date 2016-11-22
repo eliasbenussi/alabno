@@ -173,7 +173,7 @@ theapp.controller('professorController', function($scope) {
       var filedata = file.data;
       for (var j = 0; j < filedata.length; j++) {
         var data_entry = filedata[j];
-        data_entry.show_icons = value;
+        data_entry.show_icons_unlocked = value;
       }
     }
   }

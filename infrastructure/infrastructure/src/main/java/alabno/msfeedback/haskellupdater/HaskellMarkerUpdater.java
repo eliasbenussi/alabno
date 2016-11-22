@@ -1,4 +1,4 @@
-package alabno.msfeedback;
+package alabno.msfeedback.haskellupdater;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import alabno.database.MySqlDatabaseConnection;
+import alabno.msfeedback.MicroServiceUpdater;
 import alabno.simple_haskell_marker.HaskellSplitter;
 import alabno.utils.FileUtils;
 import alabno.utils.StringUtils;
@@ -33,13 +34,15 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
         
         // create the directory
         SubprocessUtils.call("mkdir " + FileUtils.getWorkDir() + "/simple-haskell-marker/training");
-        
-        updateTraining();
+
+        // Start updater thread
+        Thread updaterThread = new Thread(new HaskellMarkerRunner(this));
+        updaterThread.start();
     }
     
 
     @Override
-    public void update(SourceDocument doc, int lineNumber, String type, String annotation) { 
+    public synchronized void update(SourceDocument doc, int lineNumber, String type, String annotation) { 
         HaskellSplitter haskellSplitter = new HaskellSplitter(doc.getAllLines());
         String source = haskellSplitter.getBlockAt(lineNumber);
         if (source == null || source.isEmpty()) {
@@ -67,11 +70,10 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
         }
         conn.executeStatement(queryTraining, parametersTraining);
         
-        // update Training set
-        updateTraining();
+        // update Training set is done by the HaskellMarkerRunner
     }
     
-    public void updateTraining() {
+    public synchronized void updateTraining() {
         System.out.println("HaskellMarkerUpdater:updateTraining()");
         
         // Read from database all entries, dump them to a temporary text file,
@@ -84,6 +86,11 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
         currentNumbering++;
         String trainingName = getCurrentTrainingName();
 
+        // Clear directory from very old entires
+        String alabnoDirectory = FileUtils.getWorkDir();
+        String cmd = "python " + alabnoDirectory + "/simple-haskell-marker/IncrementSerializedClassifier.py --clean";
+        SubprocessUtils.call(cmd);
+        
         PrintWriter outfile = null;
         try {
             outfile = new PrintWriter(trainingName);
@@ -127,8 +134,7 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
 
         // after writing the serialized file, call alabno/simple-haskell-marker/IncrementSerializedClassifier.py
         // Which will take care of creating/updating the manifest.txt file for the microservice
-        String alabnoDirectory = FileUtils.getWorkDir();
-        String cmd = "python " + alabnoDirectory + "/simple-haskell-marker/IncrementSerializedClassifier.py";
+        cmd = "python " + alabnoDirectory + "/simple-haskell-marker/IncrementSerializedClassifier.py";
         SubprocessUtils.call(cmd);
 
         // documentation/feedback_haskell_marker.txt has more details about the formats. PLEASE refer to that

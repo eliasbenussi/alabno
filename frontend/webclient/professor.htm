@@ -260,14 +260,14 @@
                   </td>
                   <td>
                       <div class="row">
-                        <button ng-show="data_entry.show_icons" class="btn btn-default" ng-click="add_feedback_annotation(file.filename,data_entry.no,data_entry.content,data_entry.annotation,data_entry)">
+                        <button ng-show="data_entry.show_icons && data_entry.show_icons_unlocked" class="btn btn-default" ng-click="add_feedback_annotation(file.filename,data_entry.no,data_entry.content,data_entry.annotation,data_entry)">
                           <img src="icon/edit.png">
                         </button>
                       </div>
                   </td>
                   <td>
                       <div class="row">
-                        <button ng-show="data_entry.show_icons" class="btn btn-default" ng-click="delete_feedback_annotation(file.filename, data_entry.no, data_entry.annotation, data_entry)">
+                        <button ng-show="data_entry.show_icons && data_entry.show_icons_unlocked" class="btn btn-default" ng-click="delete_feedback_annotation(file.filename, data_entry.no, data_entry.annotation, data_entry)">
                           <img src="icon/delete.png">
                         </button>
                       </div>
