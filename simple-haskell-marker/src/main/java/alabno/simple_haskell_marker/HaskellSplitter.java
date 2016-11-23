@@ -154,7 +154,7 @@ public class HaskellSplitter {
         }
     }
 
-    public String getBlockAt(int lineNumber) {
+    public String getBlockTextAt(int lineNumber) {
         List<HaskellBlock> blocks = split();
         
         HaskellBlock current = tryGet(blocks, 0);
