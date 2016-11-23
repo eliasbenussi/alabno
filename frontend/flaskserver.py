@@ -6,6 +6,7 @@ import pymysql.cursors
 import subprocess
 import datetime
 import imp
+import mimetypes
 
 
 # alabno/frontend
@@ -21,6 +22,7 @@ mysqldb_dir = exec_dir + os.sep + '..' + os.sep + 'simple-haskell-marker'
 sys.path.append(mysqldb_dir)
 import mysqldb
 
+# UTILITY FUNCTIONS ####################################################
 
 def datetime_past_seconds(time):
     now = datetime.datetime.now()
@@ -60,6 +62,15 @@ def get_upload_path(db, token):
         print(traceback.format_exc())
         return None
 
+def get_mime_string(path):
+    guess = mimetypes.guess_type(path)
+    if isinstance(guess, basestring):
+        return guess
+    else:
+        return 'application/octet-stream'
+
+# INITIALIZE DB AND SERVER #############################################
+
 db = mysqldb.MysqlConn()
 
 app = flask.Flask(__name__)
@@ -70,6 +81,8 @@ if len(sys.argv) >= 2 and sys.argv[1] == 'https':
 
 # SSL context
 context = ('selfsigned.crt', 'decserver.key')
+
+# ROUTES ###############################################################
 
 @app.route("/upload/<token>", methods=['POST'])
 def upload_file(token):
@@ -86,7 +99,12 @@ def download_result(token):
     thefile = open(pdf_path_dir + os.sep + filepath, 'r')
     buff = thefile.read()
     thefile.close()
-    return buff
+    download_name = os.path.basename(filepath)
+    stem, ext = os.path.splitext(filepath)
+    if ext == '.html' or ext == '.htm':
+        return buff
+    else:
+        return flask.Response(buff, mimetype=get_mime_string(filepath), headers={"Content-Disposition": "attachment;filename={}".format(download_name)})
 
 @app.route("/")
 def serve_index():
