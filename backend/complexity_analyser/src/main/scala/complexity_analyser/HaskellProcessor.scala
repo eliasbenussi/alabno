@@ -10,7 +10,6 @@ import json_parser.Error
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.io.Source
-import scala.sys.process.{ProcessLogger, _}
 
 class HaskellProcessor(modelAnswer: File, studentAnswer: File) {
 
@@ -79,10 +78,10 @@ class HaskellProcessor(modelAnswer: File, studentAnswer: File) {
 
   def runTests() = {
     compileClassOnBoth("Tests")
-    val testOutcomeStudent = eP.submit(new Caller(s"$studentAnswer/Tests"))
-    val testOutcomeModel = eP.submit(new Caller(s"$modelAnswer/Tests"))
-    testOutcomeModel.get._1.split("\n").foreach(findMaxScoreHeader)
-    calculateTestScores(findStudentScore(testOutcomeStudent.get._1))
+    val testOutcomeStudent = eP.submit(new ShellExecutor(s"$studentAnswer/Tests"))
+    val testOutcomeModel = eP.submit(new ShellExecutor(s"$modelAnswer/Tests"))
+    testOutcomeModel.get.split("\n").foreach(findMaxScoreHeader)
+    calculateTestScores(findStudentScore(testOutcomeStudent.get))
   }
 
   private def findMaxScoreHeader(line: String): Unit = {
@@ -124,25 +123,23 @@ class HaskellProcessor(modelAnswer: File, studentAnswer: File) {
 
   def runBench() = {
     compileClassOnBoth("Bench")
-    val benchOutcomeStudent = eP.submit(new Caller(s"$studentAnswer/Bench ${bFlags(studentAnswer)}"))
-    val benchOutcomeModel = eP.submit(new Caller(s"$modelAnswer/Bench ${bFlags(modelAnswer)}"))
-    val zippedMeanModel = genListBenchNameMean(benchOutcomeModel.get._1)
-    val zippedMeanStud = genListBenchNameMean(benchOutcomeStudent.get._1)
+    val benchOutcomeStudent = eP.submit(new ShellExecutor(s"$studentAnswer/Bench ${bFlags(studentAnswer)}"))
+    val benchOutcomeModel = eP.submit(new ShellExecutor(s"$modelAnswer/Bench ${bFlags(modelAnswer)}"))
+    val zippedMeanModel = genListBenchNameMean(benchOutcomeModel.get)
+    val zippedMeanStud = genListBenchNameMean(benchOutcomeStudent.get)
     val deltas = produceDelta(zippedMeanModel, zippedMeanStud)
     calculateScore(deltas)
   }
 
   private def compileClassOnBoth(name: String) = {
-    val exitModel = eP.submit(new Caller(s"ghc -i$modelAnswer/IC -i$modelAnswer " +
+    val exitModel = eP.submit(new ShellExecutor(s"ghc -i$modelAnswer/IC -i$modelAnswer " +
       s"--make -O3 $name -main-is $name"))
 
-    val exitStudent = eP.submit(new Caller(s"ghc -i$studentAnswer/IC -i$studentAnswer " +
+    val exitStudent = eP.submit(new ShellExecutor(s"ghc -i$studentAnswer/IC -i$studentAnswer " +
       s"--make -O3 $name -main-is $name"))
 
-    val (outputModel, returnModel) = exitModel.get
-    val (outputStudent, returnStudent) = exitStudent.get
-    if (returnModel != 0) throw new IllegalStateException("Model solution did not compile")
-    if (returnStudent != 0) throw new IllegalStateException(s"Student answer didn't compile")
+    val outputModel = exitModel.get
+    val outputStudent = exitStudent.get
     (outputModel, outputStudent)
   }
 
@@ -193,7 +190,5 @@ class HaskellProcessor(modelAnswer: File, studentAnswer: File) {
     }
     (annotations, Math.max(score, 0))
   }
-
-
 
 }
