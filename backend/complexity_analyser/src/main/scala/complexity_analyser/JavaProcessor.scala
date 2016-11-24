@@ -5,6 +5,9 @@ import java.nio.file.Files.copy
 import java.nio.file.StandardCopyOption.REPLACE_EXISTING
 import java.util.concurrent.Executors
 
+import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
+
 /**
   * Created by dfm114 on 21/11/16.
   */
@@ -14,7 +17,10 @@ class JavaProcessor(modelAnswer: File, studentAnswer: File) {
   private final lazy val jarFile = new File("complexity_analyser/res/javassist.jar")
   // Used to run the compilations and the benchmarks
   private final lazy val eS = Executors.newFixedThreadPool(2)
-
+  private final lazy val diffStudentMap = new mutable.HashMap[String,
+    ArrayBuffer[Long]]()
+  private final lazy val diffModelMap = new mutable.HashMap[String,
+    ArrayBuffer[Long]]()
   def prepare(): Unit = {
     val benchFile = new File("complexity_analyser/res/Benchmarker.java")
     val modPath = new File(modelAnswer.toString + "/" + benchFile.getName).toPath
@@ -41,18 +47,25 @@ class JavaProcessor(modelAnswer: File, studentAnswer: File) {
     names.find(_.endsWith("TestSuite.java")).get.replace(".java", "")
   }
 
-  def findMatch(lines: String) = {
+  def findMatch(lines: String, map: mutable.HashMap[String, ArrayBuffer[Long]])
+  = {
     val split = lines.split("\n")
+    val list = new ArrayBuffer[Long]
     for (line <- split) {
       line match {
         case beforePattern(index, name, time) =>
-          println(index, name, time)
+          list.insert(index.toInt, time.toLong)
         case afterPattern(index, name, time) =>
-          println("after", index, name, time)
+          val diff = time.toLong - list.apply(index.toInt)
+          if(!map.contains(name)) {
+            map(name) = new ArrayBuffer[Long]
+          }
+          map(name) += diff
         case _ => None
       }
     }
   }
+
   def benchmark() = {
     val testClass = findTestSuite()
     val modThread = eS.submit(new Caller(s"java -cp $modelAnswer:$jarFile Benchmarker $testClass"))
@@ -61,8 +74,10 @@ class JavaProcessor(modelAnswer: File, studentAnswer: File) {
     if (modExit != 0) throw new Exception(s"Model solution did not run: $modOut")
     val (studOut, studExit) = studThread.get
     if (studExit != 0) throw new Exception(s"Student solution did not run: $studOut")
-    findMatch(modOut)
-    findMatch(studOut)
+    findMatch(modOut, diffModelMap)
+    diffModelMap.foreach(println)
+    findMatch(studOut, diffStudentMap)
+    diffStudentMap.foreach(println)
 
   }
 }
