@@ -1,3 +1,7 @@
+
+# Remove .DS_Store
+.DS_Store
+
 # Remove idea files
 *.iml
 *.idea
