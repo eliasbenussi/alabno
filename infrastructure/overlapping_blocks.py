@@ -15,17 +15,27 @@ class Script_Blocks_Container:
         return self.container
 
     def pad_lines(self, lines):
+        
+        padded_lines = []
 
         for line in lines:
-            if len(line) < self.line_max:
-                padding = [' ' for i in range(self.line_max - len(line))]
-                line = line + ''.join(padding)
+            _line = line
+            if len(_line) < self.line_max:
+                padding = [' ' for i in range(self.line_max - len(_line))]
+                _line = _line + ''.join(padding)
+
+            padded_lines.append(_line)
+
+        return padded_lines
 
     def split(self, block_size):
 
         source_file = open(self.source_p, 'r')
         lines = f.readlines()
-        pad_lines(lines)
+
+        # get all lines of the same length
+        # adding trailing spaces if necessary
+        lines = pad_lines(lines)
 
         offset = 0
         while (offset <= (len(lines) - block_size)):
