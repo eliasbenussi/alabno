@@ -23,7 +23,7 @@ class MicroServiceOutput(score: Double, annotations: java.util.List[Error], erro
 
   def getAnnotations = annotations
 
-  def getErrors = errors
+  def getErrors = errors == Nil ? List.empty[Error] else errors
 
   def writeFile(file: File): Unit = {
     val outputStream = new FileWriter(file)
