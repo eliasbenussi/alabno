@@ -19,17 +19,17 @@ public class CategoryConverter implements CategoryConverterInterface {
      */
     public CategoryConverter() {
         URL dataFile = this.getClass().getClassLoader().getResource("category_converter_map.csv");
-        init(dataFile);
+        init(dataFile.getPath());
     }
     
-    public CategoryConverter(URL url) {
-        init(url);
+    public CategoryConverter(String string) {
+        init(string);
     }
     
-    private void init(URL url) {
+    private void init(String url) {
         Scanner scanner = null;
         try {
-            scanner = new Scanner(new File(url.getPath()));
+            scanner = new Scanner(new File(url));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -52,12 +52,20 @@ public class CategoryConverter implements CategoryConverterInterface {
 
     @Override
     public String getErrorType(String ann) {
-        return errorMap.get(ann);
+        String out = errorMap.get(ann);
+        if (out == null) {
+            System.out.println("CategoryConverter: could not find ErrorType for [" + ann + "]");
+        }
+        return out;
     }
 
     @Override
     public String getDescription(String ann) {
-        return descriptionMap.get(ann);
+        String out = descriptionMap.get(ann);
+        if (out == null) {
+            System.out.println("CategoryConverter: could not find ErrorType for [" + ann + "]");
+        }
+        return out;
     }
 
 }

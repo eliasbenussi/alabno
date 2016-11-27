@@ -19,7 +19,7 @@ public class ArgumentsTest {
     
     @Test
     public void standardCase() {
-        String[] args = {"/tmp/someTrain.train", "output.json", "input1.hs", "dir/input2.hs", };
+        String[] args = {"/tmp/someTrain", "output.json", "input1.hs", "dir/input2.hs", };
         
         Arguments arguments = new Arguments(args);
         

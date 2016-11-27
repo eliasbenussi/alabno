@@ -93,10 +93,11 @@ except:
     print(traceback.format_exc())
     exit_with_error('Error when loading the manifest file for the Simple Haskell Marker training data', output_json_path)
 # alabno/simple-haskell-marker/training/trainXXXXX.train
-training_path = os.path.abspath(exec_dir + os.sep + 'training' + os.sep + training_path + '.train')
+training_path = os.path.abspath(exec_dir + os.sep + 'training' + os.sep + training_path)
+training_train_path = training_path + '.train'
 # Check that it exists
-if not os.path.isfile(training_path):
-    exit_with_error('The training file {} does not exist'.format(training_path), output_json_path)
+if not os.path.isfile(training_train_path):
+    exit_with_error('The training file {} does not exist'.format(training_train_path), output_json_path)
 
 # make subprocess call
 # java -cp jar_path alabno.simple_haskell_marker.Main haskell1 haskell2 output_json_path

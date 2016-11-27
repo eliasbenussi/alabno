@@ -11,7 +11,7 @@ public class CategoryConverterTest {
 
     @Test
     public void converterTest() throws MalformedURLException {
-        URL url = new URL("file:samples/converter_test.csv");
+        String url = "samples/converter_test.csv";
         
         CategoryConverterInterface categoryConverter = new CategoryConverter(url);
         
