@@ -1,9 +1,9 @@
 all: hsmarker
 
 hsmarker: repo
-	mvn package -q -Dmaven.test.skip=true
+	mvn install -q -Dmaven.test.skip=true
 
-test: hsmarker
+test:
 	mvn test -q
 
 repo:

@@ -43,7 +43,6 @@ CLIENT -> SERVER
         "type": "feedback",
         "id": "687ba687de5",
         "filename": "sequences.hs", 
-        "source": "public static void main(String[] args)",
         "ann_type": "semantic",
         "annotation": "don't call main main",
         "lineno": 69 

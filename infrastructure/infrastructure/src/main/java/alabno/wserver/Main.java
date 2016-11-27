@@ -12,8 +12,8 @@ import org.java_websocket.server.DefaultSSLWebSocketServerFactory;
 
 import alabno.database.MySqlDatabaseConnection;
 import alabno.msfeedback.FeedbackUpdaters;
-import alabno.msfeedback.HaskellMarkerUpdater;
 import alabno.msfeedback.MicroServiceUpdater;
+import alabno.msfeedback.haskellupdater.HaskellMarkerUpdater;
 import alabno.utils.FileUtils;
 
 public class Main {

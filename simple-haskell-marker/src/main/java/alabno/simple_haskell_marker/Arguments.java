@@ -31,7 +31,11 @@ public class Arguments {
     }
 
     public String getTrainingDataPath() {
-        return trainingDataPath;
+        return trainingDataPath + ".train";
+    }
+    
+    public String getCategoryDataPath() {
+        return trainingDataPath + ".csv";
     }
 
 }

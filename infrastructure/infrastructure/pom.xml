@@ -98,6 +98,12 @@
 			<version>20151209</version>
 		</dependency>
 
+		<dependency>
+			<groupId>alabno</groupId>
+			<artifactId>simple-haskell-marker</artifactId>
+			<version>dev0.1</version>
+		</dependency>
+
 	</dependencies>
 
 </project>

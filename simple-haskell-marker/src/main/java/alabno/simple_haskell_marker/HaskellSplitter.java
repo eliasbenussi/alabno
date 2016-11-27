@@ -19,7 +19,7 @@ public class HaskellSplitter {
     String inputPath;
 
     File inputFile;
-    Scanner scanner;
+    List<String> lines = new ArrayList<>();
 
     /**
      * @param inputPath the input path of the file to be read
@@ -30,16 +30,25 @@ public class HaskellSplitter {
         this.inputPath = inputPath;
         init();
     }
+    
+    public HaskellSplitter(List<String> lines) {
+        this.lines = lines;
+    }
 
     /**
      *  Reads the input file and creates the Scanner for reading
      */
     private void init() {
         this.inputFile = new File(inputPath);
+        Scanner scanner = null;
         try {
-            this.scanner = new Scanner(inputFile);
+            scanner = new Scanner(inputFile);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+        }
+        
+        while (scanner.hasNextLine()) {
+            lines.add(scanner.nextLine());
         }
     }
     
@@ -70,8 +79,8 @@ public class HaskellSplitter {
         int currentLineNumber = 0;
         int blockStartLineNumber = 1;
         
-        while (scanner.hasNextLine()) {
-            currentLine = scanner.nextLine() + "\n";
+        for (String aLine : lines) {
+            currentLine = aLine + "\n";
             currentLineNumber++;
             
             if (splitCondition(currentLine, conditions)) {
@@ -135,6 +144,31 @@ public class HaskellSplitter {
             }
         }
         return true;
+    }
+    
+    private HaskellBlock tryGet(List<HaskellBlock> blocks, int index) {
+        try {
+            return blocks.get(index);
+        } catch (IndexOutOfBoundsException e) {
+            return null;
+        }
+    }
+
+    public String getBlockTextAt(int lineNumber) {
+        List<HaskellBlock> blocks = split();
+        
+        HaskellBlock current = tryGet(blocks, 0);
+        HaskellBlock next = tryGet(blocks, 1);
+        
+        int nextIndex = 1;
+        
+        while (next != null && next.getLineNumber() <= lineNumber) {
+            current = next;
+            nextIndex += 1;
+            next = tryGet(blocks, nextIndex);
+        }
+        
+        return current.getBlockText();
     }
 
 }

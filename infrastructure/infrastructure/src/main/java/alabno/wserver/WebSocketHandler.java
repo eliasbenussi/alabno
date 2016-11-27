@@ -69,22 +69,21 @@ public class WebSocketHandler {
 
     private void handleFeedback(JsonParser parser, WebSocket conn) {
         try {
-            String source = parser.getString("source");
             String annType = parser.getString("ann_type");
             String annotation = parser.getString("annotation");
             String fileName = parser.getString("filename");
             int lineno = parser.getInt("lineno");
             String token = parser.getString("id");
             
-            amendFile(fileName, lineno, annType, annotation, token);
+            SourceDocument doc = amendFile(fileName, lineno, annType, annotation, token);
             
-            updaters.updateAll(source, annType, annotation);
+            updaters.update(doc, lineno, annType, annotation);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void amendFile(String fileName, int lineno, String annType, String annotation, String token) {
+    private SourceDocument amendFile(String fileName, int lineno, String annType, String annotation, String token) {
         // get the postpro.json file
         UserState userSession = sessionManager.getUserState(token);
         String title = userSession.getTitle();
@@ -92,7 +91,7 @@ public class WebSocketHandler {
         
         List<StudentJob> group = allJobs.getJobGroupByTitle(title);
         StudentJob studentJob = group.get(Integer.parseInt(studentNumber));
-        studentJob.amend(fileName, lineno, annType, annotation);
+        return studentJob.amend(fileName, lineno, annType, annotation);
     }
 
     private void handleRetrieveResult(JsonParser parser, WebSocket conn) {

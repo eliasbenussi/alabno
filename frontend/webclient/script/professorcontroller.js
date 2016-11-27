@@ -147,7 +147,7 @@ theapp.controller('professorController', function($scope) {
 
   // Annotated files
   $scope.reset_annotated_result = function() {
-    $scope.annotated_files = {};
+    $scope.annotated_files = [];
   };
   
   // ###################################################################
@@ -164,32 +164,18 @@ theapp.controller('professorController', function($scope) {
   
   // The source code being used
   // each element has lineno and text
-  $scope.editing_source = [];
   $scope.editing_source_cache = "";
-  $scope.add_editing_source = function(lineno, text) {
-      // check if this line number already exists
-      for (var i = 0; i < $scope.editing_source.length; i++) {
-        if (lineno == $scope.editing_source[i].lineno) {
-          return;
-        }
+  
+  $scope.show_edit_buttons = function(value) {
+    var annotated_files = $scope.annotated_files;
+    for (var i = 0; i < annotated_files.length; i++) {
+      var file = annotated_files[i];
+      var filedata = file.data;
+      for (var j = 0; j < filedata.length; j++) {
+        var data_entry = filedata[j];
+        data_entry.show_icons_unlocked = value;
       }
-      
-      var source_obj = {};
-      source_obj.lineno = lineno;
-      source_obj.text = text;
-      $scope.editing_source.push(source_obj);
-      
-      // sort
-      $scope.editing_source.sort(function(a, b) {return a.lineno - b.lineno});
-      
-      var acc = '';
-      for (var i = 0; i < $scope.editing_source.length; i++) {
-          acc += $scope.editing_source[i].text;
-          if (i < $scope.editing_source.length - 1) {
-              acc += '\n';
-          }
-      }
-      $scope.editing_source_cache = acc;
+    }
   }
   
   $scope.add_feedback_annotation = function(filename, lineno, text, oldannotation, data_entry) {
@@ -199,33 +185,35 @@ theapp.controller('professorController', function($scope) {
           $scope.editing_data_entry.editing_annotation = oldannotation;
           $scope.editing_data_entry.editing_ann_type = "semantic";
           $scope.editing_lineno = lineno;
-          $scope.add_editing_source(lineno, text);
+          $scope.editing_source_cache = text;
           console.log('opening editor...')
           data_entry.show_editor = true;
+          // hide buttons from all other lines
+          $scope.show_edit_buttons(false);
       } else {
           // check that it's the same filename
           if (filename != $scope.editing_file) {
               alert('You cannot add a source line from a different file');
               return;
           }
-          
-          $scope.add_editing_source(lineno, text);
       }
   }
   
-  $scope.delete_feedback_annotation = function(filename, lineno, sourcetext, oldannotation, data_entry) {
+  $scope.delete_feedback_annotation = function(filename, lineno, oldannotation, data_entry) {
       var msgobj = {};
       msgobj.type = 'feedback';
       msgobj.id = $globals.token;
       msgobj.filename = filename;
-      msgobj.source = sourcetext;
       msgobj.ann_type = "ok";
       msgobj.annotation = "ok";
       msgobj.lineno = lineno;
       
       data_entry.annotation = "";
-      
+
       $globals.send(JSON.stringify(msgobj));
+      
+      // show buttons in all lines
+      $scope.show_edit_buttons(true);
   }
   
   $scope.submit_feedback_annotation = function() {
@@ -233,7 +221,6 @@ theapp.controller('professorController', function($scope) {
       msgobj.type = 'feedback';
       msgobj.id = $globals.token;
       msgobj.filename = $scope.editing_file;
-      msgobj.source = $scope.editing_source_cache;
       msgobj.ann_type = $scope.editing_data_entry.editing_ann_type;
       msgobj.annotation = $scope.editing_data_entry.editing_annotation;
       msgobj.lineno = $scope.editing_lineno;
@@ -251,10 +238,12 @@ theapp.controller('professorController', function($scope) {
       $scope.editing_data_entry.editing_annotation = "";
       $scope.editing_data_entry.editing_ann_type = "";
       $scope.editing_data_entry = null;
-      $scope.editing_source = [];
       $scope.editing_source_cache = "";
       $scope.editing_lineno = 0;
       $scope.feedback_sent = '';
+      
+      // show buttons in all lines
+      $scope.show_edit_buttons(true);
   }
 
 });
