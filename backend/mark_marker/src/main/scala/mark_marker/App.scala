@@ -1,34 +1,54 @@
 package mark_marker
 
-import java.io.{File, FileWriter}
+import java.io.File
 
-import edu.stanford.nlp.classify.ColumnDataClassifier
+import edu.stanford.nlp.classify.{Classifier, ColumnDataClassifier}
 import json_parser.{MicroServiceInputParser, MicroServiceOutputParser}
 import mark_marker.trainer.DatabaseConnector
-import scala.collection.JavaConverters._
 
-import scala.io.Source
+import scala.collection.JavaConverters._
+import scala.collection.mutable.ArrayBuffer
 
 object App {
-  def main(args: Array[String]) = {
+
+  def main(args: Array[String]): Unit = {
     if (args.length != 2)
       throw new IllegalArgumentException("Not enough arguments")
     val mi = MicroServiceInputParser.parseFile(new File(args(0)))
-    val files = new File(mi.getPath).listFiles.filter(_.getName.endsWith(matchType(mi.getLanguage)))
-    val text = files.flatMap(e => Source.fromFile(e).getLines.mkString("\\n").replace("\t", "\\t")).mkString("")
-    val prop = new File("mark_marker/hs_basic_training.prop").getPath
-    val trainingSet = getTrainingSet(mi.getLanguage).getPath
-    val cl = new ColumnDataClassifier(prop)
+    val errors = new ArrayBuffer[String]()
+    var score = 0.0d
+    try {
+      val files = Utils.getFiles(new File(mi.getPath), Utils.matchType(mi.getLanguage))
+      val text = Utils.stringifyFile(files)
 
-    val t = cl.makeClassifier(cl.readTrainingExamples(trainingSet))
+      val (cdc, classifier) = generateCdc(mi.getLanguage)
+      val d = cdc.makeDatumFromLine("0\t" + text)
 
-    val d = cl.makeDatumFromLine("0\t" + text)
-
-    val grade = t.classOf(d).trim
-    MicroServiceOutputParser.writeFile(new File(args(1)), matchScore(grade), Seq().asJava, Seq().asJava)
+      val grade = classifier.classOf(d).trim
+      score = matchScore(grade)
+    } catch {
+      case e: Throwable => errors += e.toString
+    }
+    MicroServiceOutputParser.writeFile(new File(args(1)), score, Seq().asJava, errors.asJava)
   }
 
-  def matchScore(score: String) = score match {
+  private def generateCdc(t: String): (ColumnDataClassifier, Classifier[String, String]) = {
+    val prop = new File("mark_marker/hs_basic_training.prop").getPath
+    val cdc = new ColumnDataClassifier(prop)
+    val classifier = getClassifier(t)
+    (cdc, classifier)
+  }
+
+  private def getClassifier(exercise: String) = {
+    val db = new DatabaseConnector
+    db.connect()
+    val classifier = db.getSerialisedClassifier(exercise)
+    db.close()
+    if (classifier == null) throw new IllegalArgumentException(s"$exercise is not a valid type")
+    classifier
+  }
+
+  private def matchScore(score: String) = score match {
     case "A*" => 95
     case "A+" => 85
     case "A" => 75
@@ -40,22 +60,4 @@ object App {
     case _ => 0
   }
 
-  def getTrainingSet(exercise: String): File = {
-    val f = new File(s"$exercise.train")
-    if (f.exists()) return f
-    val db = new DatabaseConnector
-    db.connect()
-    val t = db.getTrainingData(exercise)
-    if (t.isEmpty) throw new IllegalArgumentException(s"$exercise is not a valid training set")
-    val fw = new FileWriter(f)
-    fw.append(t)
-    fw.close()
-    f
-  }
-
-  def matchType(t: String) = t match {
-    case s if s.contains("haskell") => ".hs"
-    case s if s.contains("java") => ".java"
-    case _ => throw new IllegalArgumentException("Invalid language")
-  }
 }

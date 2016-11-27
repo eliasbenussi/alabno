@@ -1,9 +1,10 @@
 package mark_marker.trainer
 
-import java.io.{File, FileReader}
-import java.nio.CharBuffer
+import java.io._
 import java.sql.DriverManager
 import java.sql.Connection
+
+import edu.stanford.nlp.classify.{Classifier, ColumnDataClassifier}
 
 import scala.io.Source
 
@@ -24,6 +25,8 @@ class DatabaseConnector {
     connection = DriverManager.getConnection(url, username, psw)
   }
 
+  def close() = connection.close()
+
   def getTrainingData(exercise: String): String = {
     val stat = connection.prepareStatement(s"SELECT training_set FROM MarkMarkerTraining WHERE exercise_name = ?")
     stat.setString(1, exercise)
@@ -35,19 +38,36 @@ class DatabaseConnector {
     sb.toString()
   }
 
-  def addTrainingData(exercise: String, trainingData: String): Unit = {
-    if (getTrainingData(exercise) != "") {
-      updateDb(exercise, trainingData)
-      return
-    }
-    val stat = connection.prepareStatement(s"INSERT INTO MarkMarkerTraining (exercise_name, training_set) VALUES (?, ?)")
+  def getSerialisedClassifier(exercise: String): Classifier[String, String] = {
+    val stat = connection.prepareStatement(s"SELECT serialized FROM MarkMarkerTraining WHERE exercise_name = ?")
     stat.setString(1, exercise)
-    stat.setString(2, trainingData)
-    stat.executeUpdate()
-    stat.close()
+    val resultSet = stat.executeQuery
+    var ois: ObjectInputStream = null
+    var cl: Classifier[String, String] = null
+    while (resultSet.next) {
+      val b = resultSet.getBlob("serialized")
+      ois = new ObjectInputStream(b.getBinaryStream)
+      cl = ois.readObject().asInstanceOf[Classifier[String, String]]
+    }
+    resultSet.close()
+    cl
   }
 
-  def updateDb(exercise: String, trainingData: String) = {
+  def addTrainingAndCdc(exercise: String, trainingData: String, serialisedClassifier: Classifier[String, String]) = {
+    val fis: ByteArrayInputStream = serialiseCdc(serialisedClassifier)
+    if (getTrainingData(exercise) != "") {
+      updateSerialisedClassifier(exercise, serialisedClassifier)
+    }
+    val stat = connection.prepareStatement(s"INSERT INTO MarkMarkerTraining (exercise_name, training_set, serialized) VALUES (?, ?, ?)")
+    stat.setString(1, exercise)
+    stat.setString(2, trainingData)
+    stat.setBlob(3, fis)
+    stat.executeUpdate()
+    stat.close()
+    fis.close()
+  }
+
+  def updateTrainingData(exercise: String, trainingData: String) = {
     val stat = connection.prepareStatement("UPDATE MarkMarkerTraining SET training_set = ? WHERE exercise_name = ?")
     stat.setString(2, exercise)
     stat.setString(1, trainingData)
@@ -55,5 +75,22 @@ class DatabaseConnector {
     stat.close()
   }
 
-  def close() = connection.close()
+  def updateSerialisedClassifier(exercise: String, serialisedClassifier: Classifier[String, String]) = {
+    val fis: ByteArrayInputStream = serialiseCdc(serialisedClassifier)
+    val stat = connection.prepareStatement("UPDATE MarkMarkerTraining SET training_set = ? WHERE exercise_name = ?")
+    stat.setString(2, exercise)
+    stat.setBlob(1, fis)
+    stat.executeUpdate()
+    stat.close()
+  }
+
+  def serialiseCdc(serialisedClassifier: Classifier[String, String]): ByteArrayInputStream = {
+    val fos = new ByteArrayOutputStream()
+    val oos = new ObjectOutputStream(fos)
+    oos.writeObject(serialisedClassifier)
+    oos.close()
+    val b = fos.toByteArray
+    fos.close()
+    new ByteArrayInputStream(b)
+  }
 }
