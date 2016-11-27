@@ -56,11 +56,11 @@ class MicroServiceOutput(score: Double, annotations: java.util.List[Error], erro
 object MicroServiceOutputParser {
 
   private implicit val errorRead: Reads[Error] = (
-    (JsPath \ "text").read[String] and
-      (JsPath \ "filename").read[String] and
-      (JsPath \ "lineno").read[Int] and
-      (JsPath \ "charno").read[Int] and
-      (JsPath \ "errortype").read[String]
+    (JsPath \ "text").readNullable[String] and
+      (JsPath \ "filename").readNullable[String] and
+      (JsPath \ "lineno").readNullable[Int] and
+      (JsPath \ "charno").readNullable[Int] and
+      (JsPath \ "errortype").readNullable[String]
     ) (Error.apply _)
 
   /**
