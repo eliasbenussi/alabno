@@ -15,5 +15,6 @@
     <module>comment-cleaner</module>
     <module>compile-checker</module>
     <module>complexity_analyser</module>
+    <module>mark_marker</module>
   </modules>
 </project>
