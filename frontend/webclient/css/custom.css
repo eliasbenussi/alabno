@@ -4,13 +4,17 @@ tr.noBorder td {
 }
 
 
+tr:hover {
+  background-color: #ffff99;
+}
+
 .pre-wrap-panel {
     white-space:pre-wrap;
 }
 
 .sourcecode {
     font-family: monospace;
-    border: 0; 
+    border: 0;
     background-color: transparent;
 }
 

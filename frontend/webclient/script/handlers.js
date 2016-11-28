@@ -136,6 +136,16 @@ $handlers.handle_annotated_file = function(msgobj) {
   for (var i = 0; i < files.length; i++) {
     var file = {};
     file.filename = files[i].filename;
+
+    file.displayed = false;
+    file.display = function() {
+      if (file.displayed) {
+        file.displayed = false;
+      } else {
+        file.displayed = true;
+      }
+    };
+
     var data_list = [];
 
     var data_list_length = files[i].data.length;

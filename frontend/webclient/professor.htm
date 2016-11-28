@@ -109,8 +109,9 @@
 <!--   <div class="page-header"> -->
 <!--     <h1>{{student_result.title}} <small>{{student_result.student}}</small></h1> -->
 <!--   </div> -->
-<!-- DISPLAY ANNOTATED FILE SECTION (NEW)-->
 
+
+<!-- DISPLAY ANNOTATED FILE SECTION (NEW)-->
 <div ng-show="show_annotated_file">
 
   <div class="panel panel-default">
@@ -129,11 +130,20 @@
               <!--Table of annotations-->
               <div ng-repeat="file in annotated_files">
 
-                <br>
-                <h3>{{file.filename}}</h3>
+                <hr>
+                <div class="row">
+                  <div class="col-xs-2">
+                    <h2>{{file.filename}}</h2>
+                  </div>
+                  <div class="col-xs-4">
+                    <button ng-click="file.display()" class="btn btn-info">
+                      Show file annotations <span class="caret"></span>
+                    </button>
+                  </div>
+                </div>
                 <br>
 
-                <table class="table table-sm borderless">
+                <table class="table table-sm borderless" ng-show="file.displayed">
                   <thead>
                     <tr>
                       <th>Line Number</th>
@@ -142,67 +152,64 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr class="noBorder" ng-class="(data_entry.annotation === '') ? '' : 'danger'" ng-repeat="data_entry in file.data" ng-mouseenter="data_entry.show_icons=true" ng-mouseleave="data_entry.show_icons=false">
-                      <td>{{data_entry.no}}</td>
-                      <td><pre class="sourcecode">{{data_entry.content}}</pre></td>
-                        <td>
-                          <div class="row">
-                            {{data_entry.annotation}}
-                          </div>
-
-                          <!--EDITOR-->
-                          <div class="row" ng-show="data_entry.show_editor">
-                            <p>Editor</p>
-                            <!--Source code -->
-                            <div class="row">
-                              <div class="col-xs-12">
-                                <div class="panel panel-default pre-wrap-panel">
-                                  <p>{{editing_source_cache}}</p>
-                                </div>
-                              </div>
-                            </div>
-                            <!--Annotation -->
-                            <div class="row">
-                              <div class="col-xs-12">
-                                <textarea class="form-control" ng-model="data_entry.editing_annotation"></textarea>
-                              </div>
-                            </div>
-                            <!--Annotation type-->
-                            <div class="row">
-                              <div class="col-xs-12">
-                                <textarea class="form-control" ng-model="data_entry.editing_ann_type"></textarea>
-                              </div>
-                            </div>
-                            <!--Buttons-->
-                            <div class="row">
-                              <div class="col-xs-4">
-                                <button class="btn btn-default" ng-click="submit_feedback_annotation()">Submit</button>
-                              </div>
-                              <div class="col-xs-4">
-                                <p><font color="green">{{feedback_sent}}</font></p>
-                              </div>
-                              <div class="col-xs-4">
-                                <button class="btn btn-default" ng-click="feedback_clear()">Close</button>
-                              </div>
-                            </div>
-                          </div>
-                          <!--END EDITOR-->
-
-                        </td>
-                        <td>
-                          <div class="row">
-                            <button ng-show="data_entry.show_icons" class="btn btn-default" ng-click="add_feedback_annotation(file.filename,data_entry.no,data_entry.content,data_entry.annotation,data_entry)">
-                              <img src="icon/edit.png">
+                    <tr class="noBorder" ng-class="(data_entry.annotation === '') ? '' : 'danger'" ng-repeat="data_entry in file.data" ng-mouseenter="data_entry.show_icons=true" ng-mouseleave="data_entry.show_icons=false" height="75">
+                      <td>
+                        <p>{{data_entry.no}}</p>
+                      </td>
+                      <td>
+                        <pre class="sourcecode">{{data_entry.content}}</pre>
+                      </td>
+                      <td>
+                        <div class="row">
+                          {{data_entry.annotation}}
+                        </div>
+                        <div class="row">
+                            <button ng-show="data_entry.show_icons || data_entry.show_editor" class="btn btn-default" ng-click="add_feedback_annotation(file.filename,data_entry.no,data_entry.content,data_entry.annotation,data_entry)">
+                              <img src="icon/edit.png"> Add / Edit an annotation
                             </button>
-                          </div>
-                        </td>
-                        <td>
-                          <div class="row">
-                            <button ng-show="data_entry.show_icons" class="btn btn-default" ng-click="delete_feedback_annotation(file.filename, data_entry.no, data_entry.content, data_entry.annotation, data_entry)">
-                              <img src="icon/delete.png">
+                            <button ng-show="data_entry.show_icons && data_entry.annotation !== '' && !data_entry.show_editor" class="btn btn-default" ng-click="delete_feedback_annotation(file.filename, data_entry.no, data_entry.content, data_entry.annotation, data_entry)">
+                              <img src="icon/delete.png"> Delete
                             </button>
+                        </div>
+
+                        <!--EDITOR-->
+                        <div class="row" ng-show="data_entry.show_editor">
+                          <p>Editor</p>
+                          <!--Source code -->
+                          <div class="row">
+                            <div class="col-xs-12">
+                              <div class="panel panel-default pre-wrap-panel">
+                                <p>{{editing_source_cache}}</p>
+                              </div>
+                            </div>
                           </div>
-                        </td>
+                          <!--Annotation -->
+                          <div class="row">
+                            <div class="col-xs-12">
+                              <textarea class="form-control" ng-model="data_entry.editing_annotation"></textarea>
+                            </div>
+                          </div>
+                          <!--Annotation type-->
+                          <div class="row">
+                            <div class="col-xs-12">
+                              <textarea class="form-control" ng-model="data_entry.editing_ann_type"></textarea>
+                            </div>
+                          </div>
+                          <!--Buttons-->
+                          <div class="row">
+                            <div class="col-xs-4">
+                              <button class="btn btn-default" ng-click="submit_feedback_annotation()">Submit</button>
+                            </div>
+                            <div class="col-xs-4">
+                              <p><font color="green">{{feedback_sent}}</font></p>
+                            </div>
+                            <div class="col-xs-4">
+                              <button class="btn btn-default" ng-click="feedback_clear()">Close</button>
+                            </div>
+                          </div>
+                        </div>
+                        <!--END EDITOR-->
+                      </td>
                     </tr>
                   </tbody>
                 </table>
