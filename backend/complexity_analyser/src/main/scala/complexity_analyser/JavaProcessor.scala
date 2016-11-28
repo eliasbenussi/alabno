@@ -5,12 +5,11 @@ import java.nio.file.Files.copy
 import java.nio.file.StandardCopyOption.REPLACE_EXISTING
 import java.util.concurrent.{Callable, Executors, TimeUnit}
 
+import json_parser.Error
+
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
-/**
-  * Created by dfm114 on 21/11/16.
-  */
 class JavaProcessor(modelAnswer: File, studentAnswer: File) {
   private final lazy val beforePattern = """NO (\d+) BEFORE (\w+) => (\d+)""".r
   private final lazy val afterPattern = """NO (\d+) AFTER (\w+) => (\d+)""".r
@@ -72,6 +71,27 @@ class JavaProcessor(modelAnswer: File, studentAnswer: File) {
 
   private def genMean(diffMap: mutable.HashMap[String, ArrayBuffer[Long]]) = diffMap.mapValues(v => v.sum / v.length)
 
+  def calculateTestScores(modMean: Map[String, Long], studMean: Map[String, Long]) = {
+    var score = 100.0d
+    val annotations = new ArrayBuffer[Error]
+    var eff = ""
+    for (fun <- modMean) {
+      // Difference in microseconds
+      val diff = (fun._2 - studMean(fun._1)) / 1000
+      if (Math.abs(diff) > 250){
+        score -= (diff / 100).toInt
+        if (diff > 0) {
+          eff = s"Function used in test ${fun._1} is " +
+            s"inefficient -> $diff ms diff!"
+        } else {
+          eff = s"Function used in test ${fun._1} is " +
+            s"more efficient than model solution -> $diff ms diff!"
+        }
+        annotations.append(new Error(eff, studentAnswer.getName, 0, 0, "complexity"))
+      }
+    }
+    (annotations, Math.min(Math.max(score, 0), 100))
+  }
 
   def benchmark() = {
     val testClass = findTestSuite()
@@ -81,5 +101,6 @@ class JavaProcessor(modelAnswer: File, studentAnswer: File) {
     val studMeanT = eS.submit(new MeanMaker(studThread.get))
     val modMean = modMeanT.get
     val studMean = studMeanT.get
+    calculateTestScores(modMean, studMean)
   }
 }

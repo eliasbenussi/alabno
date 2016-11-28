@@ -177,18 +177,21 @@ class HaskellProcessor(modelAnswer: File, studentAnswer: File) {
   def calculateScore(deltas: ArrayBuffer[(String, Double)]) = {
     var score = 100
     val annotations = new ArrayBuffer[Error]
-    for ((n, v) <- deltas) {
-      val diff = Math.abs(v).round
-      if (diff > 50) {
-        if (score > 0) {
-          score -= (diff / 8).toInt
-        }
+    var eff = ""
+    for ((n, diff) <- deltas) {
+      if (Math.abs(diff) > 50) {
+        score -= (diff / 8).toInt
         val (line, file) = FunctionMap.getOrElse(n, (0, studentAnswer.getName))
-        annotations.append(new Error(s"Function $n is inefficient -> $diff ns diff!",
-          file, line, 0, "complexity"))
+        if (diff > 0) {
+          eff = "Function $n is inefficient -> $diff ns diff!"
+        } else {
+          eff = "Function $n is more efficient than " +
+            s"the model solution -> $diff ns diff!"
+        }
+        annotations.append(new Error(eff, file, line, 0, "complexity"))
       }
     }
-    (annotations, Math.max(score, 0))
+    (annotations, Math.min(Math.max(score, 0), 100))
   }
 
 }

@@ -46,7 +46,6 @@ object App {
         val j = new JavaProcessor(modelAnswer, inputPath)
         j.prepare()
         j.benchmark()
-        (Seq[Error](), 100.0d)
       case _ => throw new IllegalArgumentException("Wrong language")
     }
   }
