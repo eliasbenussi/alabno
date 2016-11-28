@@ -33,7 +33,7 @@ object App {
   }
 
   private def generateCdc(t: String): (ColumnDataClassifier, Classifier[String, String]) = {
-    val prop = new File("mark_marker/hs_basic_training.prop").getPath
+    val prop = new File("backend/mark_marker/hs_basic_training.prop").getPath
     val cdc = new ColumnDataClassifier(prop)
     val classifier = getClassifier(t)
     (cdc, classifier)
