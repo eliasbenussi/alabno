@@ -13,8 +13,6 @@
         <button class="btn btn-primary" ng-click="new_exercise_clicked()"><h5>Create new exercise</h5></button>
       </div>
       <h3>Exercises: {{all_jobs.length}}</h3>
-
-
     </div>
 
     <div class="panel-body">
@@ -93,14 +91,13 @@
 
         <br>
         <br>
-        <br>
-
-        <div class="form-group col-xs-6">
-          <button class="btn btn-primary btn-block" ng-click="submit_new_exercise()">Submit Exercise</button>
-        </div>
 
         <div class="form-group col-xs-6">
           <button class="btn btn-danger btn-block" ng-click="cancel_new_exercise()">Cancel Submission</button>
+        </div>
+
+        <div class="form-group col-xs-6">
+          <button class="btn btn-primary btn-block" ng-click="submit_new_exercise()">Submit Exercise</button>
         </div>
 
       </form>
@@ -109,182 +106,115 @@
   </div>
 </div>
 
-<!--DISPLAY STUDENT RESULT SECTION (OLD) -->
-<div ng-show="show_student_result">
-
-  <div class="page-header">
-    <h1>{{student_result.title}} <small>{{student_result.student}}</small></h1>
-  </div>
-
-  <nav class="navbar navbar-default">
-    <div class="container-fluid">
-      <!-- Brand and toggle get grouped for better mobile display -->
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-        <a class="navbar-brand">Student Result View</a>
-      </div>
-      <!-- Collect the nav links, forms, and other content for toggling -->
-      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-        <form class="navbar-form navbar-left">
-          <button class="btn btn-default" ng-click="show_section('show_professor_exercises')">Back</button>
-        </form>
-      </div>
-      <!-- /.navbar-collapse -->
-    </div>
-    <!-- /.container-fluid -->
-  </nav>
-
-  <div class="row">
-    <div class="col-xs-12">
-      <div class="list-group">
-        <div class="list-group-item">
-          <h4 class="list-group-item-heading">{{student_result.letter_score}}</h4>
-          <h4 class="list-group-item-heading">{{student_result.number_score}}</h4>
-
-          <!--Table of annotations-->
-          <table class="table table-hover">
-            <thead>
-              <tr>
-                <th>Error Type</th>
-                <th>File Name</th>
-                <th>Position</th>
-                <th>Text</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr ng-repeat="tbline in student_result.annotations">
-                <td>{{tbline.errortype}}</td>
-                <td>{{tbline.filename}}</td>
-                <td>{{tbline.lineno}}:{{tbline.charno}}</td>
-                <td>{{tbline.text}}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
-
-</div>
-
+<!--   <div class="page-header"> -->
+<!--     <h1>{{student_result.title}} <small>{{student_result.student}}</small></h1> -->
+<!--   </div> -->
 <!-- DISPLAY ANNOTATED FILE SECTION (NEW)-->
 
 <div ng-show="show_annotated_file">
 
-  <nav class="navbar navbar-default">
-    <div class="container-fluid">
-      <!-- Brand and toggle get grouped for better mobile display -->
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-        <a class="navbar-brand">Annotated File view</a>
-      </div>
-      <!-- Collect the nav links, forms, and other content for toggling -->
-      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-        <form class="navbar-form navbar-left">
-          <button class="btn btn-default" ng-click="show_section('show_professor_exercises')">Back</button>
-        </form>
-      </div>
-      <!-- /.navbar-collapse -->
-    </div>
-    <!-- /.container-fluid -->
-  </nav>
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h3>Annotated Results - STUDENT ID HERE - STUDENT RESULT HERE</h3>
+      <button class="btn btn-default" ng-click="show_section('show_professor_exercises')">Back</button>
+    </div><!-- /panel-heading -->
 
-  <div class="row">
-    <div class="col-xs-12">
-      <div class="list-group">
-        <div class="list-group-item">
+    <div class="panel-body">
 
-          <!--Table of annotations-->
-          <div class="row" ng-repeat="file in annotated_files">
-            <p>File: {{file.filename}}</p>
-            <table class="table table-sm borderless">
-              <thead>
-                <tr>
-                  <th>Line Number</th>
-                  <th>Line Content</th>
-                  <th>Annotation</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr class="noBorder" ng-class="(data_entry.annotation === '') ? '' : 'danger'" ng-repeat="data_entry in file.data" ng-mouseenter="data_entry.show_icons=true" ng-mouseleave="data_entry.show_icons=false">
-                  <td>{{data_entry.no}}</td>
-                  <td><pre class="sourcecode">{{data_entry.content}}</pre></td>
-                  <td>
-                    <div class="row">
-                      {{data_entry.annotation}}
-                    </div>
-                    
-                    <!--EDITOR-->
-                    <div class="row" ng-show="data_entry.show_editor">
-                      <p>Editor</p>
-                      <!--Source code -->
-                      <div class="row">
-                          <div class="col-xs-12">
-                            <div class="panel panel-default pre-wrap-panel">
-                              <p>{{editing_source_cache}}</p>
+      <div class="row">
+        <div class="col-xs-12">
+          <div class="list-group">
+            <div class="list-group-item">
+
+              <!--Table of annotations-->
+              <div ng-repeat="file in annotated_files">
+
+                <br>
+                <h3>{{file.filename}}</h3>
+                <br>
+
+                <table class="table table-sm borderless">
+                  <thead>
+                    <tr>
+                      <th>Line Number</th>
+                      <th>Line Content</th>
+                      <th>Annotation</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="noBorder" ng-class="(data_entry.annotation === '') ? '' : 'danger'" ng-repeat="data_entry in file.data" ng-mouseenter="data_entry.show_icons=true" ng-mouseleave="data_entry.show_icons=false">
+                      <td>{{data_entry.no}}</td>
+                      <td><pre class="sourcecode">{{data_entry.content}}</pre></td>
+                        <td>
+                          <div class="row">
+                            {{data_entry.annotation}}
+                          </div>
+
+                          <!--EDITOR-->
+                          <div class="row" ng-show="data_entry.show_editor">
+                            <p>Editor</p>
+                            <!--Source code -->
+                            <div class="row">
+                              <div class="col-xs-12">
+                                <div class="panel panel-default pre-wrap-panel">
+                                  <p>{{editing_source_cache}}</p>
+                                </div>
+                              </div>
+                            </div>
+                            <!--Annotation -->
+                            <div class="row">
+                              <div class="col-xs-12">
+                                <textarea class="form-control" ng-model="data_entry.editing_annotation"></textarea>
+                              </div>
+                            </div>
+                            <!--Annotation type-->
+                            <div class="row">
+                              <div class="col-xs-12">
+                                <textarea class="form-control" ng-model="data_entry.editing_ann_type"></textarea>
+                              </div>
+                            </div>
+                            <!--Buttons-->
+                            <div class="row">
+                              <div class="col-xs-4">
+                                <button class="btn btn-default" ng-click="submit_feedback_annotation()">Submit</button>
+                              </div>
+                              <div class="col-xs-4">
+                                <p><font color="green">{{feedback_sent}}</font></p>
+                              </div>
+                              <div class="col-xs-4">
+                                <button class="btn btn-default" ng-click="feedback_clear()">Close</button>
+                              </div>
                             </div>
                           </div>
-                      </div>
-                      <!--Annotation -->
-                      <div class="row">
-                        <div class="col-xs-12">
-                          <textarea class="form-control" ng-model="data_entry.editing_annotation"></textarea>
-                        </div>
-                      </div>
-                      <!--Annotation type-->
-                      <div class="row">
-                        <div class="col-xs-12">
-                          <textarea class="form-control" ng-model="data_entry.editing_ann_type"></textarea>
-                        </div>
-                      </div>
-                      <!--Buttons-->
-                      <div class="row">
-                        <div class="col-xs-4">
-                          <button class="btn btn-default" ng-click="submit_feedback_annotation()">Submit</button>
-                        </div>
-                        <div class="col-xs-4">
-                          <p><font color="green">{{feedback_sent}}</font></p>
-                        </div>
-                        <div class="col-xs-4">
-                          <button class="btn btn-default" ng-click="feedback_clear()">Close</button>
-                        </div>
-                      </div>
-                    </div>
-                    <!--END EDITOR-->
-                    
-                  </td>
-                  <td>
-                      <div class="row">
-                        <button ng-show="data_entry.show_icons && data_entry.show_icons_unlocked" class="btn btn-default" ng-click="add_feedback_annotation(file.filename,data_entry.no,data_entry.content,data_entry.annotation,data_entry)">
-                          <img src="icon/edit.png">
-                        </button>
-                      </div>
-                  </td>
-                  <td>
-                      <div class="row">
-                        <button ng-show="data_entry.show_icons && data_entry.show_icons_unlocked" class="btn btn-default" ng-click="delete_feedback_annotation(file.filename, data_entry.no, data_entry.annotation, data_entry)">
-                          <img src="icon/delete.png">
-                        </button>
-                      </div>
+                          <!--END EDITOR-->
 
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                        </td>
+                        <td>
+                          <div class="row">
+                            <button ng-show="data_entry.show_icons" class="btn btn-default" ng-click="add_feedback_annotation(file.filename,data_entry.no,data_entry.content,data_entry.annotation,data_entry)">
+                              <img src="icon/edit.png">
+                            </button>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="row">
+                            <button ng-show="data_entry.show_icons" class="btn btn-default" ng-click="delete_feedback_annotation(file.filename, data_entry.no, data_entry.content, data_entry.annotation, data_entry)">
+                              <img src="icon/delete.png">
+                            </button>
+                          </div>
+                        </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
+
+    </div><!-- /panel-body -->
+
+  </div><!-- /panel -->
+
 
 </div>
