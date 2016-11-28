@@ -1,17 +1,10 @@
-all: hsmarker
-
-hsmarker: repo
-	mvn install -q -Dmaven.test.skip=true
-
-test:
-	mvn test -q
+all: repo
 
 repo:
 	wget https://gitlab.com/giuliojiang/MachineLearningLibDir/raw/master/repo.tar.gz
 	tar -xf repo.tar.gz
 
 clean:
-	mvn clean -q
-	- rm -rf training
+	- rm -rf repo
 
 .PHONY: test clean

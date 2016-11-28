@@ -19,7 +19,12 @@
         <scala.version>2.11.8</scala.version>
         <scala.version.tools>2.11</scala.version.tools>
     </properties>
-
+    <repositories>
+        <repository>
+            <id>repo</id>
+            <url>file://${project.basedir}/../lib/repo</url>
+        </repository>
+    </repositories>
     <build>
         <sourceDirectory>src/main/scala</sourceDirectory>
         <testSourceDirectory>src/test/scala</testSourceDirectory>
@@ -55,9 +60,7 @@
         <dependency>
             <groupId>stanfordclassifier</groupId>
             <artifactId>stanfordclassifier</artifactId>
-            <scope>system</scope>
             <version>20151209</version>
-            <systemPath>${project.basedir}/../../lib/stanfordclassifier-20151209.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>json_parser</groupId>
