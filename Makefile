@@ -8,17 +8,17 @@ testall: backendtest infrastructuretest simple-haskell-marker-test
 backend: repo
 	cd backend && mvn -T 1C package -q -Dmaven.test.skip=true
 
-backendtest: backend
+backendtest:
 	cd backend && mvn -T 1C test -q
 
-infrastructure: repo
+infrastructure: repo simple-haskell-marker
 	cd infrastructure && make
 
 infrastructuretest:
 	cd infrastructure && make test
 
 simple-haskell-marker: repo
-	cd simple-haskell-marker && mvn -T 1C package -q -Dmaven.test.skip=true
+	cd simple-haskell-marker && mvn -T 1C install -q -Dmaven.test.skip=true
 	
 repo:
 	cd lib && make
