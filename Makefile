@@ -19,7 +19,7 @@ infrastructuretest:
 
 simple-haskell-marker: repo
 	cd simple-haskell-marker && mvn -T 1C install -q -Dmaven.test.skip=true
-	
+
 repo:
 	cd lib && make
 
@@ -32,7 +32,7 @@ frontend:
 clean:
 	- cd backend && mvn clean -q
 	- cd infrastructure/infrastructure && mvn clean -q
-	- cd simple-haskell-marker && make clean
+	- cd simple-haskell-marker && mvn clean -q
 	- rm -rf tmp
 
 .PHONY: clean infrastructure backend simple-haskell-marker simple-haskell-marker-test frontend
