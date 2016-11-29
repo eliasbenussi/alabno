@@ -49,7 +49,7 @@ class HaskellProcessor(modelAnswer: File, studentAnswer: File) {
   def prepare(): Unit = {
     val benchFile = "/Bench.hs"
     val tests = "/Tests.hs"
-    val bench = new File(getClass.getResource(benchFile).toURI)
+    val bench = new File("complexity_analyser/res/Bench.hs")
     if (!bench.exists()) throw new Exception("Missing resource Bench.hs")
     if (!modelAnswer.isDirectory) throw new Exception("Model solution should be a directory")
     if (!studentAnswer.isDirectory) throw new Exception("Student submission should be a directory")
@@ -179,13 +179,14 @@ class HaskellProcessor(modelAnswer: File, studentAnswer: File) {
     val annotations = new ArrayBuffer[Error]
     var eff = ""
     for ((n, diff) <- deltas) {
-      if (Math.abs(diff) > 50) {
-        score -= (diff / 8).toInt
+      if (Math.abs(diff) > 25000) {
+        score -= (diff / 20000).toInt
+        println("Score is: " + score)
         val (line, file) = FunctionMap.getOrElse(n, (0, studentAnswer.getName))
         if (diff > 0) {
-          eff = "Function $n is inefficient -> $diff ns diff!"
+          eff = s"Function $n is inefficient -> $diff ns diff!"
         } else {
-          eff = "Function $n is more efficient than " +
+          eff = s"Function $n is more efficient than " +
             s"the model solution -> $diff ns diff!"
         }
         annotations.append(new Error(eff, file, line, 0, "complexity"))

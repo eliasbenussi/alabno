@@ -12,6 +12,9 @@ import scala.collection.mutable.ArrayBuffer
   * Simple main to check the access to resources
   */
 object App {
+
+  var additional: Seq[String] = Seq()
+
   def main(args: Array[String]): Unit = {
     if (args.length != 2)
       throw new IllegalArgumentException("CompAnal <input.json> <output.json>")
@@ -30,7 +33,7 @@ object App {
       case e: Exception => errors += e.getMessage
     }
     MicroServiceOutputParser.writeFile(new File(args apply 1), score,
-      annotations.asJava, errors.asJava)
+      annotations.asJava, errors.asJava, additional)
     System.exit(0)
   }
 
@@ -41,7 +44,10 @@ object App {
         h.prepare()
         val (errors, score) = h.runTests()
         val (compErrors, compScore) = h.runBench()
-        (errors ++ compErrors, compScore - score)
+
+        additional = Seq("modelAnswer/res.html", "inputPath/res.html")
+        println(compScore, score)
+        (errors ++ compErrors, (compScore + 3 * score)/4)
       case "java" =>
         val j = new JavaProcessor(modelAnswer, inputPath)
         j.prepare()
