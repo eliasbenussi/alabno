@@ -8,4 +8,6 @@ public interface MicroServiceUpdater {
 
     public void update(SourceDocument source, int lineNumber, String type, String annotation);
 
+    public void updateMark(SourceDocument source, String exerciseType, Mark mark);
+    
 }

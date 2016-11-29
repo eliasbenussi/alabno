@@ -21,6 +21,7 @@ public class FeedbackUpdaters implements MicroServiceUpdater {
     @Override
     public void init() {
         // This method does nothing
+        // init is called upon registration
     }
 
     @Override
@@ -29,5 +30,12 @@ public class FeedbackUpdaters implements MicroServiceUpdater {
             updater.update(source, lineNumber, type, annotation);
         }
     }
-    
+
+    @Override
+    public void updateMark(SourceDocument source, String exerciseType, Mark mark) {
+        for (MicroServiceUpdater updater : updaters) {
+            updater.updateMark(source, exerciseType, mark);
+        }
+    }
+
 }
