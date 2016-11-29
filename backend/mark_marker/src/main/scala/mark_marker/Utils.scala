@@ -15,7 +15,7 @@ object Utils {
   def matchType(t: String) = t match {
     case s if s.contains("haskell") => ".hs"
     case s if s.contains("java") => ".java"
-    case _ => throw new IllegalArgumentException("Invalid language")
+    case s => throw new IllegalArgumentException(s"Invalid language: $s")
   }
 
   def getFiles(file: File, extension: String): Array[File] = {

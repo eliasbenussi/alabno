@@ -56,7 +56,7 @@ object App {
     case "C" => 55
     case "D" => 45
     case "E" => 35
-    case "F" => 25
+    case "F" => 15
     case _ => 0
   }
 
