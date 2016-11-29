@@ -39,7 +39,7 @@ object App {
 
   def processLanguage(language: String, modelAnswer: File, inputPath: File) = {
     language match {
-      case "haskell" =>
+      case l if l.contains("haskell") =>
         val h = new HaskellProcessor(modelAnswer, inputPath)
         h.prepare()
         val (errors, score) = h.runTests()
@@ -48,7 +48,7 @@ object App {
         additional = Seq("modelAnswer/res.html", "inputPath/res.html")
         println(compScore, score)
         (errors ++ compErrors, (compScore + 3 * score)/4)
-      case "java" =>
+      case l if l.contains("java") =>
         val j = new JavaProcessor(modelAnswer, inputPath)
         j.prepare()
         j.benchmark()
