@@ -43,12 +43,12 @@ object App {
   }
   
   private def compileCheck(language: String, path: File): Int = language match {
-    case "haskell" =>
+    case s if s.contains("haskell") =>
       val hCheck = HaskellParser.check(path)
       annotations ++= hCheck._2
       hCheck._1
 
-    case "java" =>
+    case s if s.contains("java") =>
       val hCheck = JavaParser.check(path)
       annotations ++= hCheck._2
       hCheck._1
