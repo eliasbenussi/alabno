@@ -56,8 +56,16 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
         
         // format source, type and annotation
         source = source.replace("\n", "\\n").replace("\t", "\\t");
+        source = source.trim();
+        if (source.isEmpty()) {
+            return;
+        }
         type = type.replace("\n", "\\n").replace("\t", "\\t");
         annotation = annotation.replace("\n", "\\n").replace("\t", "\\t");
+        annotation = annotation.trim();
+        if (annotation.isEmpty()) {
+            return;
+        }
         
         String queryCategories = "INSERT INTO HaskellCategories (name, type, annotation) VALUES (?, ?, ?)";
         String[] parametersCategories = {newName.name, type, annotation};

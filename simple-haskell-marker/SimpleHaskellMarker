@@ -9,14 +9,16 @@ import traceback
 # function to exit with an error message and dump the error message in the output
 # json
 def exit_with_error(msg, output_json_path):
+    complete_msg = "SimpleHaskellMarker: " + msg
+    
     jsonobj = {
         'score': 0,
         'annotations': [],
-        'error': msg
+        'error': complete_msg
         }
     jsonstr = json.dumps(jsonobj)
     
-    print('Error: {}'.format(msg))
+    print('Error: {}'.format(complete_msg))
     
     if os.path.isfile(output_json_path):
         print('Output json exists.')
@@ -57,6 +59,14 @@ try:
     input_json_obj = json.loads(input_json_string)
 except:
     exit_with_error('Could not parse input JSON', output_json_path)
+
+# check json's type field
+try:
+    type_field = input_json_obj['type']
+    if 'haskell' not in type_field:
+        exit_with_error('Unrecognized type {}'.format(type_field), output_json_path)
+except:
+    exit_with_error('Invalid JSON: could not find type information', output_json_path)
 
 try:
     input_directory = input_json_obj['input_directory']
