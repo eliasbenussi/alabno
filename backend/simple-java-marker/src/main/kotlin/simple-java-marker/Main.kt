@@ -1,3 +1,4 @@
+import `simple-java-marker`.GuavaVisitor
 import java_antlr.Java8Lexer
 import java_antlr.Java8Parser
 import json_parser.MicroServiceInputParser
@@ -23,14 +24,14 @@ fun main(args: Array<String>) {
 
 fun javaANTLRRunner(path: String) {
     val file = File(path)
-    val files = file.listFiles().filter { it.endsWith(".java") }
+    val files = file.listFiles().filter { it.name.endsWith(".java") }
+    files.forEach(::println)
     files
             .map { ANTLRInputStream(FileInputStream(it)) }
             .map { CommonTokenStream(Java8Lexer(it)) }
-            .map { Java8Parser(it) }
+            .map(::Java8Parser)
             .forEach {
-                println(it.additionalBound())
-                //def visit = new ASTGenerator()
-                //visit.visit(fileParser.primary())
+                val visit = GuavaVisitor()
+                visit.visit(it.compilationUnit())
             }
 }
