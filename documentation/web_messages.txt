@@ -120,7 +120,6 @@ SERVER -> CLIENT
     }
     Sends the exercise files with annotations per line to the client
     
-    TODO CLIENT
     {
         "type": "typelist",
         "data": [
