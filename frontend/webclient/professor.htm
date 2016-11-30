@@ -124,7 +124,37 @@
       <button class="btn btn-default" ng-click="show_section('show_professor_exercises')">Back</button>
     </div><!-- /panel-heading -->
     
-    
+    <!--Student final mark, and editor-->
+    <div class="panel panel-default">
+      <div ng-hide="show_mark_editor" class="panel-body">
+        <div class="col-xs-6">
+          <h1>{{student_exercise_mark}}</h1>
+        </div>
+        <div class="col-xs-6">
+          <button type="button" class="btn btn-secondary" ng-click="edit_mark()">Edit Mark</button>
+        </div>
+      </div>
+      
+      <div ng-show="show_mark_editor" class="panel-body">
+        <div class="col-xs-6">
+          <form name="myForm">
+            <select name="newmark" ng-model="student_exercise_mark">
+              <option value="A*">A*</option>
+              <option value="A+">A+</option>
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+              <option value="D">D</option>
+              <option value="E">E</option>
+              <option value="F">F</option>
+            </select>
+          </form>
+        </div>
+        <div class="col-xs-6">
+          <button type="button" class="btn btn-primary" ng-click="submit_mark()">Submit</button>
+        </div>
+      </div>
+    </div>
 
     <div class="panel-body">
 

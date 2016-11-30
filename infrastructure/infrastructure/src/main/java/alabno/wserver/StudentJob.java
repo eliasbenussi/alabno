@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import alabno.msfeedback.Mark;
 import alabno.utils.FileUtils;
 import alabno.utils.SubprocessUtils;
 
@@ -84,7 +85,7 @@ public class StudentJob {
             annotationsArray = new JSONArray();
         }
         annotationsArray.add(newAnn);
-        parser.getObject().put("annotations", annotationsArray);
+        parser.putArray("annotations", annotationsArray);
         
         rewriteJson(parser);
         return doc;
@@ -124,5 +125,12 @@ public class StudentJob {
     public String getMark() {
         JsonParser parser = getPostproJson();
         return parser.getString("letter_score");
+    }
+
+    public void changeMark(Mark mark) {
+        JsonParser parser = getPostproJson();
+        parser.putString("letter_score", mark.toString());
+        parser.putDouble("number_score", mark.toDouble());
+        rewriteJson(parser);
     }
 }

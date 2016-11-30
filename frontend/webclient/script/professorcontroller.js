@@ -144,8 +144,45 @@ theapp.controller('professorController', function($scope) {
     $scope.annotated_files = [];
   };
   
+  // ###########################################################################
+  // marking feedback
+  
+  // false: show mark read only
+  // true: show mark editor
+  $scope.show_mark_editor = false;
+  // exercise type of the exercise being shown
   $scope.student_exercise_type = "";
+  // ng-bound to the mark shown, and to the list selector in mark editor
   $scope.student_exercise_mark = "";
+  
+  // shows the mark editor
+  $scope.edit_mark = function() {
+    $scope.show_mark_editor = true;
+  };
+  
+  // sends a modified mark to the backend
+  $scope.submit_mark = function() {
+    console.log("Now mark is " + $scope.student_exercise_mark);
+    
+    // Send all the available filenames of the exercise, because the mark
+    // concerns all files belonging to the exercise, and it's each updater's
+    // job to filter out unwanted files if necessary. Each updater receives
+    // source code and name of file, so it is easy for backend to identify
+    // which are the wanted files
+    for (var i = 0; i < $scope.annotated_files.length; i++) {
+        var the_annotated_file = $scope.annotated_files[i];
+        
+        var msgobj = {};
+        msgobj.type = 'markfeedback';
+        msgobj.id = $globals.token;
+        msgobj.filename = the_annotated_file.filename;
+        msgobj.exercise_type = $scope.student_exercise_type;
+        msgobj.mark = $scope.student_exercise_mark;
+        $globals.send(JSON.stringify(msgobj));
+    }
+
+    $scope.show_mark_editor = false;
+  };
   
   // ###################################################################
   // Feedback management and annotation editing

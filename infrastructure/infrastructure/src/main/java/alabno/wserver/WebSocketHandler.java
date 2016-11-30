@@ -86,7 +86,7 @@ public class WebSocketHandler {
                 return;
             }
             
-            SourceDocument source = findFile(filename, token);
+            SourceDocument source = amendMark(filename, token, mark);
             
             updaters.updateMark(source, exerciseType, mark);
         } catch (Exception e) {
@@ -95,7 +95,7 @@ public class WebSocketHandler {
         }
     }
 
-    private SourceDocument findFile(String filename, String token) {
+    private SourceDocument amendMark(String filename, String token, Mark mark) {
         // Finds the SourceDocument file of a student
         
         UserState userSession = sessionManager.getUserState(token);
@@ -104,6 +104,7 @@ public class WebSocketHandler {
         
         List<StudentJob> group = allJobs.getJobGroupByTitle(title);
         StudentJob studentJob = group.get(Integer.parseInt(studentNumber));
+        studentJob.changeMark(mark);
         return studentJob.getSourceDocument(filename);
     }
 
