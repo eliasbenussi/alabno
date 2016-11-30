@@ -1,5 +1,6 @@
 package alabno.wserver;
 
+import alabno.database.MySqlDatabaseConnection;
 import alabno.msfeedback.FeedbackUpdaters;
 import alabno.msfeedback.Mark;
 import alabno.utils.ConnUtils;
@@ -20,10 +21,12 @@ public class WebSocketHandler {
     private ExecutorService executor;
     private JobsCollection allJobs = new JobsCollection(this);
     private FeedbackUpdaters updaters;
+    private MySqlDatabaseConnection db;
 
-    public WebSocketHandler(ExecutorService executor, FeedbackUpdaters updaters) {
+    public WebSocketHandler(ExecutorService executor, FeedbackUpdaters updaters, MySqlDatabaseConnection db) {
         this.executor = executor;
         this.updaters = updaters;
+        this.db = db;
     }
 
     public void handleMessage(WebSocket conn, String message) {
@@ -503,6 +506,9 @@ public class WebSocketHandler {
 
             // Send the currently existing jobs
             conn.send(getJobsListMessage().toJSONString());
+            
+            // Send the valid exercise types
+            sendExerciseTypes(conn);
 
             return;
         }
@@ -514,6 +520,30 @@ public class WebSocketHandler {
             conn.send(failure_msg.toJSONString());
             return;
         }
+    }
+
+    void sendExerciseTypes(WebSocket conn) {
+        // get list of exercises from database
+        String sql = "SELECT type FROM `ExerciseTypes`";
+        List<Map<String, String>> results = db.retrieveQueryString(sql);
+        if (results == null) {
+            return;
+        }
+        List<String> validTypes = new ArrayList<>();
+        for (Map<String, String> row : results) {
+            String aType = row.get("type");
+            validTypes.add(aType);
+        }
+        java.util.Collections.sort(validTypes);
+        
+        // create message object
+        JSONObject msgobj = new JSONObject();
+
+        msgobj.put("type", "typelist");
+        JSONArray dataArray = new JSONArray();
+        dataArray.addAll(validTypes);
+        msgobj.put("data", dataArray);
+        conn.send(msgobj.toJSONString());
     }
 
     /**

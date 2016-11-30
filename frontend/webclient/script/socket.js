@@ -42,6 +42,8 @@ $globals.socket.onmessage = function(message) {
         $handlers.handle_postpro_result(msgobj);
     } else if (msgobj.type == 'annotated_files') {
         $handlers.handle_annotated_file(msgobj);
+    } else if (msgobj.type == 'typelist') {
+        $handlers.handle_type_list(msgobj);
     } else {
         console.log("message type not recognized: " + msgobj.type);
     }

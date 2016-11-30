@@ -49,7 +49,6 @@ CLIENT -> SERVER
     }
     Tell all microservices about a new feedback annotation, with source code, type and annotation.
     
-    TODO CLIENT
     {
         "type": "markfeedback",
         "id": "687ba687de5",
@@ -120,3 +119,13 @@ SERVER -> CLIENT
         ]
     }
     Sends the exercise files with annotations per line to the client
+    
+    TODO CLIENT
+    {
+        "type": "typelist",
+        "data": [
+            "haskellsequences",
+            "javarecursion"
+        ]
+    }
+    Allowed exercise types. Will be sent upon successful login

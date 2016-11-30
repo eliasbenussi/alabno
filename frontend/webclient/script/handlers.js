@@ -167,3 +167,13 @@ $handlers.handle_annotated_file = function(msgobj) {
   // apply
   $globals.professor_scope.$apply();
 };
+
+$handlers.handle_type_list = function(msgobj) {
+    var data = msgobj.data;
+    $globals.professor_scope.valid_exercise_types = [];
+    for (var i = 0; i < data.length; i++) {
+        $globals.professor_scope.valid_exercise_types.push(data[i]);
+    }
+    
+    $globals.professor_scope.$apply();
+};

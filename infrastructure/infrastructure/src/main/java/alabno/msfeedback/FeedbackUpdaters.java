@@ -33,7 +33,7 @@ public class FeedbackUpdaters implements MicroServiceUpdater {
 
     @Override
     public void updateMark(SourceDocument source, String exerciseType, Mark mark) {
-        System.out.println("FeedbackUpdaters: received updateMark with mark " + mark.toString());
+        System.out.println("FeedbackUpdaters: received updateMark with mark " + mark.toString() + " and file " + source.getPath());
         for (MicroServiceUpdater updater : updaters) {
             updater.updateMark(source, exerciseType, mark);
         }

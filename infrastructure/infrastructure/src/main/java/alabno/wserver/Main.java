@@ -40,13 +40,13 @@ public class Main {
         }
         
         // Setup microservices feedback
-        MySqlDatabaseConnection conn = new MySqlDatabaseConnection();
+        MySqlDatabaseConnection dbconn = new MySqlDatabaseConnection();
         FeedbackUpdaters updaters = new FeedbackUpdaters();
-        updaters.register(new HaskellMarkerUpdater(conn));
+        updaters.register(new HaskellMarkerUpdater(dbconn));
 
         // Start WebSocket server
         System.out.println("Starting WebSocket server on port " + port);
-        AutoMarkerWSServer the_server = new AutoMarkerWSServer(port, updaters);
+        AutoMarkerWSServer the_server = new AutoMarkerWSServer(port, updaters, dbconn);
 
         if (secure) {
             // Set up the WebSocket server in secure mode

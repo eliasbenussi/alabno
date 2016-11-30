@@ -55,6 +55,10 @@ theapp.controller('professorController', function($scope) {
 
   // #########################################################################
   // New job
+  
+  // list of valid exercises types
+  $scope.valid_exercise_types = [];
+  
   $scope.submit_new_exercise = function()
   {
     // console.log("submit new exercise");

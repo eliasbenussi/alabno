@@ -69,7 +69,9 @@
 
         <div class="form-group">
           <label>Exercise Type</label>
-          <input class="form-control" type="text" placeholder="haskell / java" ng-model="exercise_type">
+          <select name="extypesel" ng-model="exercise_type">
+              <option ng-repeat="ext in valid_exercise_types" value="{{ext}}">{{ext}}</option>
+          </select>
         </div>
 
         <div class="form-group">
@@ -137,7 +139,7 @@
       
       <div ng-show="show_mark_editor" class="panel-body">
         <div class="col-xs-6">
-          <form name="myForm">
+          <form>
             <select name="newmark" ng-model="student_exercise_mark">
               <option value="A*">A*</option>
               <option value="A+">A+</option>
