@@ -4,7 +4,7 @@ import java.io.File
 
 import edu.stanford.nlp.classify.{Classifier, ColumnDataClassifier}
 import json_parser.{MicroServiceInputParser, MicroServiceOutputParser}
-import mark_marker.trainer.DatabaseConnector
+import mark_marker.trainer.{DatabaseConnector, Trainer}
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
@@ -27,25 +27,19 @@ object App {
       val grade = classifier.classOf(d).trim
       score = matchScore(grade)
     } catch {
-      case e: Throwable => errors += e.toString
+      case e: Throwable =>
+        errors += e.toString
     }
     MicroServiceOutputParser.writeFile(new File(args(1)), score, Seq().asJava, errors.asJava)
   }
 
   private def generateCdc(t: String): (ColumnDataClassifier, Classifier[String, String]) = {
-    val prop = new File("backend/mark_marker/hs_basic_training.prop").getPath
-    val cdc = new ColumnDataClassifier(prop)
-    val classifier = getClassifier(t)
-    (cdc, classifier)
-  }
-
-  private def getClassifier(exercise: String) = {
-    val db = new DatabaseConnector
+    val db = new DatabaseConnector("MarkMarkerTest")
     db.connect()
-    val classifier = db.getSerialisedClassifier(exercise)
+    val prop = new File("backend/mark_marker/hs_basic_training.prop").getPath
+    val cl = Trainer.getCdc(t, prop, db)
     db.close()
-    if (classifier == null) throw new IllegalArgumentException(s"$exercise is not a valid type")
-    classifier
+    cl
   }
 
   private def matchScore(score: String) = score match {
