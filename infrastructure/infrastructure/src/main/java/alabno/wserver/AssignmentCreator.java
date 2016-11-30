@@ -80,7 +80,7 @@ public class AssignmentCreator implements Runnable {
                 // Add the job to the JobsCollection
                 List<StudentJob> newJob = new ArrayList<>();
                 for (String s : level2Split) {
-                    StudentJob aStudentJob = new StudentJob(s);
+                    StudentJob aStudentJob = new StudentJob(s, exerciseType);
                     newJob.add(aStudentJob);
                 }
                 allJobs.addJob(title, newJob, conn);

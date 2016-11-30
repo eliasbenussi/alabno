@@ -15,14 +15,16 @@ import alabno.utils.SubprocessUtils;
  */
 public class StudentJob {
 
-    private String jsonLocation;
+    private final String jsonLocation;
+    private final String exerciseType;
     
     /**
      * @param jsonLocation path where the json
      * produced by the postprocessor is located
      */
-    public StudentJob(String jsonLocation) {
+    public StudentJob(String jsonLocation, String exerciseType) {
         this.jsonLocation = jsonLocation;
+        this.exerciseType = exerciseType;
     }
     
     /**
@@ -103,5 +105,17 @@ public class StudentJob {
         // utility to convert to absolute path based on the relative one
         // the 17 removes the final part of the path containing _out/postpro.json
         return jsonLocation.substring(0, Math.max(0, jsonLocation.length() - 17)) + "/" + relpath;
+    }
+    
+    public String getExerciseType() {
+        return exerciseType;
+    }
+
+    public SourceDocument getSourceDocument(String fileName) {
+
+        String desiredFile = toAbsolute(fileName);
+        
+        // Read the source file
+        return new SourceDocument(fileName, desiredFile);
     }
 }

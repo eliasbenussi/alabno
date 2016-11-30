@@ -49,6 +49,16 @@ CLIENT -> SERVER
     }
     Tell all microservices about a new feedback annotation, with source code, type and annotation.
     
+    TODO CLIENT
+    {
+        "type": "markfeedback",
+        "id": "687ba687de5",
+        "filename": "sequences.hs",
+        "exercise_type": "haskellsequences",
+        "mark": "A+"      // This is a string that can be A* A+ A B C D E F
+    }
+    Tell all microservices about a new feedback mark.
+    
 SERVER -> CLIENT
 
     {
@@ -99,6 +109,7 @@ SERVER -> CLIENT
 
     {
         "type": "annotated_files",
+        "exercise_type": "haskellsequences",    TODO CLIENT
         "files": [
           { "filename": "Sequences.hs",
             "data": [

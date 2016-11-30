@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import alabno.database.MySqlDatabaseConnection;
+import alabno.msfeedback.Mark;
 import alabno.msfeedback.MicroServiceUpdater;
 import alabno.simple_haskell_marker.HaskellSplitter;
 import alabno.utils.FileUtils;
@@ -215,6 +216,11 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
 
     private String getCurrentCategoriesName() {
         return getCurrentFilename(".csv");
+    }
+
+    @Override
+    public void updateMark(SourceDocument source, String exerciseType, Mark mark) {
+        // The Haskell Marker Updater does not need to handle marking changes
     }
 
 
