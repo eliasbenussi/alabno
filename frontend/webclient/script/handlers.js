@@ -129,6 +129,10 @@ $handlers.handle_annotated_file = function(msgobj) {
 
   $globals.professor_scope.annotated_files = [];
 
+  $globals.professor_scope.student_exercise_type = msgobj.exercise_type;
+  
+  $globals.professor_scope.student_exercise_mark = msgobj.mark;
+  
   var files = msgobj.files;
 
   for (var i = 0; i < files.length; i++) {

@@ -184,6 +184,8 @@ public class WebSocketHandler {
         String fileContent = studentJob.readPostProcessorOutput();
         // Type of exercise
         String exerciseType = studentJob.getExerciseType();
+        // Mark received
+        String mark = studentJob.getMark();
 
         // Holds annotation information for each student-submitted file
         Map<String, List<AnnotationWrapper>> submissionFeedbackMap = generateSubmissionFeedbackMap(fileContent);
@@ -202,7 +204,7 @@ public class WebSocketHandler {
             sendPostprocessorMsg(title, student, fileContent, conn, exerciseType);
             break;
           case "annotated":
-            sendAnnotatedMsg(uniqueFiles, submissionFeedbackMap, conn, exerciseType);
+            sendAnnotatedMsg(uniqueFiles, submissionFeedbackMap, conn, exerciseType, mark);
             break;
           default:
             System.out.println("Unrecognized result message subtype");
@@ -220,7 +222,7 @@ public class WebSocketHandler {
         conn.send(postProcResultMsg.toJSONString());
     }
 
-    private void sendAnnotatedMsg(Set<String> uniqueFiles, Map<String, List<AnnotationWrapper>> submissionFeedbackMap, WebSocket conn, String exerciseType) {
+    private void sendAnnotatedMsg(Set<String> uniqueFiles, Map<String, List<AnnotationWrapper>> submissionFeedbackMap, WebSocket conn, String exerciseType, String mark) {
         // Generate a JSON message with an array containing JSON objects - each is made of the file name,
         // its contents and if a line has an annotation, its corresponding error.
         JSONObject annotatedFilesMsg = new JSONObject();
@@ -228,6 +230,7 @@ public class WebSocketHandler {
         JSONArray files = generateAnnotatedFileArray(uniqueFiles, submissionFeedbackMap);
         annotatedFilesMsg.put("files", files);
         annotatedFilesMsg.put("exercise_type", exerciseType);
+        annotatedFilesMsg.put("mark", mark);
         conn.send(annotatedFilesMsg.toJSONString());
     }
 

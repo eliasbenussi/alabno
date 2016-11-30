@@ -144,6 +144,9 @@ theapp.controller('professorController', function($scope) {
     $scope.annotated_files = [];
   };
   
+  $scope.student_exercise_type = "";
+  $scope.student_exercise_mark = "";
+  
   // ###################################################################
   // Feedback management and annotation editing
   

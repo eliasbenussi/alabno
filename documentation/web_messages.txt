@@ -110,6 +110,7 @@ SERVER -> CLIENT
     {
         "type": "annotated_files",
         "exercise_type": "haskellsequences",    TODO CLIENT
+        "mark": "A+",                           TODO CLIENT
         "files": [
           { "filename": "Sequences.hs",
             "data": [

@@ -38,6 +38,11 @@ public class StudentJob {
     public String getJsonLocation() {
         return jsonLocation;
     }
+    
+    private JsonParser getPostproJson() {
+        String postproContent = readPostProcessorOutput();
+        return new JsonParser(postproContent);
+    }
 
     public SourceDocument amend(String fileName, int lineno, String annType, String annotation) {
         if ("ok".equals(annotation)) {
@@ -48,11 +53,8 @@ public class StudentJob {
         
         // Read the source file
         SourceDocument doc = new SourceDocument(fileName, desiredFile);
-        
-        // Read the postpro file
-        String postproContent = readPostProcessorOutput();
-        
-        JsonParser parser = new JsonParser(postproContent);
+
+        JsonParser parser = getPostproJson();
         
         // get the annotations part
         JsonArrayParser annotations = parser.getArrayParser("annotations");
@@ -117,5 +119,10 @@ public class StudentJob {
         
         // Read the source file
         return new SourceDocument(fileName, desiredFile);
+    }
+
+    public String getMark() {
+        JsonParser parser = getPostproJson();
+        return parser.getString("letter_score");
     }
 }
