@@ -202,10 +202,12 @@
                           {{data_entry.annotation}}
                         </div>
                         <div class="row">
+
                           <button ng-show="data_entry.show_icons || data_entry.show_editor" class="btn btn-default" ng-click="add_feedback_annotation(file.filename,data_entry.no,data_entry.content,data_entry.annotation,data_entry)">
                             <img src="icon/edit.png"> Add / Edit an annotation
                           </button>
-                          <button ng-show="data_entry.show_icons && data_entry.annotation !== '' && !data_entry.show_editor" class="btn btn-default" ng-click="delete_feedback_annotation(file.filename, data_entry.no, data_entry.content, data_entry.annotation, data_entry)">
+
+                          <button ng-show="data_entry.show_icons && data_entry.annotation !== '' && !data_entry.show_editor" class="btn btn-default" ng-click="delete_feedback_annotation(file.filename, data_entry.no, data_entry.annotation, data_entry)">
                             <img src="icon/delete.png"> Delete
                           </button>
                         </div>
