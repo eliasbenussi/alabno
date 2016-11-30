@@ -40,6 +40,10 @@ class HaskellProcessor(modelAnswer: File, studentAnswer: File) {
   // Used to run the compilations and the benchmarks
   private final val eP = Executors.newFixedThreadPool(2)
 
+  private final lazy val TIME_THRESHOLD = 25000
+
+  val GRAPH_FILE = "/res.html"
+
   /**
     * Copies Bench.hs to both model solution and student submission
     * Finds all the functions in the student submission
@@ -120,15 +124,14 @@ class HaskellProcessor(modelAnswer: File, studentAnswer: File) {
     }
     (buff, Math.max(score, 0))
   }
-
-  def runBench() = {
+  def runBench(): ((ArrayBuffer[Error], Int), String, String) = {
     compileClassOnBoth("Bench")
     val benchOutcomeStudent = eP.submit(new ShellExecutor(s"$studentAnswer/Bench ${bFlags(studentAnswer)}"))
     val benchOutcomeModel = eP.submit(new ShellExecutor(s"$modelAnswer/Bench ${bFlags(modelAnswer)}"))
     val zippedMeanModel = genListBenchNameMean(benchOutcomeModel.get)
     val zippedMeanStud = genListBenchNameMean(benchOutcomeStudent.get)
     val deltas = produceDelta(zippedMeanModel, zippedMeanStud)
-    calculateScore(deltas)
+    (calculateScore(deltas), studentAnswer.getAbsolutePath + GRAPH_FILE, modelAnswer.getAbsolutePath + GRAPH_FILE)
   }
 
   private def compileClassOnBoth(name: String) = {
@@ -143,7 +146,7 @@ class HaskellProcessor(modelAnswer: File, studentAnswer: File) {
     (outputModel, outputStudent)
   }
 
-  private final def bFlags(o: File) = s"--output=$o/res.html"
+  private final def bFlags(o: File) = s"--output=$o$GRAPH_FILE"
 
   private def produceDelta(zippedMeanModel: Seq[(String, Double)], zippedMeanStud: Seq[(String, Double)]) = {
     val buff = new ArrayBuffer[(String, Double)]
@@ -173,13 +176,12 @@ class HaskellProcessor(modelAnswer: File, studentAnswer: File) {
     }
     double * factor
   }
-
   def calculateScore(deltas: ArrayBuffer[(String, Double)]) = {
     var score = 100
     val annotations = new ArrayBuffer[Error]
     var eff = ""
     for ((n, diff) <- deltas) {
-      if (Math.abs(diff) > 25000) {
+      if (Math.abs(diff) > TIME_THRESHOLD) {
         score -= (diff / 20000).toInt
         println("Score is: " + score)
         val (line, file) = FunctionMap.getOrElse(n, (0, studentAnswer.getName))

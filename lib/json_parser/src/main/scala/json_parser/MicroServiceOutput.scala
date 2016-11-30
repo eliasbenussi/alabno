@@ -9,7 +9,7 @@ import scala.collection.JavaConverters._
 
 class MicroServiceOutput(score: Double, annotations: java.util.List[Error],
                          errors: java.util.List[String], additional:
-                         Seq[String] = Seq()) {
+                         java.util.List[String] = Seq().asJava) {
 
   private implicit val errorWrites = new Writes[Error] {
     def writes(error: Error) = Json.obj(
@@ -21,19 +21,13 @@ class MicroServiceOutput(score: Double, annotations: java.util.List[Error],
     )
   }
 
-  def getScore = score
-
-  def getAnnotations = annotations
-
-  def getErrors = errors
-
   def writeFile(file: File): Unit = {
     val outputStream = new FileWriter(file)
     val result = Json.obj(
       "score" -> score,
       "annotations" -> Json.toJson(annotations.asScala),
       "errors" -> errors.asScala,
-      "additional_info" -> additional
+      "additional_info" -> additional.asScala
     )
     outputStream.write(Json.stringify(result))
     outputStream.close()
@@ -46,6 +40,12 @@ class MicroServiceOutput(score: Double, annotations: java.util.List[Error],
         obj.getErrors.equals(errors)
     case _ => false
   }
+
+  def getScore = score
+
+  def getAnnotations = annotations
+
+  def getErrors = errors
 
   override def hashCode(): Int = {
     val tmp = ((score.hashCode << 7) + annotations.hashCode) << 31
@@ -102,7 +102,7 @@ object MicroServiceOutputParser {
     * @return the instance of MicroServiceOutput used to write to the file
     */
   def writeFile(file: File, score: Double, annotations: java.util
-  .List[Error], errors: java.util.List[String], additional: Seq[String] = Seq())
+  .List[Error], errors: java.util.List[String], additional: java.util.List[String] = Seq().asJava)
   = {
     val microServiceOutput: MicroServiceOutput = new MicroServiceOutput(score, annotations, errors, additional)
     microServiceOutput.writeFile(file)

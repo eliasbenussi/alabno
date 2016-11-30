@@ -33,7 +33,7 @@ object App {
       case e: Exception => errors += e.getMessage
     }
     MicroServiceOutputParser.writeFile(new File(args apply 1), score,
-      annotations.asJava, errors.asJava, additional)
+      annotations.asJava, errors.asJava, additional.asJava)
     System.exit(0)
   }
 
@@ -43,10 +43,9 @@ object App {
         val h = new HaskellProcessor(modelAnswer, inputPath)
         h.prepare()
         val (errors, score) = h.runTests()
-        val (compErrors, compScore) = h.runBench()
+        val ((compErrors, compScore), studPath, modPath) = h.runBench()
 
-        additional = Seq("modelAnswer/res.html", "inputPath/res.html")
-        println(compScore, score)
+        additional = Seq(modPath, studPath)
         (errors ++ compErrors, (compScore + 3 * score)/4)
       case l if l.contains("java") =>
         val j = new JavaProcessor(modelAnswer, inputPath)

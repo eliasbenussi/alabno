@@ -17,11 +17,12 @@ class JavaProcessor(modelAnswer: File, studentAnswer: File) {
   // Used to run the compilations and the benchmarks
   private final lazy val eS = Executors.newFixedThreadPool(2)
 
+  private final lazy val TIME_THRESHOLD = 250
+
   def prepare(): Unit = {
     val benchFile = new File("complexity_analyser/res/Benchmarker.java")
     val modPath = new File(modelAnswer.toString + "/" + benchFile.getName).toPath
     val studPath = new File(studentAnswer.toString + "/" + benchFile.getName).toPath
-    println(benchFile, modPath)
     copy(benchFile.toPath, modPath, REPLACE_EXISTING)
     copy(benchFile.toPath, studPath, REPLACE_EXISTING)
     compile()
@@ -70,21 +71,21 @@ class JavaProcessor(modelAnswer: File, studentAnswer: File) {
   }
 
   private def genMean(diffMap: mutable.HashMap[String, ArrayBuffer[Long]]) = diffMap.mapValues(v => v.sum / v.length)
-
   def calculateTestScores(modMean: Map[String, Long], studMean: Map[String, Long]) = {
     var score = 100.0d
     val annotations = new ArrayBuffer[Error]
     var eff = ""
     for (fun <- modMean) {
+      val (testName, modTime) = fun
       // Difference in microseconds
-      val diff = (fun._2 - studMean(fun._1)) / 1000
-      if (Math.abs(diff) > 250){
+      val diff = (modTime - studMean(testName)) / 1000
+      if (Math.abs(diff) > TIME_THRESHOLD){
         score -= (diff / 100).toInt
         if (diff > 0) {
-          eff = s"Function used in test ${fun._1} is " +
+          eff = s"Function used in test $testName is " +
             s"inefficient -> $diff ms diff!"
         } else {
-          eff = s"Function used in test ${fun._1} is " +
+          eff = s"Function used in test $testName is " +
             s"more efficient than model solution -> $diff ms diff!"
         }
         annotations.append(new Error(eff, studentAnswer.getName, 0, 0, "complexity"))
