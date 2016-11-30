@@ -12,7 +12,7 @@ import scala.io.Source
   */
 object Utils {
 
-  def matchType(t: String) = t match {
+  def matchType(t: String): String = t match {
     case s if s.contains("haskell") => ".hs"
     case s if s.contains("java") => ".java"
     case s => throw new IllegalArgumentException(s"Invalid language: $s")
