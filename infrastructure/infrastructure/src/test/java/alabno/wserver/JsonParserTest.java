@@ -1,4 +1,4 @@
-package alabno.wserver.tests;
+package alabno.wserver;
 
 import static org.junit.Assert.*;
 

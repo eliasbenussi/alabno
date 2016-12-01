@@ -49,6 +49,15 @@ CLIENT -> SERVER
     }
     Tell all microservices about a new feedback annotation, with source code, type and annotation.
     
+    {
+        "type": "markfeedback",
+        "id": "687ba687de5",
+        "filename": "sequences.hs",
+        "exercise_type": "haskellsequences",
+        "mark": "A+"      // This is a string that can be A* A+ A B C D E F
+    }
+    Tell all microservices about a new feedback mark.
+    
 SERVER -> CLIENT
 
     {
@@ -99,6 +108,8 @@ SERVER -> CLIENT
 
     {
         "type": "annotated_files",
+        "exercise_type": "haskellsequences",
+        "mark": "A+",
         "files": [
           { "filename": "Sequences.hs",
             "data": [
@@ -108,3 +119,12 @@ SERVER -> CLIENT
         ]
     }
     Sends the exercise files with annotations per line to the client
+    
+    {
+        "type": "typelist",
+        "data": [
+            "haskellsequences",
+            "javarecursion"
+        ]
+    }
+    Allowed exercise types. Will be sent upon successful login

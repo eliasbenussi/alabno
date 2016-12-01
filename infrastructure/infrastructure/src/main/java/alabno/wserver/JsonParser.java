@@ -64,6 +64,18 @@ public class JsonParser {
 		}
 	}
 	
+	public void putString(String key, String value) {
+	    jobject.put(key, value);
+	}
+	
+    public void putArray(String key, JSONArray value) {
+        jobject.put(key, value);
+    }
+    
+    public void putDouble(String key, Double value) {
+        jobject.put(key, value);
+    }
+	
 	public boolean isOk()
 	{
 		return jobject != null;
@@ -72,5 +84,7 @@ public class JsonParser {
 	public JSONObject getObject() {
 	    return jobject;
 	}
+
+
 
 }

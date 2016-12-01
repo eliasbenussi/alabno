@@ -129,6 +129,10 @@ $handlers.handle_annotated_file = function(msgobj) {
 
   $globals.professor_scope.annotated_files = [];
 
+  $globals.professor_scope.student_exercise_type = msgobj.exercise_type;
+  
+  $globals.professor_scope.student_exercise_mark = msgobj.mark;
+  
   var files = msgobj.files;
 
   for (var i = 0; i < files.length; i++) {
@@ -162,4 +166,14 @@ $handlers.handle_annotated_file = function(msgobj) {
 
   // apply
   $globals.professor_scope.$apply();
+};
+
+$handlers.handle_type_list = function(msgobj) {
+    var data = msgobj.data;
+    $globals.professor_scope.valid_exercise_types = [];
+    for (var i = 0; i < data.length; i++) {
+        $globals.professor_scope.valid_exercise_types.push(data[i]);
+    }
+    
+    $globals.professor_scope.$apply();
 };

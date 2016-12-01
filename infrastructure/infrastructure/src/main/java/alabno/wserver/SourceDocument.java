@@ -61,4 +61,12 @@ public class SourceDocument {
         return source;
     }
     
+    public String getFullText() {
+        StringBuilder sb = new StringBuilder();
+        for (String line : source) {
+            sb.append(line + "\n");
+        }
+        return sb.toString();
+    }
+    
 }

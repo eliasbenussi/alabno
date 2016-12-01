@@ -1,6 +1,8 @@
 package alabno.wserver;
 
+import alabno.database.MySqlDatabaseConnection;
 import alabno.msfeedback.FeedbackUpdaters;
+import alabno.msfeedback.Mark;
 import alabno.utils.ConnUtils;
 import alabno.utils.FileUtils;
 import org.java_websocket.WebSocket;
@@ -19,10 +21,12 @@ public class WebSocketHandler {
     private ExecutorService executor;
     private JobsCollection allJobs = new JobsCollection(this);
     private FeedbackUpdaters updaters;
+    private MySqlDatabaseConnection db;
 
-    public WebSocketHandler(ExecutorService executor, FeedbackUpdaters updaters) {
+    public WebSocketHandler(ExecutorService executor, FeedbackUpdaters updaters, MySqlDatabaseConnection db) {
         this.executor = executor;
         this.updaters = updaters;
+        this.db = db;
     }
 
     public void handleMessage(WebSocket conn, String message) {
@@ -62,9 +66,49 @@ public class WebSocketHandler {
         case "feedback":
             handleFeedback(parser, conn);
             break;
+        case "markfeedback":
+            handleMarkFeedback(parser, conn);
+            break;
         default:
             System.out.println("Unrecognized client message type " + type);
         }
+    }
+
+    private void handleMarkFeedback(JsonParser parser, WebSocket conn) {
+        try {
+            // get filename, exercise_type, mark
+            String filename = parser.getString("filename");
+            String exerciseType = parser.getString("exercise_type");
+            String markString = parser.getString("mark");
+            String token = parser.getString("id");
+            Mark mark = null;
+            try {
+                mark = Mark.fromString(markString);
+            } catch (Exception e) {
+                ConnUtils.sendAlert(conn, "Mark Feedback Loop: Unrecognized desired mark: " + markString);
+                return;
+            }
+            
+            SourceDocument source = amendMark(filename, token, mark);
+            
+            updaters.updateMark(source, exerciseType, mark);
+        } catch (Exception e) {
+            ConnUtils.sendAlert(conn, e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private SourceDocument amendMark(String filename, String token, Mark mark) {
+        // Finds the SourceDocument file of a student
+        
+        UserState userSession = sessionManager.getUserState(token);
+        String title = userSession.getTitle();
+        String studentNumber = userSession.getStudent();
+        
+        List<StudentJob> group = allJobs.getJobGroupByTitle(title);
+        StudentJob studentJob = group.get(Integer.parseInt(studentNumber));
+        studentJob.changeMark(mark);
+        return studentJob.getSourceDocument(filename);
     }
 
     private void handleFeedback(JsonParser parser, WebSocket conn) {
@@ -142,6 +186,10 @@ public class WebSocketHandler {
 
         // Read the JSON file
         String fileContent = studentJob.readPostProcessorOutput();
+        // Type of exercise
+        String exerciseType = studentJob.getExerciseType();
+        // Mark received
+        String mark = studentJob.getMark();
 
         // Holds annotation information for each student-submitted file
         Map<String, List<AnnotationWrapper>> submissionFeedbackMap = generateSubmissionFeedbackMap(fileContent);
@@ -157,10 +205,10 @@ public class WebSocketHandler {
 
         switch (subtype) {
           case "postprocessor":
-            sendPostprocessorMsg(title, student, fileContent, conn);
+            sendPostprocessorMsg(title, student, fileContent, conn, exerciseType);
             break;
           case "annotated":
-            sendAnnotatedMsg(uniqueFiles, submissionFeedbackMap, conn);
+            sendAnnotatedMsg(uniqueFiles, submissionFeedbackMap, conn, exerciseType, mark);
             break;
           default:
             System.out.println("Unrecognized result message subtype");
@@ -168,22 +216,25 @@ public class WebSocketHandler {
         
     }
 
-    private void sendPostprocessorMsg(String title, String student, String fileContent, WebSocket conn) {
+    private void sendPostprocessorMsg(String title, String student, String fileContent, WebSocket conn, String exerciseType) {
         JSONObject postProcResultMsg = new JSONObject();
         postProcResultMsg.put("type", "postpro_result");
         postProcResultMsg.put("title", title);
         postProcResultMsg.put("student", student);
         postProcResultMsg.put("data", fileContent);
+        postProcResultMsg.put("exercise_type", exerciseType);
         conn.send(postProcResultMsg.toJSONString());
     }
 
-    private void sendAnnotatedMsg(Set<String> uniqueFiles, Map<String, List<AnnotationWrapper>> submissionFeedbackMap, WebSocket conn) {
+    private void sendAnnotatedMsg(Set<String> uniqueFiles, Map<String, List<AnnotationWrapper>> submissionFeedbackMap, WebSocket conn, String exerciseType, String mark) {
         // Generate a JSON message with an array containing JSON objects - each is made of the file name,
         // its contents and if a line has an annotation, its corresponding error.
         JSONObject annotatedFilesMsg = new JSONObject();
         annotatedFilesMsg.put("type", "annotated_files");
         JSONArray files = generateAnnotatedFileArray(uniqueFiles, submissionFeedbackMap);
         annotatedFilesMsg.put("files", files);
+        annotatedFilesMsg.put("exercise_type", exerciseType);
+        annotatedFilesMsg.put("mark", mark);
         conn.send(annotatedFilesMsg.toJSONString());
     }
 
@@ -455,6 +506,9 @@ public class WebSocketHandler {
 
             // Send the currently existing jobs
             conn.send(getJobsListMessage().toJSONString());
+            
+            // Send the valid exercise types
+            sendExerciseTypes(conn);
 
             return;
         }
@@ -466,6 +520,30 @@ public class WebSocketHandler {
             conn.send(failure_msg.toJSONString());
             return;
         }
+    }
+
+    void sendExerciseTypes(WebSocket conn) {
+        // get list of exercises from database
+        String sql = "SELECT type FROM `ExerciseTypes`";
+        List<Map<String, String>> results = db.retrieveQueryString(sql);
+        if (results == null) {
+            return;
+        }
+        List<String> validTypes = new ArrayList<>();
+        for (Map<String, String> row : results) {
+            String aType = row.get("type");
+            validTypes.add(aType);
+        }
+        java.util.Collections.sort(validTypes);
+        
+        // create message object
+        JSONObject msgobj = new JSONObject();
+
+        msgobj.put("type", "typelist");
+        JSONArray dataArray = new JSONArray();
+        dataArray.addAll(validTypes);
+        msgobj.put("data", dataArray);
+        conn.send(msgobj.toJSONString());
     }
 
     /**

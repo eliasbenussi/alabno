@@ -1,7 +1,12 @@
-package alabno.wserver.tests;
+package alabno.wserver;
 
 import static org.easymock.EasyMock.*;
 import static org.junit.Assert.*;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
 import org.easymock.Capture;
@@ -9,17 +14,20 @@ import org.easymock.EasyMock;
 import org.java_websocket.WebSocket;
 import org.junit.Test;
 
+import alabno.database.MySqlDatabaseConnection;
 import alabno.msfeedback.FeedbackUpdaters;
 import alabno.wserver.AssignmentCreator;
 import alabno.wserver.WebSocketHandler;
+import edu.stanford.nlp.ling.CoreAnnotations.SectionDateAnnotation;
 
 public class WebSocketHandlerTest {
 
     // Mockeries
     WebSocket mockWebSocketConnection = mock(WebSocket.class);
     ExecutorService mockExecutorService = mock(ExecutorService.class);
+    MySqlDatabaseConnection mockDatabase = mock(MySqlDatabaseConnection.class);
 
-    WebSocketHandler handler = new WebSocketHandler(mockExecutorService, new FeedbackUpdaters());
+    WebSocketHandler handler = new WebSocketHandler(mockExecutorService, new FeedbackUpdaters(), mockDatabase);
 
     @Test
     public void handleMessageEmpty() {
@@ -81,5 +89,37 @@ public class WebSocketHandlerTest {
         verify(mockExecutorService);
 
         assertTrue(captured_string.getValue().contains("job_sent"));
+    }
+    
+    @Test
+    public void exerciseTypeListTest() {
+        Map<String, String> dbQueryMap1 = new HashMap<String, String>();
+        Map<String, String> dbQueryMap2 = new HashMap<String, String>();
+        dbQueryMap1.put("type", "abc");
+        dbQueryMap2.put("type", "javajava");
+        List<Map<String, String>> typesList = new ArrayList<>();
+        typesList.add(dbQueryMap1);
+        typesList.add(dbQueryMap2);
+        
+        expect(mockDatabase.retrieveQueryString(anyObject())).andReturn(typesList);
+        
+        Capture<String> capturedString = EasyMock.<String>newCapture();
+        mockWebSocketConnection.send(EasyMock.capture(capturedString)); // the types message
+        
+        // replay ---------------------
+        replay(mockWebSocketConnection);
+        replay(mockDatabase);
+        
+        // test actions ----------------------------------
+        handler.sendExerciseTypes(mockWebSocketConnection);
+        
+        // verify mocks ---------------
+        verify(mockWebSocketConnection);
+        verify(mockDatabase);
+        
+        String captured = capturedString.getValue();
+        assertTrue(captured.contains("abc"));
+        assertTrue(captured.contains("javajava"));
+        assertTrue(captured.contains("typelist"));
     }
 }

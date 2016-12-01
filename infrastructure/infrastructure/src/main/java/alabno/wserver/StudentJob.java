@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import alabno.msfeedback.Mark;
 import alabno.utils.FileUtils;
 import alabno.utils.SubprocessUtils;
 
@@ -15,14 +16,16 @@ import alabno.utils.SubprocessUtils;
  */
 public class StudentJob {
 
-    private String jsonLocation;
+    private final String jsonLocation;
+    private final String exerciseType;
     
     /**
      * @param jsonLocation path where the json
      * produced by the postprocessor is located
      */
-    public StudentJob(String jsonLocation) {
+    public StudentJob(String jsonLocation, String exerciseType) {
         this.jsonLocation = jsonLocation;
+        this.exerciseType = exerciseType;
     }
     
     /**
@@ -36,6 +39,11 @@ public class StudentJob {
     public String getJsonLocation() {
         return jsonLocation;
     }
+    
+    private JsonParser getPostproJson() {
+        String postproContent = readPostProcessorOutput();
+        return new JsonParser(postproContent);
+    }
 
     public SourceDocument amend(String fileName, int lineno, String annType, String annotation) {
         if ("ok".equals(annotation)) {
@@ -46,11 +54,8 @@ public class StudentJob {
         
         // Read the source file
         SourceDocument doc = new SourceDocument(fileName, desiredFile);
-        
-        // Read the postpro file
-        String postproContent = readPostProcessorOutput();
-        
-        JsonParser parser = new JsonParser(postproContent);
+
+        JsonParser parser = getPostproJson();
         
         // get the annotations part
         JsonArrayParser annotations = parser.getArrayParser("annotations");
@@ -80,14 +85,14 @@ public class StudentJob {
             annotationsArray = new JSONArray();
         }
         annotationsArray.add(newAnn);
-        parser.getObject().put("annotations", annotationsArray);
+        parser.putArray("annotations", annotationsArray);
         
         rewriteJson(parser);
         return doc;
         
     }
     
-    private void rewriteJson(JsonParser parser) {
+    private synchronized void rewriteJson(JsonParser parser) {
         try {
             SubprocessUtils.call("rm " + jsonLocation);
             File jsonFile = new File(jsonLocation);
@@ -103,5 +108,29 @@ public class StudentJob {
         // utility to convert to absolute path based on the relative one
         // the 17 removes the final part of the path containing _out/postpro.json
         return jsonLocation.substring(0, Math.max(0, jsonLocation.length() - 17)) + "/" + relpath;
+    }
+    
+    public String getExerciseType() {
+        return exerciseType;
+    }
+
+    public SourceDocument getSourceDocument(String fileName) {
+
+        String desiredFile = toAbsolute(fileName);
+        
+        // Read the source file
+        return new SourceDocument(fileName, desiredFile);
+    }
+
+    public String getMark() {
+        JsonParser parser = getPostproJson();
+        return parser.getString("letter_score");
+    }
+
+    public void changeMark(Mark mark) {
+        JsonParser parser = getPostproJson();
+        parser.putString("letter_score", mark.toString());
+        parser.putDouble("number_score", mark.toDouble());
+        rewriteJson(parser);
     }
 }
