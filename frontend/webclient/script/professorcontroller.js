@@ -57,16 +57,18 @@ theapp.controller('professorController', function($scope) {
   // New job
   $scope.submit_new_exercise = function()
   {
-    console.log("submit new exercise");
-    console.log($scope.exercise_title);
-    console.log($scope.exercise_type);
-    console.log($scope.exercise_model);
-    console.log($scope.entries);
+    // console.log("submit new exercise");
+    // console.log($scope.exercise_title);
+    // console.log($scope.exercise_type);
+    // console.log($scope.exercise_model);
+    // console.log($scope.entries);
 
     // get the array of strings of students gits
     var student_gits = [];
     for (var i = 0; i < $scope.entries.length; i++) {
-      student_gits.push($scope.entries[i].git);
+      if ($scope.entries[i].git && $scope.entries[i].git != '') {
+        student_gits.push($scope.entries[i].git + ".git");
+      }
     }
 
     // send message to server
@@ -75,7 +77,7 @@ theapp.controller('professorController', function($scope) {
       id: $globals.token,
       title: $scope.exercise_title,
       ex_type: $scope.exercise_type,
-      model_git: $scope.exercise_model,
+      model_git: $scope.exercise_model + ".git",
       students_git: student_gits
     };
 
@@ -220,7 +222,8 @@ theapp.controller('professorController', function($scope) {
       $scope.editing_data_entry.annotation = $scope.editing_data_entry.editing_annotation;
       
       $globals.send(JSON.stringify(msgobj));
-      
+
+      $scope.successful_feedback = true;
       $scope.feedback_sent = "Sent";
   }
   
@@ -233,7 +236,8 @@ theapp.controller('professorController', function($scope) {
       $scope.editing_source_cache = "";
       $scope.editing_lineno = 0;
       $scope.feedback_sent = '';
-      
+      $scope.successful_feedback = false;
+
       // show buttons in all lines
       $scope.show_edit_buttons(true);
   }

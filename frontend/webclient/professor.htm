@@ -74,15 +74,19 @@
 
         <div class="form-group">
           <label>Model solution git repository</label>
-          <!-- <div class="input-group"> -->
+          <div class="input-group">
             <input class="form-control" type="text" ng-model="exercise_model">
-            <!-- <span class="input-group-addon">.git</span> -->
-          <!-- </div> -->
+            <span class="input-group-addon">.git</span>
+          </div>
         </div>
 
-        <label>Student git repository</label>
-        <div class="form-group" data-ng-repeat="entry in entries">
-          <input class="form-control" type="text" ng-model="entry.git">
+        <div class="form-group">
+          <label>Student git repository</label>
+          <div class="input-group" data-ng-repeat="entry in entries">
+            <!-- <div class="form-group" data-ng-repeat="entry in entries"> -->
+            <input class="form-control" type="text" ng-model="entry.git">
+            <span class="input-group-addon">.git</span>
+          </div>
         </div>
 
         <div class="form-group">
@@ -136,7 +140,7 @@
                     <h2>{{file.filename}}</h2>
                   </div>
                   <div class="col-xs-4">
-                    <button ng-click="file.display()" class="btn btn-info">
+                    <button ng-click="file.display(file)" class="btn btn-info">
                       Show file annotations <span class="caret"></span>
                     </button>
                   </div>
@@ -164,51 +168,74 @@
                           {{data_entry.annotation}}
                         </div>
                         <div class="row">
-                            <button ng-show="data_entry.show_icons || data_entry.show_editor" class="btn btn-default" ng-click="add_feedback_annotation(file.filename,data_entry.no,data_entry.content,data_entry.annotation,data_entry)">
-                              <img src="icon/edit.png"> Add / Edit an annotation
-                            </button>
-                            <button ng-show="data_entry.show_icons && data_entry.annotation !== '' && !data_entry.show_editor" class="btn btn-default" ng-click="delete_feedback_annotation(file.filename, data_entry.no, data_entry.content, data_entry.annotation, data_entry)">
-                              <img src="icon/delete.png"> Delete
-                            </button>
+                          <button ng-show="data_entry.show_icons || data_entry.show_editor" class="btn btn-default" ng-click="add_feedback_annotation(file.filename,data_entry.no,data_entry.content,data_entry.annotation,data_entry)">
+                            <img src="icon/edit.png"> Add / Edit an annotation
+                          </button>
+                          <button ng-show="data_entry.show_icons && data_entry.annotation !== '' && !data_entry.show_editor" class="btn btn-default" ng-click="delete_feedback_annotation(file.filename, data_entry.no, data_entry.content, data_entry.annotation, data_entry)">
+                            <img src="icon/delete.png"> Delete
+                          </button>
                         </div>
 
                         <!--EDITOR-->
                         <div class="row" ng-show="data_entry.show_editor">
-                          <p>Editor</p>
+
+                          <br>
+
                           <!--Source code -->
+                          <p><strong>Editor - Lines to be annotated</strong></p>
                           <div class="row">
-                            <div class="col-xs-12">
+                            <div class="col-xs-10">
                               <div class="panel panel-default pre-wrap-panel">
                                 <p>{{editing_source_cache}}</p>
                               </div>
                             </div>
                           </div>
+
+                          <br>
                           <!--Annotation -->
+                          <p><strong>Edit the annotation comment below</strong></p>
                           <div class="row">
-                            <div class="col-xs-12">
+                            <div class="col-xs-10">
                               <textarea class="form-control" ng-model="data_entry.editing_annotation"></textarea>
                             </div>
                           </div>
+
+                          <br>
                           <!--Annotation type-->
+                          <p><strong>Select the type of this annotation</strong></p>
                           <div class="row">
-                            <div class="col-xs-12">
+                            <div class="col-xs-10">
                               <textarea class="form-control" ng-model="data_entry.editing_ann_type"></textarea>
                             </div>
                           </div>
+
+
+                          <br>
                           <!--Buttons-->
                           <div class="row">
-                            <div class="col-xs-4">
-                              <button class="btn btn-default" ng-click="submit_feedback_annotation()">Submit</button>
+                            <div class="col-xs-3 col-xs-offset-1">
+                              <button class="btn btn-danger btn-block" ng-click="feedback_clear()">Close editor</button>
                             </div>
-                            <div class="col-xs-4">
-                              <p><font color="green">{{feedback_sent}}</font></p>
-                            </div>
-                            <div class="col-xs-4">
-                              <button class="btn btn-default" ng-click="feedback_clear()">Close</button>
+                            <div class="col-xs-4 col-xs-offset-1">
+                              <button class="btn btn-success btn-block" ng-click="submit_feedback_annotation()">Submit feedback</button>
                             </div>
                           </div>
+
+
+                          <br>
+                          <!--Submission confirmation-->
+                          <div class="row" ng-show="successful_feedback">
+                            <div class="col-xs-10">
+                              <div class="alert alert-success">
+                                <p>{{feedback_sent}}</p>
+                              </div>
+                            </div>
+
+                          </div>
+
                         </div>
-                        <!--END EDITOR-->
+                        <!--End Editor-->
+
                       </td>
                     </tr>
                   </tbody>

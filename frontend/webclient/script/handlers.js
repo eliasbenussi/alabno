@@ -138,12 +138,8 @@ $handlers.handle_annotated_file = function(msgobj) {
     file.filename = files[i].filename;
 
     file.displayed = false;
-    file.display = function() {
-      if (file.displayed) {
-        file.displayed = false;
-      } else {
-        file.displayed = true;
-      }
+    file.display = function(f) {
+      f.displayed = !f.displayed;
     };
 
     var data_list = [];
