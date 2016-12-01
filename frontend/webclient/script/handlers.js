@@ -51,13 +51,19 @@ $handlers.handle_job_list = function(msgobj) {
   for (var i = 0; i < jobs.length; i++) {
     var a_job = {};
     a_job.title = jobs[i];
+    a_job.displayed = false;
     a_job.display = function(title) {
-      console.log("Clicked Display on job " + title);
-      var msgobj = {};
-      msgobj.type = "get_job";
-      msgobj.id = $globals.token;
-      msgobj.title = title;
-      $globals.send(JSON.stringify(msgobj));
+      a_job.displayed = !a_job.displayed;
+      if (a_job.displayed) {
+        a_job.students = []
+      } else {
+        console.log("Clicked display on job " + title);
+        var msgobj = {};
+        msgobj.type = "get_job";
+        msgobj.id = $globals.token;
+        msgobj.title = title;
+        $globals.send(JSON.stringify(msgobj));
+      }
     };
     a_job.students = [];
 
@@ -128,6 +134,12 @@ $handlers.handle_annotated_file = function(msgobj) {
   for (var i = 0; i < files.length; i++) {
     var file = {};
     file.filename = files[i].filename;
+
+    file.displayed = false;
+    file.display = function(f) {
+      f.displayed = !f.displayed;
+    };
+
     var data_list = [];
 
     var data_list_length = files[i].data.length;

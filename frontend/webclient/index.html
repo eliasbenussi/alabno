@@ -21,56 +21,71 @@
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular-route.js"></script>
 
-    <!--Customized CSS-->
-    <link rel="stylesheet" type="text/css" href="custom.css">
+    <!--Custom CSS-->
+    <!--Template-->
+    <link rel="stylesheet" type="text/css" href="css/simple-sidebar.css">
+    <!--Ours-->
+    <link rel="stylesheet" type="text/css" href="css/custom.css">
 
   </head>
 
   <body>
+    <div ng-app="myapp" ng-controller="mycontroller" id="wrapper">
+      <!--Sidebar-->
+      <div id="sidebar-wrapper">
+        <ul class="sidebar-nav">
+          <li class="sidebar-brand" class="col-xs-offset-1 col-xs-10">
+            <a href="/">ALABNO</a>
+          </li>
+          <br>
 
-    <div ng-app="myapp" ng-controller="mycontroller">
+          <li class="col-xs-offset-1 col-xs-10">
+            <div class="alert alert-danger" role="alert">
+              <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+              <span class="sr-only">Error:</span>
+              <strong>Warning:</strong> Login not implemented yet; do not enter a sensitive password!
+            </div>
+          </li>
+          <li class="col-xs-10">
+            <p>Login below:</p>
+          </li>
+          <!--Login section-->
+          <form class="col-xs-offset-1 col-xs-10">
+            <li>
+              <div class="form-group">
+                <input class="form-control" type="text" placeholder="Username" ng-model="username">
+              </div>
+            </li>
+            <li>
+              <div class="form-group">
+                <input class="form-control" type="password" placeholder="Password" ng-model="password" ng-keypress="login_enter($event)">
+              </div>
+            </li>
+            <li>
+              <button class="btn btn-success btn-block" ng-click="login_clicked()">Login</button>
+            </li>
+          </form><!-- /login -->
+        </ul>
+      </div><!-- /#sidebar-wrapper -->
 
-      <div class="row">
-        <div class="col-xs-6">
-          <h1><a href="index.html">Auto-Marker</a></h1>
-        </div>
-      </div>
+      <div id="page-content-wrapper">
 
-      <!--The switch between professor and student view will be managed automatically-->
-      <div class="row">
-        <div class="col-xs-6">
-          <button ng-click="professor_button_clicked()">Professor View</button>
+        <div class="page-header">
+          <h1>Welcome to ALABNO - Your trusty Auto-Marker</h1>
         </div>
-        <div class="col-xs-6">
-          <button ng-click="student_button_clicked()">Student View</button>
-        </div>
-      </div>
 
-      <!--Login section-->
-      <div class="row">
-        <div class="col-xs-12">
-          <p>Warning: login not implemented yet, do not insert a sensitive password</p>
-        </div>
-      </div>
+        <!-- BUTTON TO TOGGLE SIDEBAR APPEARING -->
+        <!-- <a href="#menu-toggle" class="btn btn-default" id="menu-toggle">Toggle menu</a> -->
 
-      <div class="row">
-        <div class="col-xs-4">
-          <input type="text" placeholder="username" ng-model="username">
-        </div>
-        <div class="col-xs-4">
-          <input type="password" placeholder="password" ng-model="password" ng-keypress="login_enter($event)">
-        </div>
-        <div class="col-xs-4">
-          <button ng-click="login_clicked()">Login</button>
-        </div>
-      </div>
+        <div ng-view></div>
 
-      <div ng-view></div>
+      </div><!-- /#page-content-wrapper -->
 
-    </div>
+    </div><!-- /#wrapper -->
 
   </body>
 
+  <script src="script/menutoggle.js"></script>
   <script src="script/handlers.js"></script>
   <script src="script/endpoint.js"></script>
   <script src="script/socket.js"></script>
