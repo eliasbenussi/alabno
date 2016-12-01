@@ -33,6 +33,7 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
         System.out.println("HaskellMarkerUpdater:init()");
         
         // create the directory
+        SubprocessUtils.call("rm -rf " + FileUtils.getWorkDir() + "/simple-haskell-marker/training");
         SubprocessUtils.call("mkdir " + FileUtils.getWorkDir() + "/simple-haskell-marker/training");
 
         // Start updater thread
@@ -111,6 +112,9 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
         for (Map<String, String> tuple : tuples) {
             String name = tuple.get("name");
             String text = tuple.get("text");
+            if (name == null || text == null || name.trim().isEmpty() || text.trim().isEmpty()) {
+                continue;
+            }
             outfile.println(name + "\t" + text);
         }
 
@@ -134,6 +138,10 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
             String name = cat.get("name");
             String type = cat.get("type");
             String annotation = cat.get("annotation");
+            if (name == null || type == null || annotation == null || name.trim().isEmpty() || type.trim().isEmpty()
+                    || annotation.trim().isEmpty()) {
+                continue;
+            }
             catFile.println(name + "\t" + type + "\t" + annotation);
             existingAnnotationsToIdentifiers.put(annotation, name);
         }
