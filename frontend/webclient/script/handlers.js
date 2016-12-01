@@ -53,9 +53,8 @@ $handlers.handle_job_list = function(msgobj) {
     a_job.title = jobs[i];
     a_job.displayed = false;
     a_job.display = function(title) {
+      a_job.displayed = !a_job.displayed;
       if (a_job.displayed) {
-        // do something to hide it!
-        a_job.displayed = false;
         a_job.students = []
       } else {
         console.log("Clicked display on job " + title);
@@ -64,7 +63,6 @@ $handlers.handle_job_list = function(msgobj) {
         msgobj.id = $globals.token;
         msgobj.title = title;
         $globals.send(JSON.stringify(msgobj));
-        a_job.displayed = true;
       }
     };
     a_job.students = [];
