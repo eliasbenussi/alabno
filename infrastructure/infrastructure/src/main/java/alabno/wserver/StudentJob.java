@@ -92,7 +92,7 @@ public class StudentJob {
         
     }
     
-    private void rewriteJson(JsonParser parser) {
+    private synchronized void rewriteJson(JsonParser parser) {
         try {
             SubprocessUtils.call("rm " + jsonLocation);
             File jsonFile = new File(jsonLocation);

@@ -83,7 +83,7 @@ public class WebSocketHandler {
             String token = parser.getString("id");
             Mark mark = null;
             try {
-                mark = Mark.valueOf(markString);
+                mark = Mark.fromString(markString);
             } catch (Exception e) {
                 ConnUtils.sendAlert(conn, "Mark Feedback Loop: Unrecognized desired mark: " + markString);
                 return;

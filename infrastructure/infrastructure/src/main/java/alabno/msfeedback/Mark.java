@@ -8,9 +8,9 @@ public enum Mark {
         switch (this) {
         case ASTAR:
             return 95d;
-        case A:
-            return 85d;
         case APLUS:
+            return 85d;
+        case A:
             return 75d;
         case B:
             return 65d;
@@ -24,6 +24,29 @@ public enum Mark {
             return 15d;
         default:
             return 0d;
+        }
+    }
+    
+    public static Mark fromString(String s) {
+        switch (s.toUpperCase()) {
+        case "A*":
+            return ASTAR;
+        case "A+":
+            return APLUS;
+        default:
+            return Mark.valueOf(s.toUpperCase());
+        }
+    }
+
+    @Override
+    public String toString() {
+        switch (this) {
+        case ASTAR:
+            return "A*";
+        case APLUS:
+            return "A+";
+        default:
+            return super.toString();
         }
     }
 
