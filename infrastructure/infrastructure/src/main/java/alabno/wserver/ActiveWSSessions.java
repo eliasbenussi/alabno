@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.java_websocket.WebSocket;
 
-public class SessionManager {
+public class ActiveWSSessions {
 
     // Maps user identification token with their actual connection
     private final Map<String, WebSocket> activeSessions = new HashMap<>();

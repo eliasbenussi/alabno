@@ -16,6 +16,8 @@ import org.junit.Test;
 
 import alabno.database.MySqlDatabaseConnection;
 import alabno.msfeedback.FeedbackUpdaters;
+import alabno.userauth.Authenticator;
+import alabno.userauth.NullAuthenticator;
 import alabno.wserver.AssignmentCreator;
 import alabno.wserver.WebSocketHandler;
 import edu.stanford.nlp.ling.CoreAnnotations.SectionDateAnnotation;
@@ -26,8 +28,8 @@ public class WebSocketHandlerTest {
     WebSocket mockWebSocketConnection = mock(WebSocket.class);
     ExecutorService mockExecutorService = mock(ExecutorService.class);
     MySqlDatabaseConnection mockDatabase = mock(MySqlDatabaseConnection.class);
-
-    WebSocketHandler handler = new WebSocketHandler(mockExecutorService, new FeedbackUpdaters(), mockDatabase);
+    Authenticator authenticator = new NullAuthenticator();
+    WebSocketHandler handler = new WebSocketHandler(mockExecutorService, new FeedbackUpdaters(), mockDatabase, authenticator);
 
     @Test
     public void handleMessageEmpty() {

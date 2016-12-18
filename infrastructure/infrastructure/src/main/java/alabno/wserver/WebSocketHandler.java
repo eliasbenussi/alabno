@@ -3,6 +3,8 @@ package alabno.wserver;
 import alabno.database.MySqlDatabaseConnection;
 import alabno.msfeedback.FeedbackUpdaters;
 import alabno.msfeedback.Mark;
+import alabno.userauth.Authenticator;
+import alabno.userauth.UserAccount;
 import alabno.utils.ConnUtils;
 import alabno.utils.FileUtils;
 import org.java_websocket.WebSocket;
@@ -17,16 +19,18 @@ import java.util.stream.Collectors;
 
 public class WebSocketHandler {
 
-    private SessionManager sessionManager = new SessionManager();
+    private ActiveWSSessions sessionManager = new ActiveWSSessions();
     private ExecutorService executor;
     private JobsCollection allJobs = new JobsCollection(this);
     private FeedbackUpdaters updaters;
     private MySqlDatabaseConnection db;
+    private Authenticator authenticator;
 
-    public WebSocketHandler(ExecutorService executor, FeedbackUpdaters updaters, MySqlDatabaseConnection db) {
+    public WebSocketHandler(ExecutorService executor, FeedbackUpdaters updaters, MySqlDatabaseConnection db, Authenticator authenticator) {
         this.executor = executor;
         this.updaters = updaters;
         this.db = db;
+        this.authenticator = authenticator;
     }
 
     public void handleMessage(WebSocket conn, String message) {
@@ -490,7 +494,8 @@ public class WebSocketHandler {
         }
 
         // check login
-        // TODO check login
+        UserAccount userAccount = authenticator.authenticate(username, password);
+        success = userAccount != null;
 
         String token = username + "-" + username.hashCode();
 

@@ -14,6 +14,8 @@ import alabno.database.MySqlDatabaseConnection;
 import alabno.msfeedback.FeedbackUpdaters;
 import alabno.msfeedback.MicroServiceUpdater;
 import alabno.msfeedback.haskellupdater.HaskellMarkerUpdater;
+import alabno.userauth.Authenticator;
+import alabno.userauth.NullAuthenticator;
 import alabno.utils.FileUtils;
 
 public class Main {
@@ -43,10 +45,12 @@ public class Main {
         MySqlDatabaseConnection dbconn = new MySqlDatabaseConnection();
         FeedbackUpdaters updaters = new FeedbackUpdaters();
         updaters.register(new HaskellMarkerUpdater(dbconn));
+        
+        Authenticator authenticator = new NullAuthenticator();
 
         // Start WebSocket server
         System.out.println("Starting WebSocket server on port " + port);
-        AutoMarkerWSServer the_server = new AutoMarkerWSServer(port, updaters, dbconn);
+        AutoMarkerWSServer the_server = new AutoMarkerWSServer(port, updaters, dbconn, authenticator);
 
         if (secure) {
             // Set up the WebSocket server in secure mode
