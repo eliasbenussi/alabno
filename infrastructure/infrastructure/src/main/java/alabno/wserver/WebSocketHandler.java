@@ -5,6 +5,9 @@ import alabno.msfeedback.FeedbackUpdaters;
 import alabno.msfeedback.Mark;
 import alabno.userauth.Authenticator;
 import alabno.userauth.UserAccount;
+import alabno.userstate.ActiveSessions;
+import alabno.userstate.UserSession;
+import alabno.userstate.UserState;
 import alabno.utils.ConnUtils;
 import alabno.utils.FileUtils;
 import org.java_websocket.WebSocket;
@@ -19,7 +22,7 @@ import java.util.stream.Collectors;
 
 public class WebSocketHandler {
 
-    private ActiveWSSessions sessionManager = new ActiveWSSessions();
+    private ActiveSessions sessionManager = new ActiveSessions();
     private ExecutorService executor;
     private JobsCollection allJobs = new JobsCollection(this);
     private FeedbackUpdaters updaters;
@@ -407,9 +410,9 @@ public class WebSocketHandler {
         }
 
         // Get the corresponding connection
-        WebSocket expected = sessionManager.getConnection(token);
+        UserSession expected = sessionManager.getConnection(token);
 
-        return conn == expected;
+        return conn == expected.getWebSocket();
     }
 
     private void handleNewAssignment(JsonParser parser, WebSocket conn) {
@@ -507,7 +510,7 @@ public class WebSocketHandler {
             conn.send(success_msg.toJSONString());
 
             // Register in the session manager
-            sessionManager.createSession(token, conn);
+            sessionManager.createSession(token, conn, userAccount);
 
             // Send the currently existing jobs
             conn.send(getJobsListMessage().toJSONString());

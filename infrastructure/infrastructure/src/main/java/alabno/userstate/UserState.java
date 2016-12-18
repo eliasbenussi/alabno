@@ -1,4 +1,4 @@
-package alabno.wserver;
+package alabno.userstate;
 
 public class UserState {
 

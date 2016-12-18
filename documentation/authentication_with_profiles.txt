@@ -1,0 +1,9 @@
+when user AUTHENTICATES
+
+if login succeeds
+
+try to get UserDb information for corresponding userAccount
+
+if nothing is found, create information in db
+
+if something is found, create the userSession
