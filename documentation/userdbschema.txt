@@ -1,4 +1,5 @@
 user(Kusername, type)
+type can be 's', 'p', 'a'
 
 student(Kusername, fullname)
 
@@ -11,3 +12,29 @@ exercise(Kexname, extype, exdir)
 commit(Khash, Kusername, gitroot, timestamp)
 
 student_exercise_commit(Kusername, Kexname, Khash)
+
+
+
+SAMPLE QUERIES
+
+Insert new student user in database
+START TRANSACTION;
+INSERT INTO `user`(`username`, `type`) VALUES (?,?);
+INSERT INTO `student`(`username`, `fullname`) VALUES (?,?);
+COMMIT;
+
+Insert new professor user in database
+START TRANSACTION;
+INSERT INTO `user`(`username`, `type`) VALUES (?,?);
+INSERT INTO `professor`(`username`, `fullname`) VALUES (?,?);
+COMMIT;
+
+Insert new admin user in database
+START TRANSACTION;
+INSERT INTO `user`(`username`, `type`) VALUES (?,?);
+INSERT INTO `admin`(`username`, `fullname`) VALUES (?,?);
+COMMIT;
+
+Check if user exists
+SELECT * FROM `user` WHERE `username` = ?
+
