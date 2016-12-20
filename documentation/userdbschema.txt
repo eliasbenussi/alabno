@@ -1,0 +1,13 @@
+user(Kusername, type)
+
+student(Kusername, fullname)
+
+professor(Kusername, fullname)
+
+admin(Kusername, fullname)
+
+exercise(Kexname, extype, exdir)
+
+commit(Khash, Kusername, gitroot, timestamp)
+
+student_exercise_commit(Kusername, Kexname, Khash)
