@@ -127,7 +127,11 @@ def serve_file(filepath):
         return 'error'
 
 if __name__ == "__main__":
-    if secure:
-        app.run(host='0.0.0.0', port=4443, debug=False, ssl_context=context)
-    else:
-        app.run(host='0.0.0.0', port=8000, debug=False)
+    while True:
+        try:
+            if secure:
+                app.run(host='0.0.0.0', port=4443, debug=False, ssl_context=context)
+            else:
+                app.run(host='0.0.0.0', port=8000, debug=False)
+        except:
+            print(traceback.format_exc())

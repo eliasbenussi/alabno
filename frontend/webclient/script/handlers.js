@@ -10,6 +10,9 @@ $handlers.handle_login_success = function(msgobj) {
   // Store into local storage
   $localstore.save_username(username);
   $localstore.save_token(token);
+  
+  $globals.top_scope.logged_in_flag = true;
+  $globals.top_scope.$apply();
 };
 
 $handlers.handle_login_failure = function(msgobj) {
