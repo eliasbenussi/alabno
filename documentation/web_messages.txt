@@ -2,9 +2,17 @@ CLIENT -> SERVER
 
     {
         "type": "login",
-        "username": "gj414",
+        "username": "jjjj",
         "password": "9c4b8a984db84c98b49fa849a8"
     }
+    
+    TODO CLIENT
+    {
+        "type": "validatetoken",
+        "username": "jjjj",
+        "token": "4a9f84c84e4b"
+    }
+    Asks the server to try to re-login automatically, in case the session did not expire.
     
     {
         "type": "new_assignment",

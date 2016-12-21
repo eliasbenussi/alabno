@@ -30,6 +30,8 @@ public class WebSocketHandler {
     private MySqlDatabaseConnection db;
     private Authenticator authenticator;
 	private TokenGenerator tokenGenerator;
+	
+	private Set<String> uncheckedCredentialsMessages = new HashSet<>();
 
     public WebSocketHandler(ExecutorService executor, FeedbackUpdaters updaters, MySqlDatabaseConnection db, Authenticator authenticator, TokenGenerator tokenGenerator) {
         this.executor = executor;
@@ -37,6 +39,9 @@ public class WebSocketHandler {
         this.db = db;
         this.authenticator = authenticator;
         this.tokenGenerator = tokenGenerator;
+        
+        uncheckedCredentialsMessages.add("validatetoken");
+        uncheckedCredentialsMessages.add("login");
     }
 
     public void handleMessage(WebSocket conn, String message) {
@@ -64,6 +69,9 @@ public class WebSocketHandler {
         case "login":
             handleLogin(parser, conn);
             break;
+        case "validatetoken":
+        	handleValidateToken(parser, conn);
+        	break;
         case "new_assignment":
             handleNewAssignment(parser, conn);
             break;
@@ -84,7 +92,21 @@ public class WebSocketHandler {
         }
     }
 
-    private void handleMarkFeedback(JsonParser parser, WebSocket conn) {
+    private void handleValidateToken(JsonParser parser, WebSocket conn) {
+		String username = parser.getString("username");
+		String token = parser.getString("token");
+		
+		if (username == null || username.isEmpty() || token == null || token.isEmpty()) {
+			return;
+		}
+		
+		boolean success = sessionManager.restoreSession(conn, username, token);
+		if (success) {
+			sendWelcomeMessages(conn, token);
+		}
+    }
+
+	private void handleMarkFeedback(JsonParser parser, WebSocket conn) {
         try {
             // get filename, exercise_type, mark
             String filename = parser.getString("filename");
@@ -402,9 +424,9 @@ public class WebSocketHandler {
     }
 
     private boolean checkCredential(JsonParser parser, WebSocket conn) {
-        if ("login".equals(parser.getString("type"))) {
-            return true;
-        }
+    	if (uncheckedCredentialsMessages.contains(parser.getString("type"))) {
+    		return true;
+    	}
 
         // Get the token
         String token = parser.getString("id");
@@ -507,31 +529,40 @@ public class WebSocketHandler {
 
         // if login successful
         if (success) {
-            JSONObject success_msg = new JSONObject();
-            success_msg.put("type", "login_success");
-            success_msg.put("id", "" + token);
-            conn.send(success_msg.toJSONString());
-
             // Register in the session manager
             sessionManager.createSession(token, conn, userAccount);
-
-            // Send the currently existing jobs
-            conn.send(getJobsListMessage().toJSONString());
-            
-            // Send the valid exercise types
-            sendExerciseTypes(conn);
+        	
+            sendWelcomeMessages(conn, token);
 
             return;
         }
 
         // if login fails
         else {
-            JSONObject failure_msg = new JSONObject();
-            failure_msg.put("type", "login_fail");
-            conn.send(failure_msg.toJSONString());
+            sendLoginFailure(conn);
             return;
         }
     }
+
+	private void sendLoginFailure(WebSocket conn) {
+		JSONObject failure_msg = new JSONObject();
+		failure_msg.put("type", "login_fail");
+		conn.send(failure_msg.toJSONString());
+	}
+
+	private void sendWelcomeMessages(WebSocket conn, String token) {
+		// send login success
+		JSONObject success_msg = new JSONObject();
+		success_msg.put("type", "login_success");
+		success_msg.put("id", "" + token);
+		conn.send(success_msg.toJSONString());
+
+		// Send the currently existing jobs
+		conn.send(getJobsListMessage().toJSONString());
+		
+		// Send the valid exercise types
+		sendExerciseTypes(conn);
+	}
 
     void sendExerciseTypes(WebSocket conn) {
         // get list of exercises from database

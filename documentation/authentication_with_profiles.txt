@@ -9,4 +9,5 @@ From the UserSession object of each user it is possible to retrieve information 
 
 HTML5 window.sessionStorage will be used to store the login identification token, so that the user doesn't have to login if he uses the navigation buttons on the browser or if he refreshes the page.
 The server's ACTIVESESSIONS will have the mappings of all the valid tokens of connected users, while REMEMBEREDSESSIONS will have the sleeping sessions that can expire after a while.
-
+sessionStorage.username is the username
+sessionStorage.token is the token

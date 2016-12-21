@@ -66,6 +66,37 @@ public class ActiveSessions {
     }
     
     /**
+     * @param conn
+     * @param username
+     * @param token
+     * @return true if the session was successfully restored <br />
+     * false if the session could not be restored, when not found or when expired
+     */
+    public boolean restoreSession(WebSocket conn, String username, String token) {
+    	RememberedSessionKey rkey = new RememberedSessionKey(username, token);
+    	RememberedSessionData rdata = rememberedSessions.get(rkey);
+    	
+    	if (rdata == null) {
+    		System.out.println("Could not restore session: session not found in remembered sessions");
+    		return false;
+    	}
+    	
+    	if (rdata.isValid()) {
+    		// Restore the session
+    		UserSession userSession = rdata.getUserSession();
+    		activeSessions.put(token, userSession);
+    		reverseMap.put(conn, token);
+    		rememberedSessions.remove(rkey);
+    		System.out.println("Successfully restored a session");
+    		return true;
+    	} else {
+    		rememberedSessions.remove(rkey);
+    		System.out.println("Could not restore a session: found session is not valid anymore");
+    		return false;
+    	}
+    }
+    
+    /**
      * Sends a message to all connected clients
      * 
      * @param message to be sent to all connected clients
