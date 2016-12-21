@@ -12,6 +12,7 @@ public class ActiveSessions {
     // Maps user identification token with their actual connection
     private final Map<String, UserSession> activeSessions = new HashMap<>();
     private final Map<WebSocket, String> reverseMap = new HashMap<>();
+    private final Map<RememberedSessionKey, RememberedSessionData> rememberedSessions = new HashMap<>();
     
     /**
      * @param token the token that identifies the new user
@@ -53,6 +54,12 @@ public class ActiveSessions {
         if (token == null) {
             return;
         }
+        
+        // Save into Remembered Sessions
+        UserSession userSession = activeSessions.get(token);
+        RememberedSessionKey rkey = new RememberedSessionKey(userSession.getAccount().getUsername(), token);
+        RememberedSessionData rdata = new RememberedSessionData(userSession);
+        rememberedSessions.put(rkey, rdata);
         
         activeSessions.remove(token);
         reverseMap.remove(conn);
