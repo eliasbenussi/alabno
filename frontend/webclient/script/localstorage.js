@@ -26,6 +26,8 @@ $localstore.number_controllers = 3;
 // Checks for all controllers to be ready, and send token validation message
 // to attempt restoring user session
 $localstore.check_ready = function() {
+    console.log("checking ready... " + $localstore.ready);
+    
     if ($localstore.ready == $localstore.number_controllers) {
         var username = $localstore.get_username();
         var token = $localstore.get_token();
@@ -33,6 +35,8 @@ $localstore.check_ready = function() {
         if (!username || !token) {
             return;
         }
+        
+        $globals.top_scope.username = username;
         
         var msgobj = {};
         msgobj.type = 'validatetoken';
