@@ -1,5 +1,8 @@
 package alabno.userauth;
 
+import java.security.MessageDigest;
+import java.util.Random;
+
 public class UserAccount {
 
     private String username;
@@ -55,5 +58,9 @@ public class UserAccount {
         result = prime * result + ((username == null) ? 0 : username.hashCode());
         return result;
     }
+
+	public String generateToken(TokenGenerator tokenGenerator) {
+		return tokenGenerator.generateToken(username, userType.toString());
+	}
 
 }

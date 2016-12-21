@@ -16,6 +16,8 @@ import alabno.msfeedback.MicroServiceUpdater;
 import alabno.msfeedback.haskellupdater.HaskellMarkerUpdater;
 import alabno.userauth.Authenticator;
 import alabno.userauth.NullAuthenticator;
+import alabno.userauth.StandardTokenGenerator;
+import alabno.userauth.TokenGenerator;
 import alabno.utils.FileUtils;
 
 public class Main {
@@ -47,10 +49,11 @@ public class Main {
         updaters.register(new HaskellMarkerUpdater(dbconn));
         
         Authenticator authenticator = new NullAuthenticator();
+        TokenGenerator tokenGenerator = new StandardTokenGenerator();
 
         // Start WebSocket server
         System.out.println("Starting WebSocket server on port " + port);
-        AutoMarkerWSServer the_server = new AutoMarkerWSServer(port, updaters, dbconn, authenticator);
+        AutoMarkerWSServer the_server = new AutoMarkerWSServer(port, updaters, dbconn, authenticator, tokenGenerator);
 
         if (secure) {
             // Set up the WebSocket server in secure mode

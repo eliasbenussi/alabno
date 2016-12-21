@@ -4,6 +4,7 @@ import alabno.database.MySqlDatabaseConnection;
 import alabno.msfeedback.FeedbackUpdaters;
 import alabno.msfeedback.Mark;
 import alabno.userauth.Authenticator;
+import alabno.userauth.TokenGenerator;
 import alabno.userauth.UserAccount;
 import alabno.userstate.ActiveSessions;
 import alabno.userstate.UserSession;
@@ -28,12 +29,14 @@ public class WebSocketHandler {
     private FeedbackUpdaters updaters;
     private MySqlDatabaseConnection db;
     private Authenticator authenticator;
+	private TokenGenerator tokenGenerator;
 
-    public WebSocketHandler(ExecutorService executor, FeedbackUpdaters updaters, MySqlDatabaseConnection db, Authenticator authenticator) {
+    public WebSocketHandler(ExecutorService executor, FeedbackUpdaters updaters, MySqlDatabaseConnection db, Authenticator authenticator, TokenGenerator tokenGenerator) {
         this.executor = executor;
         this.updaters = updaters;
         this.db = db;
         this.authenticator = authenticator;
+        this.tokenGenerator = tokenGenerator;
     }
 
     public void handleMessage(WebSocket conn, String message) {
@@ -500,7 +503,7 @@ public class WebSocketHandler {
         UserAccount userAccount = authenticator.authenticate(username, password);
         success = userAccount != null;
 
-        String token = username + "-" + username.hashCode();
+        String token = userAccount.generateToken(tokenGenerator);
 
         // if login successful
         if (success) {
