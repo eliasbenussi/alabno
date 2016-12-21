@@ -56,4 +56,8 @@ public class UserSession {
         return conn;
     }
 
+	public void resetState() {
+		state = new UserState();
+	}
+
 }

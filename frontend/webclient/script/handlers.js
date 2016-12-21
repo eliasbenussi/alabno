@@ -1,9 +1,15 @@
 var $handlers = {};
 
 $handlers.handle_login_success = function(msgobj) {
-  $globals.token = msgobj.id;
-  $globals.professor_scope.name = $globals.top_scope.username;
+  var token = msgobj.id;
+  var username = $globals.top_scope.username;
+  $globals.token = token;
+  $globals.professor_scope.name = username;
   $globals.professor_scope.$apply();
+  
+  // Store into local storage
+  $localstore.save_username(username);
+  $localstore.save_token(token);
 };
 
 $handlers.handle_login_failure = function(msgobj) {

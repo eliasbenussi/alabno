@@ -6,7 +6,6 @@ CLIENT -> SERVER
         "password": "9c4b8a984db84c98b49fa849a8"
     }
     
-    TODO CLIENT
     {
         "type": "validatetoken",
         "username": "jjjj",

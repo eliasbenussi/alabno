@@ -19,3 +19,25 @@ $localstore.get_username = function() {
 $localstore.get_token = function() {
     return localStorage['token'];
 };
+
+// Number of controllers loaded
+$localstore.ready = 0;
+$localstore.number_controllers = 3;
+// Checks for all controllers to be ready, and send token validation message
+// to attempt restoring user session
+$localstore.check_ready = function() {
+    if ($localstore.ready == $localstore.number_controllers) {
+        var username = $localstore.get_username();
+        var token = $localstore.get_token();
+        
+        if (!username || !token) {
+            return;
+        }
+        
+        var msgobj = {};
+        msgobj.type = 'validatetoken';
+        msgobj.username = username;
+        msgobj.token = token;
+        $globals.send(JSON.stringify(msgobj));
+    }
+}

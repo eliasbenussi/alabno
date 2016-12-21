@@ -87,6 +87,7 @@ public class ActiveSessions {
     		activeSessions.put(token, userSession);
     		reverseMap.put(conn, token);
     		rememberedSessions.remove(rkey);
+    		userSession.resetState();
     		System.out.println("Successfully restored a session");
     		return true;
     	} else {

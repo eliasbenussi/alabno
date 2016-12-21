@@ -31,5 +31,10 @@ theapp.controller('mycontroller', function($scope) {
       $scope.login_clicked();
     }
   }
+  
+  $scope.init = function() {
+    $localstore.ready += 1;
+    $localstore.check_ready();
+  }
 
 });
