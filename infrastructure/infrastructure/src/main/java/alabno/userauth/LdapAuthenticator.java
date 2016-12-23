@@ -16,6 +16,10 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import alabno.database.MySqlDatabaseConnection;
+import alabno.useraccount.AccountManager;
+import alabno.useraccount.DatabaseAccountManager;
+import alabno.useraccount.UserAccount;
+import alabno.useraccount.UserType;
 import alabno.utils.FileUtils;
 
 public class LdapAuthenticator implements Authenticator {
@@ -24,10 +28,12 @@ public class LdapAuthenticator implements Authenticator {
     private String configUrl;
     private String configPrincipal;
     private String configDomainBase;
+    private AccountManager accountManager;
     private static String[] returnAttributes = {"employeeType", "mail", "displayName"};
 
-    public LdapAuthenticator(MySqlDatabaseConnection dbconn) {
+    public LdapAuthenticator(MySqlDatabaseConnection dbconn, AccountManager accountManager) {
         this.dbconn = dbconn;
+        this.accountManager = accountManager;
     }
 
     @Override
@@ -89,8 +95,7 @@ public class LdapAuthenticator implements Authenticator {
             }
             
             // Database lookup
-
-            return new UserAccount(username, fullName, email, defaultUserType); // TODO change to database retrieved usertype
+            return accountManager.getOrCreateIfNecessary(username, fullName, email, defaultUserType);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -148,8 +153,9 @@ public class LdapAuthenticator implements Authenticator {
         Scanner scanner = new Scanner(System.in);
 
         MySqlDatabaseConnection dbconn = new MySqlDatabaseConnection();
+        AccountManager accountManager = new DatabaseAccountManager(dbconn);
 
-        LdapAuthenticator authenticator = new LdapAuthenticator(dbconn);
+        LdapAuthenticator authenticator = new LdapAuthenticator(dbconn, accountManager);
 
         System.out.println(authenticator.loadConfigUrl());
         System.out.println(authenticator.loadConfigPrincipal());

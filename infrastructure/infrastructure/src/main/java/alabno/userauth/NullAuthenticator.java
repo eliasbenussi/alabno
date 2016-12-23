@@ -1,5 +1,8 @@
 package alabno.userauth;
 
+import alabno.useraccount.UserAccount;
+import alabno.useraccount.UserType;
+
 public class NullAuthenticator implements Authenticator {
 
     @Override

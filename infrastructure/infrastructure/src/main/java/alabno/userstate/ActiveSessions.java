@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.java_websocket.WebSocket;
 
-import alabno.userauth.UserAccount;
+import alabno.useraccount.UserAccount;
 
 public class ActiveSessions {
 

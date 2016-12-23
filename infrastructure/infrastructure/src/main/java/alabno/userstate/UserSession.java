@@ -2,7 +2,7 @@ package alabno.userstate;
 
 import org.java_websocket.WebSocket;
 
-import alabno.userauth.UserAccount;
+import alabno.useraccount.UserAccount;
 
 public class UserSession {
 

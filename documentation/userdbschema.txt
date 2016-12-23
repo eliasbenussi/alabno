@@ -1,11 +1,11 @@
-user(Kusername, type)
+user(Kusername, type, fullname, email)
 type can be 's', 'p', 'a'
 
-student(Kusername, fullname)
+student(Kusername)
 
-professor(Kusername, fullname)
+professor(Kusername)
 
-admin(Kusername, fullname)
+admin(Kusername)
 
 exercise(Kexname, extype, exdir)
 

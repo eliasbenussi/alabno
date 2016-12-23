@@ -1,7 +1,6 @@
-package alabno.userauth;
+package alabno.useraccount;
 
-import java.security.MessageDigest;
-import java.util.Random;
+import alabno.userauth.TokenGenerator;
 
 public class UserAccount {
 
@@ -67,6 +66,10 @@ public class UserAccount {
     public String toString() {
         return "UserAccount [username=" + username + ", names=" + names + ", email=" + email + ", userType=" + userType
                 + "]";
+    }
+
+    public void setUserType(UserType type) {
+        this.userType = type;
     }
 	
 	
