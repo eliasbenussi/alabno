@@ -170,7 +170,7 @@ public class LdapAuthenticator implements Authenticator {
 
             System.out.println(authenticator.authenticate(username, password));
         }
-
+        
     }
 
 }

@@ -1,6 +1,5 @@
 package alabno.useraccount;
 
-import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
@@ -49,23 +48,39 @@ public class DatabaseAccountManager implements AccountManager {
         String[] args = {username, typeString, fullName, email};
         transaction.add(sql, args);
         
-        switch (type) {
-        case ADMIN:
-            transaction.add("INSERT INTO `admin`(`username`) VALUES (?)", new String[] {username});
-            break;
-        case PROFESSOR:
-            transaction.add("INSERT INTO `professor`(`username`) VALUES (?)", new String[] {username});
-            break;
-        case STUDENT:
-            transaction.add("INSERT INTO `student`(`username`) VALUES (?)", new String[] {username});
-            break;
-        default:
-            throw new RuntimeException("Error, unrecognized UserType " + type);
-        }
+        newUserSubtypeSql(username, type, transaction);
 
         dbconn.executeTransaction(transaction);
 
         return getAccount(username);
+    }
+
+    private void newUserSubtypeSql(String username, UserType type, TransactionBuilder transaction) {
+        switch (type) {
+        case ADMIN:
+            newAdminSql(username, transaction);
+            break;
+        case PROFESSOR:
+            newProfessorSql(username, transaction);
+            break;
+        case STUDENT:
+            newStudentSql(username, transaction);
+            break;
+        default:
+            throw new RuntimeException("Error, unrecognized UserType " + type);
+        }
+    }
+
+    private void newStudentSql(String username, TransactionBuilder transaction) {
+        transaction.add("INSERT INTO `student`(`username`) VALUES (?)", new String[] {username});
+    }
+
+    private void newProfessorSql(String username, TransactionBuilder transaction) {
+        transaction.add("INSERT INTO `professor`(`username`) VALUES (?)", new String[] {username});
+    }
+
+    private void newAdminSql(String username, TransactionBuilder transaction) {
+        transaction.add("INSERT INTO `admin`(`username`) VALUES (?)", new String[] {username});
     }
 
     @Override
@@ -100,7 +115,7 @@ public class DatabaseAccountManager implements AccountManager {
     }
 
     @Override
-    public void setUserType(String username, UserType type) {
+    public void setUserType(String username, UserType newType) {
         // check that account exists
         UserAccount acc = getAccount(username);
         
@@ -108,13 +123,23 @@ public class DatabaseAccountManager implements AccountManager {
             return;
         }
         
+        UserType oldType = acc.getUserType();
+        String newTypeString = typeMap.get(newType);
+        String oldTable = dbtableMap.get(oldType);
+        String newTable = dbtableMap.get(newType);
+        
+        TransactionBuilder tb = new TransactionBuilder();
+        
         // change type in the user table
+        tb.add("UPDATE `user` SET `type`=? WHERE `username` = ?", new String[] {newTypeString, username});
         
         // remove from the old table
+        tb.add("DELETE FROM `#` WHERE `username` = ?".replace("#", oldTable), new String[] {username});
         
         // insert in the new table
+        newUserSubtypeSql(username, newType, tb);
         
-        // TODO finish this
+        dbconn.executeTransaction(tb);
     }
     
     
