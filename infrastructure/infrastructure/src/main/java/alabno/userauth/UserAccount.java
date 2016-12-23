@@ -63,4 +63,12 @@ public class UserAccount {
 		return tokenGenerator.generateToken(username, userType.toString());
 	}
 
+    @Override
+    public String toString() {
+        return "UserAccount [username=" + username + ", names=" + names + ", email=" + email + ", userType=" + userType
+                + "]";
+    }
+	
+	
+
 }
