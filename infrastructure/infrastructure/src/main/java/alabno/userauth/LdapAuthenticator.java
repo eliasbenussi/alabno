@@ -6,9 +6,14 @@ import java.util.Map;
 import java.util.Scanner;
 
 import javax.naming.Context;
+import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
 import alabno.database.MySqlDatabaseConnection;
 import alabno.utils.FileUtils;
@@ -16,11 +21,15 @@ import alabno.utils.FileUtils;
 public class LdapAuthenticator implements Authenticator {
 
     private MySqlDatabaseConnection dbconn;
-    
+    private String configUrl;
+    private String configPrincipal;
+    private String configDomainBase;
+    private static String[] returnAttributes = {"employeeType", "mail", "displayName"};
+
     public LdapAuthenticator(MySqlDatabaseConnection dbconn) {
         this.dbconn = dbconn;
     }
-    
+
     @Override
     public UserAccount authenticate(String username, String password) {
         if (username == null || password == null || password.isEmpty()) {
@@ -30,26 +39,60 @@ public class LdapAuthenticator implements Authenticator {
         if (username.isEmpty()) {
             return null;
         }
-        
+
         String fullName = null;
         String email = null;
         String userType = null;
+        UserType defaultUserType = null;
+
+        String principalFilter = loadConfigPrincipal().replace("?", username);
 
         DirContext ctx = null;
         try {
             Hashtable env = new Hashtable();
-            env.put(Context.INITIAL_CONTEXT_FACTORY, 
-                "com.sun.jndi.ldap.LdapCtxFactory");
+            env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
             env.put(Context.PROVIDER_URL, loadConfigUrl());
 
             // Authenticate as S. User and password "mysecret"
             env.put(Context.SECURITY_AUTHENTICATION, "simple");
-            env.put(Context.SECURITY_PRINCIPAL, loadConfigPrincipal().replace("?", username));
+            env.put(Context.SECURITY_PRINCIPAL, principalFilter);
             env.put(Context.SECURITY_CREDENTIALS, password);
+            env.put(Context.REFERRAL, "follow");
 
             // Create the initial context
             ctx = new InitialDirContext(env);
-        } catch (NamingException e) {
+
+            // Query Directory for more information
+            SearchControls searchCtls = new SearchControls();
+            searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+            searchCtls.setReturningAttributes(returnAttributes);
+            NamingEnumeration<SearchResult> result = null;
+
+            result = ctx.search(loadDomainBase(), "sAMAccountName="+username, searchCtls);
+
+            while (result.hasMore()) {
+                SearchResult r = result.next();
+                Attributes attributes = r.getAttributes();
+                Attribute fullNameAttribute = attributes.get("displayname");
+                fullName = (String) fullNameAttribute.get();
+                Attribute emailAttribute = attributes.get("mail");
+                email = (String) emailAttribute.get();
+                Attribute emTypeAttribute = attributes.get("employeetype");
+                userType = (String) emTypeAttribute.get();
+
+            }
+            
+            if (userType.contains("student")) {
+                defaultUserType = UserType.STUDENT;
+            } else {
+                defaultUserType = UserType.PROFESSOR;
+            }
+            
+            // Database lookup
+
+            return new UserAccount(username, fullName, email, defaultUserType); // TODO change to database retrieved usertype
+        } catch (Exception e) {
+            e.printStackTrace();
             return null;
         } finally {
             if (ctx != null)
@@ -59,19 +102,32 @@ public class LdapAuthenticator implements Authenticator {
                     e.printStackTrace();
                 }
         }
-        return new UserAccount(username, "gihajoihsaer", "fiaher", UserType.ADMIN);
+
     }
 
     private String loadConfigUrl() {
-        return loadConfigString("ldapurl");
+        if (this.configUrl == null) {
+            this.configUrl = loadConfigString("ldapurl");
+        }
+        return this.configUrl;
     }
 
     private String loadConfigPrincipal() {
-        return loadConfigString("ldapprincipal");
+        if (this.configPrincipal == null) {
+            this.configPrincipal = loadConfigString("ldapprincipal");
+        }
+        return this.configPrincipal;
     }
-    
+
+    private String loadDomainBase() {
+        if (this.configDomainBase == null) {
+            this.configDomainBase = loadConfigString("ldapdomainbase");
+        }
+        return this.configDomainBase;
+    }
+
     private String loadConfigString(String key) {
-        String sql = "SELECT * FROM `configuration` WHERE `key` = '"+key+"'";
+        String sql = "SELECT * FROM `configuration` WHERE `key` = '" + key + "'";
         List<Map<String, String>> results = dbconn.retrieveQueryString(sql);
         String configUrl = null;
         for (Map<String, String> m : results) {
@@ -80,24 +136,24 @@ public class LdapAuthenticator implements Authenticator {
         return configUrl;
     }
 
-    
     /**
      * Simple testing utility main
      */
     public static void main(String[] args) {
         FileUtils.initWorkDir();
-        
+
         String username = null;
         String password = null;
 
         Scanner scanner = new Scanner(System.in);
-        
+
         MySqlDatabaseConnection dbconn = new MySqlDatabaseConnection();
 
         LdapAuthenticator authenticator = new LdapAuthenticator(dbconn);
-        
+
         System.out.println(authenticator.loadConfigUrl());
         System.out.println(authenticator.loadConfigPrincipal());
+        System.out.println(authenticator.loadDomainBase());
 
         while (true) {
 
