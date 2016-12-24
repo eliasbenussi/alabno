@@ -60,4 +60,8 @@ public class UserSession {
 		state = new UserState();
 	}
 
+    public void setWebSocket(WebSocket conn) {
+        this.conn = conn;
+    }
+
 }

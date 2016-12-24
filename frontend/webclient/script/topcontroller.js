@@ -14,13 +14,15 @@ theapp.controller('mycontroller', function($scope) {
 
   $scope.login_clicked = function()
   {
-    console.log('got a login ' + $scope.username + ' # ' + $scope.password);
+    var the_password = '';
+    if ($globals.is_secure()) {
+      the_password = $scope.password;
+    }
 
-    // here I want to send 
     var login_msg_obj = {
       "type": "login",
       "username": $scope.username,
-      "password": $scope.password
+      "password": the_password
     };
 
     $globals.send(JSON.stringify(login_msg_obj));

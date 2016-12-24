@@ -12,9 +12,12 @@ import org.java_websocket.server.DefaultSSLWebSocketServerFactory;
 
 import alabno.database.MySqlDatabaseConnection;
 import alabno.msfeedback.FeedbackUpdaters;
-import alabno.msfeedback.MicroServiceUpdater;
 import alabno.msfeedback.haskellupdater.HaskellMarkerUpdater;
+import alabno.useraccount.AccountManager;
+import alabno.useraccount.DatabaseAccountManager;
+import alabno.useraccount.LocalAccountManager;
 import alabno.userauth.Authenticator;
+import alabno.userauth.LdapAuthenticator;
 import alabno.userauth.NullAuthenticator;
 import alabno.userauth.StandardTokenGenerator;
 import alabno.userauth.TokenGenerator;
@@ -48,7 +51,22 @@ public class Main {
         FeedbackUpdaters updaters = new FeedbackUpdaters();
         updaters.register(new HaskellMarkerUpdater(dbconn));
         
-        Authenticator authenticator = new NullAuthenticator();
+        // Setup account manager
+        AccountManager accountManager = null;
+        if (secure) {
+            accountManager = new DatabaseAccountManager(dbconn);
+        } else {
+            accountManager = new LocalAccountManager();
+        }
+        
+        // Setup account authenticator
+        Authenticator authenticator = null;
+        if (secure) {
+            authenticator = new LdapAuthenticator(dbconn, accountManager);
+        } else {
+            authenticator = new NullAuthenticator();
+        }
+        
         TokenGenerator tokenGenerator = new StandardTokenGenerator();
 
         // Start WebSocket server

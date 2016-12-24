@@ -84,6 +84,7 @@ public class ActiveSessions {
     	if (rdata.isValid()) {
     		// Restore the session
     		UserSession userSession = rdata.getUserSession();
+    		userSession.setWebSocket(conn);
     		activeSessions.put(token, userSession);
     		reverseMap.put(conn, token);
     		rememberedSessions.remove(rkey);
