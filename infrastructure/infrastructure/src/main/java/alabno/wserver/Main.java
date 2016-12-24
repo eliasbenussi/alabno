@@ -45,12 +45,12 @@ public class Main {
             System.out.println("Error when reading properties");
             System.exit(1);
         }
-        
+
         // Setup microservices feedback
         MySqlDatabaseConnection dbconn = new MySqlDatabaseConnection();
         FeedbackUpdaters updaters = new FeedbackUpdaters();
         updaters.register(new HaskellMarkerUpdater(dbconn));
-        
+
         // Setup account manager
         AccountManager accountManager = null;
         if (secure) {
@@ -58,7 +58,7 @@ public class Main {
         } else {
             accountManager = new LocalAccountManager();
         }
-        
+
         // Setup account authenticator
         Authenticator authenticator = null;
         if (secure) {
@@ -66,37 +66,44 @@ public class Main {
         } else {
             authenticator = new NullAuthenticator();
         }
-        
+
         TokenGenerator tokenGenerator = new StandardTokenGenerator();
 
         // Start WebSocket server
-        System.out.println("Starting WebSocket server on port " + port);
-        AutoMarkerWSServer the_server = new AutoMarkerWSServer(port, updaters, dbconn, authenticator, tokenGenerator);
 
-        if (secure) {
-            // Set up the WebSocket server in secure mode
-            String STORETYPE = "JKS";
-            String KEYSTORE = "frontend/mykeystore.jks";
-            String STOREPASSWORD = "albano";
-            String KEYPASSWORD = "albano";
+        while (true) {
+            System.out.println("Starting WebSocket server on port " + port);
+            AutoMarkerWSServer the_server = new AutoMarkerWSServer(port, updaters, dbconn, authenticator,
+                    tokenGenerator);
 
-            KeyStore ks = KeyStore.getInstance(STORETYPE);
-            File kf = new File(KEYSTORE);
-            ks.load(new FileInputStream(kf), STOREPASSWORD.toCharArray());
+            if (secure) {
+                // Set up the WebSocket server in secure mode
+                String STORETYPE = "JKS";
+                String KEYSTORE = "frontend/mykeystore.jks";
+                String STOREPASSWORD = "albano";
+                String KEYPASSWORD = "albano";
 
-            KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
-            kmf.init(ks, KEYPASSWORD.toCharArray());
-            TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
-            tmf.init(ks);
+                KeyStore ks = KeyStore.getInstance(STORETYPE);
+                File kf = new File(KEYSTORE);
+                ks.load(new FileInputStream(kf), STOREPASSWORD.toCharArray());
 
-            SSLContext sslContext = null;
-            sslContext = SSLContext.getInstance("TLS");
-            System.out.println("Number of key managers: " + kmf.getKeyManagers().length);
-            sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
+                KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
+                kmf.init(ks, KEYPASSWORD.toCharArray());
+                TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
+                tmf.init(ks);
 
-            the_server.setWebSocketFactory(new DefaultSSLWebSocketServerFactory(sslContext));
+                SSLContext sslContext = null;
+                sslContext = SSLContext.getInstance("TLS");
+                System.out.println("Number of key managers: " + kmf.getKeyManagers().length);
+                sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
+
+                the_server.setWebSocketFactory(new DefaultSSLWebSocketServerFactory(sslContext));
+            }
+            the_server.start();
+            do {
+                Thread.sleep(1000);
+            } while (the_server.isRunning());
         }
-        the_server.start();
 
     }
 

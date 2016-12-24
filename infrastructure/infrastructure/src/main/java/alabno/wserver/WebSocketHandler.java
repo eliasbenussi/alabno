@@ -525,10 +525,10 @@ public class WebSocketHandler {
         UserAccount userAccount = authenticator.authenticate(username, password);
         success = userAccount != null;
 
-        String token = userAccount.generateToken(tokenGenerator);
-
         // if login successful
         if (success) {
+            String token = userAccount.generateToken(tokenGenerator);
+            
             // Register in the session manager
             sessionManager.createSession(token, conn, userAccount);
         	

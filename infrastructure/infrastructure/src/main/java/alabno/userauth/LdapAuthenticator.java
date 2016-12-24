@@ -97,7 +97,7 @@ public class LdapAuthenticator implements Authenticator {
             // Database lookup
             return accountManager.getOrCreateIfNecessary(username, fullName, email, defaultUserType);
         } catch (Exception e) {
-            e.printStackTrace();
+            // e.printStackTrace();
             return null;
         } finally {
             if (ctx != null)

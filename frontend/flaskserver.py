@@ -80,7 +80,7 @@ if len(sys.argv) >= 2 and sys.argv[1] == 'https':
     secure = True
 
 # SSL context
-context = ('selfsigned.crt', 'decserver.key')
+context = (exec_dir+'/selfsigned.crt', exec_dir+'/decserver.key')
 
 # ROUTES ###############################################################
 
