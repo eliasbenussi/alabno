@@ -47,10 +47,7 @@ public class AutoMarkerWSServer extends WebSocketServer implements Runnable {
 
     @Override
     public void onMessage(WebSocket conn, String message) {
-        System.out.println("Received message: " + message);
-
         handler.handleMessage(conn, message);
-
     }
 
     @Override

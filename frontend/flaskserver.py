@@ -120,6 +120,8 @@ def serve_file(filepath):
     try:
         if '..' in filepath:
             flask.abort(404)
+        if filepath[0] == '/':
+            flask.abort(404)
         buff = flask.send_file('webclient/' + filepath)
         return buff
     except:
