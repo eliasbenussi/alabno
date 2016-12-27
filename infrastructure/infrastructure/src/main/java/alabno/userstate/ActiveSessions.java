@@ -115,7 +115,7 @@ public class ActiveSessions {
      * @return the connection corresponding to the user, or null if nothing can
      *         be found
      */
-    public UserSession getConnection(String token) {
+    public UserSession getSession(String token) {
         return activeSessions.get(token);
     }
     

@@ -1,0 +1,7 @@
+login	a	p	s
+validatetoken	a	p	s
+new_assignment	a	p
+get_job	a	p
+retrieve_result	a	p
+feedback	a	p
+markfeedback	a	p

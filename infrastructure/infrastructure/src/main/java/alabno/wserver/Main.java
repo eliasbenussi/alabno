@@ -21,6 +21,8 @@ import alabno.userauth.LdapAuthenticator;
 import alabno.userauth.NullAuthenticator;
 import alabno.userauth.StandardTokenGenerator;
 import alabno.userauth.TokenGenerator;
+import alabno.usercapabilities.Permissions;
+import alabno.usercapabilities.StandardPermissions;
 import alabno.utils.FileUtils;
 
 public class Main {
@@ -67,14 +69,18 @@ public class Main {
             authenticator = new NullAuthenticator();
         }
 
+        // Token generator
         TokenGenerator tokenGenerator = new StandardTokenGenerator();
+        
+        // Permissions loading
+        Permissions permissions = new StandardPermissions();
 
         // Start WebSocket server
 
         while (true) {
             System.out.println("Starting WebSocket server on port " + port);
             AutoMarkerWSServer the_server = new AutoMarkerWSServer(port, updaters, dbconn, authenticator,
-                    tokenGenerator);
+                    tokenGenerator, permissions);
 
             if (secure) {
                 // Set up the WebSocket server in secure mode

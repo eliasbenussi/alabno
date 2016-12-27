@@ -18,6 +18,7 @@ import alabno.database.MySqlDatabaseConnection;
 import alabno.msfeedback.FeedbackUpdaters;
 import alabno.userauth.Authenticator;
 import alabno.userauth.TokenGenerator;
+import alabno.usercapabilities.Permissions;
 
 public class AutoMarkerWSServer extends WebSocketServer implements Runnable {
 
@@ -28,9 +29,9 @@ public class AutoMarkerWSServer extends WebSocketServer implements Runnable {
     private boolean running = false;
 
     public AutoMarkerWSServer(int listenPort, FeedbackUpdaters updaters, MySqlDatabaseConnection db,
-            Authenticator authenticator, TokenGenerator tokenGenerator) {
+            Authenticator authenticator, TokenGenerator tokenGenerator, Permissions permissions) {
         super(new InetSocketAddress(listenPort));
-        this.handler = new WebSocketHandler(executor, updaters, db, authenticator, tokenGenerator);
+        this.handler = new WebSocketHandler(executor, updaters, db, authenticator, tokenGenerator, permissions);
         this.updaters = updaters;
     }
 

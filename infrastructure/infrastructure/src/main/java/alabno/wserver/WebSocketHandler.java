@@ -1,25 +1,34 @@
 package alabno.wserver;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.stream.Collectors;
+
+import org.java_websocket.WebSocket;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
 import alabno.database.MySqlDatabaseConnection;
 import alabno.msfeedback.FeedbackUpdaters;
 import alabno.msfeedback.Mark;
 import alabno.useraccount.UserAccount;
+import alabno.useraccount.UserType;
 import alabno.userauth.Authenticator;
 import alabno.userauth.TokenGenerator;
+import alabno.usercapabilities.Permissions;
 import alabno.userstate.ActiveSessions;
 import alabno.userstate.UserSession;
 import alabno.userstate.UserState;
 import alabno.utils.ConnUtils;
 import alabno.utils.FileUtils;
-import org.java_websocket.WebSocket;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.stream.Collectors;
 
 public class WebSocketHandler {
 
@@ -32,13 +41,16 @@ public class WebSocketHandler {
 	private TokenGenerator tokenGenerator;
 	
 	private Set<String> uncheckedCredentialsMessages = new HashSet<>();
+    private Permissions permissions;
 
-    public WebSocketHandler(ExecutorService executor, FeedbackUpdaters updaters, MySqlDatabaseConnection db, Authenticator authenticator, TokenGenerator tokenGenerator) {
+    public WebSocketHandler(ExecutorService executor, FeedbackUpdaters updaters, MySqlDatabaseConnection db, 
+            Authenticator authenticator, TokenGenerator tokenGenerator, Permissions permissions) {
         this.executor = executor;
         this.updaters = updaters;
         this.db = db;
         this.authenticator = authenticator;
         this.tokenGenerator = tokenGenerator;
+        this.permissions = permissions;
         
         uncheckedCredentialsMessages.add("validatetoken");
         uncheckedCredentialsMessages.add("login");
@@ -62,6 +74,11 @@ public class WebSocketHandler {
 
         if (!checkCredential(parser, conn)) {
             ConnUtils.sendAlert(conn, "Please log in first");
+            return;
+        }
+        
+        if (!isPermitted(parser, conn, type)) {
+            ConnUtils.sendAlert(conn, "You are not allowed to perform this action: " + type);
             return;
         }
 
@@ -90,6 +107,17 @@ public class WebSocketHandler {
         default:
             System.out.println("Unrecognized client message type " + type);
         }
+    }
+
+    private boolean isPermitted(JsonParser parser, WebSocket conn, String action) {
+        if (uncheckedCredentialsMessages.contains(action)) {
+            return true;
+        }
+        String token = parser.getString("id");
+        UserSession session = sessionManager.getSession(token);
+        UserAccount account = session.getAccount();
+        UserType userType = account.getUserType();
+        return permissions.canPerform(userType, action);
     }
 
     private void handleValidateToken(JsonParser parser, WebSocket conn) {
@@ -435,7 +463,7 @@ public class WebSocketHandler {
         }
 
         // Get the corresponding connection
-        UserSession expected = sessionManager.getConnection(token);
+        UserSession expected = sessionManager.getSession(token);
 
         return conn == expected.getWebSocket();
     }
