@@ -4,10 +4,12 @@ import alabno.wserver.SourceDocument;
 
 public interface MicroServiceUpdater {
 
-    public void init();
+    void init();
 
-    public void update(SourceDocument source, int lineNumber, String type, String annotation);
+    void update(SourceDocument source, int lineNumber, String type, String annotation);
 
-    public void updateMark(SourceDocument source, String exerciseType, Mark mark);
-    
+    void updateMark(SourceDocument source, String exerciseType, Mark mark);
+
+    default void updateTraining() {}
+
 }
