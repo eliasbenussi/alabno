@@ -9,7 +9,7 @@ class DatabaseConnector(dbName: String) {
   private val driver = "com.mysql.cj.jdbc.Driver"
   private val username = "python"
   private val url = "jdbc:mysql://tc.jstudios.ovh:3306/Automarker"
-  private val psw = findPsw("../dbpass.txt")
+  private val psw = findPsw("dbpass.txt")
   private var connection: Connection = _
 
   def findPsw(path: String) = {

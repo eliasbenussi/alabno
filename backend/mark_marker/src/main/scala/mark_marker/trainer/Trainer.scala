@@ -10,7 +10,7 @@ import edu.stanford.nlp.classify.{Classifier, ColumnDataClassifier}
   */
 object Trainer {
 
-  private final val trainPath = ""
+  private final val trainPath = "backend/mark_marker/training/"
 
   /**
     * Produces a classifier for an exercise, whether it already exists or not
