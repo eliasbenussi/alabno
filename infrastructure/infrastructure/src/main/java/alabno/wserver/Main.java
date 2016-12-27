@@ -8,6 +8,7 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 
+import alabno.msfeedback.markmarker.MarkMarkerUpdater;
 import org.java_websocket.server.DefaultSSLWebSocketServerFactory;
 
 import alabno.database.MySqlDatabaseConnection;
@@ -43,6 +44,7 @@ public class Main {
         MySqlDatabaseConnection dbconn = new MySqlDatabaseConnection();
         FeedbackUpdaters updaters = new FeedbackUpdaters();
         updaters.register(new HaskellMarkerUpdater(dbconn));
+        updaters.register(new MarkMarkerUpdater(dbconn));
 
         // Start WebSocket server
         System.out.println("Starting WebSocket server on port " + port);
