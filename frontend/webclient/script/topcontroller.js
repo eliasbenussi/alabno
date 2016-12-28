@@ -26,10 +26,4 @@ theapp.controller('mycontroller', function($scope) {
     $globals.send(JSON.stringify(login_msg_obj));
   };
 
-  $scope.login_enter = function(keyEvent) {
-    if (keyEvent.which === 13) {
-      $scope.login_clicked();
-    }
-  }
-
 });

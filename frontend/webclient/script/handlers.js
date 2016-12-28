@@ -54,7 +54,7 @@ $handlers.handle_job_list = function(msgobj) {
     a_job.displayed = false;
     a_job.display = function(title) {
       a_job.displayed = !a_job.displayed;
-      if (a_job.displayed) {
+      if (!a_job.displayed) {
         a_job.students = []
       } else {
         console.log("Clicked display on job " + title);
