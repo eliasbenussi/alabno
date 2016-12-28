@@ -17,6 +17,7 @@ public class JobsCollection {
     
     // TODO allow to have states with jobs (ok, in progress, error)
     // and to update these states
+    // TODO database supported jobs collection
     
     private final Map<String, List<StudentJob>> allJobs = new HashMap<>();
     private WebSocketHandler webSocketHandler;

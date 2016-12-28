@@ -39,10 +39,19 @@ public class AssignmentCreator implements Runnable {
             String clonerScriptPath = "infrastructure/cloner.py";
             StringBuilder studentGitArguments = new StringBuilder();
 
+            List<String> gitList = new ArrayList<>();
+            List<String> unameList = new ArrayList<>();
+            
             for (Object o : studentGitLinks) {
                 JSONObject gitobj = (JSONObject) o;
                 String gitlink = (String) gitobj.get("git");
-                studentGitArguments.append(gitlink + " ");
+                String uname = (String) gitobj.get("uname");
+                gitList.add(gitlink);
+                unameList.add(uname);
+            }
+            
+            for (String g : gitList) {
+                studentGitArguments.append(g + " ");
             }
 
             List<String> command = new ArrayList<>();
@@ -86,6 +95,9 @@ public class AssignmentCreator implements Runnable {
                     newJob.add(aStudentJob);
                 }
                 allJobs.addJob(title, newJob, conn);
+                
+                recordJobsSucceeded(title, gitList, unameList);
+                return;
             }
 
         } catch (IOException e) {
@@ -95,5 +107,8 @@ public class AssignmentCreator implements Runnable {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        
+        recordJobsFailed(title);
+
     }
 }
