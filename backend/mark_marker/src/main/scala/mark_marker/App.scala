@@ -20,17 +20,21 @@ object App {
     try {
       val files = Utils.getFiles(new File(mi.getPath), Utils.matchType(mi.getLanguage))
       val text = Utils.stringifyFile(files)
-
-      val (cdc, classifier) = generateCdc(mi.getLanguage)
-      val d = cdc.makeDatumFromLine("0\t" + text)
-
-      val grade = classifier.classOf(d).trim
-      score = matchScore(grade)
+      score = grade(mi.getLanguage, text)
     } catch {
       case e: Throwable =>
         errors += e.toString
     }
     MicroServiceOutputParser.writeFile(new File(args(1)), score, Seq().asJava, errors.asJava)
+  }
+
+
+  def grade(language: String, text: String): Int = {
+    val (cdc, classifier) = generateCdc(language)
+    val d = cdc.makeDatumFromLine("0\t" + text)
+
+    val grade = classifier.classOf(d).trim
+    matchScore(grade)
   }
 
   private def generateCdc(t: String): (ColumnDataClassifier, Classifier[String, String]) = {
@@ -42,7 +46,7 @@ object App {
     cl
   }
 
-  private def matchScore(score: String) = score match {
+  def matchScore(score: String): Int = score match {
     case "A*" => 95
     case "A+" => 85
     case "A" => 75
