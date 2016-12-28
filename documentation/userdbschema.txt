@@ -38,3 +38,18 @@ COMMIT;
 Check if user exists
 SELECT * FROM `user` WHERE `username` = ?
 
+
+The Exercise Big Table  exname, username, userindex, hash, timestamp
+professor creates exercise E for students A and B
+insert
+    exname, A, 0, ahsfphaspoer, 2016
+    exname, B, 1, fhshuehrpois, 2017
+
+A can filter with exercise name and username
+userindex is used to retrieve information from disk
+
+Creating the exercise:
+
+user git - username
+user git - username
+...

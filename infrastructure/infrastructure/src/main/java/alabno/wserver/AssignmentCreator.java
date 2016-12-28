@@ -40,7 +40,9 @@ public class AssignmentCreator implements Runnable {
             StringBuilder studentGitArguments = new StringBuilder();
 
             for (Object o : studentGitLinks) {
-                studentGitArguments.append(o + " ");
+                JSONObject gitobj = (JSONObject) o;
+                String gitlink = (String) gitobj.get("git");
+                studentGitArguments.append(gitlink + " ");
             }
 
             List<String> command = new ArrayList<>();

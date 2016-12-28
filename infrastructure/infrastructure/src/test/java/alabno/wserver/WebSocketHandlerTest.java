@@ -93,7 +93,7 @@ public class WebSocketHandlerTest {
                 "    {\r\n        \"type\": \"login\",\r\n        \"username\": \"gj414\",\r\n        \"password\": \"9c4b8a984db84c98b49fa849a8\"\r\n    }");
 
         handler.handleMessage(mockWebSocketConnection,
-                "    {\r\n        \"type\": \"new_assignment\",\r\n        \"id\": \"gj414-98332052\",\r\n        \"title\": \"PINTOS\",\r\n        \"ex_type\": \"C\",\r\n        \"model_git\": \"https://gitlab.doc.ic.ac.uk/ajf/autumn/haskell_quadratic.git\",\r\n        \"students_git\": [\r\n            \"https://gitlab.doc.ic.ac.uk/autumn_16_17/haskell_quadratic_gj414.git\",\r\n            \"https://gitlab.doc.ic.ac.uk/autumn_16_17/haskell_quadratic_ap2314.git\"\r\n        ]\r\n    }");
+                "{\r\n\"type\": \"new_assignment\",\r\n\"id\": \"gj414-98332052\",\r\n\"title\": \"PINTOS\",\r\n\"ex_type\": \"C\",\r\n\"model_git\": \"https://gitlab.doc.ic.ac.uk/ajf/autumn/haskell_quadratic.git\",\r\n\"students_git\": [\r\n{\"git\":\"https://gitlab.doc.ic.ac.uk/autumn_16_17/haskell_quadratic_gj414.git\",\"uname\":\"foijhapsoier\"},\r\n{\"git\":\"https://gitlab.doc.ic.ac.uk/autumn_16_17/haskell_quadratic_ap2314.git\",\"uname\":\"if\"}\r\n]\r\n}");
 
         verify(mockWebSocketConnection);
         verify(mockExecutorService);

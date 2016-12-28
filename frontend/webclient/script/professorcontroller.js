@@ -61,17 +61,14 @@ theapp.controller('professorController', function($scope) {
   
   $scope.submit_new_exercise = function()
   {
-    // console.log("submit new exercise");
-    // console.log($scope.exercise_title);
-    // console.log($scope.exercise_type);
-    // console.log($scope.exercise_model);
-    // console.log($scope.entries);
-
     // get the array of strings of students gits
     var student_gits = [];
     for (var i = 0; i < $scope.entries.length; i++) {
       if ($scope.entries[i].git && $scope.entries[i].git != '') {
-        student_gits.push($scope.entries[i].git + ".git");
+          var sobj = {};
+          sobj.git = $scope.entries[i].git + ".git";
+          sobj.uname = $scope.entries[i].uname;
+          student_gits.push(sobj);
       }
     }
 

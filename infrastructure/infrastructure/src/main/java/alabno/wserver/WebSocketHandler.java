@@ -522,7 +522,8 @@ public class WebSocketHandler {
         String errormsg = "Malformed Student git link. It must be an HTTPS git repository";
         try {
             for (Object l : studentGitLinks) {
-                String str = (String) l;
+                JSONObject gitobj = (JSONObject) l;
+                String str = (String) gitobj.get("git");
                 if (!str.contains("https")) {
                     return errormsg;
                 }
