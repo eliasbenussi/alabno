@@ -86,7 +86,7 @@ public class JobConfiguration {
 	public void runAllJobs() {
 		for (MicroServiceInfo service : services)
 		{
-			SingleJobConfig a_job = new SingleJobConfig(input_directory, output_directory, type, additional_config, service, model_directory);
+			SingleJob a_job = new SingleJob(input_directory, output_directory, type, additional_config, service, model_directory);
 			a_job.execute();
 		}
 	}

@@ -9,7 +9,7 @@ import java.util.Arrays;
 
 import org.json.simple.JSONObject;
 
-public class SingleJobConfig {
+public class SingleJob {
 
 	private String input_directory;
 	private String output_directory;
@@ -19,7 +19,7 @@ public class SingleJobConfig {
 
 	private MicroServiceInfo the_service;
 
-	public SingleJobConfig(String input_directory, String output_directory, String type, String additional_config,
+	public SingleJob(String input_directory, String output_directory, String type, String additional_config,
 			MicroServiceInfo the_service, String model_directory) {
 		this.input_directory = input_directory;
 		this.output_directory = output_directory;

@@ -44,7 +44,7 @@ public class AssignmentCreator implements Runnable {
             }
 
             List<String> command = new ArrayList<>();
-            command.addAll(Arrays.asList("python", clonerScriptPath, "--extype", exerciseType, "--students",
+            command.addAll(Arrays.asList("python", clonerScriptPath, "--exname", title, "--extype", exerciseType, "--students",
                     studentGitArguments.toString()));
 
             if (modelAnswerGitLink != null) {

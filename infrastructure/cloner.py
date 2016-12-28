@@ -35,6 +35,10 @@ parser.add_argument('--model',
                     required=True
                     )
 
+parser.add_argument('--exname',
+                    required=True
+                    )
+
 parser.add_argument('--services')
 
 parser.add_argument('--students')
@@ -66,23 +70,35 @@ def get_student_config_directory(base, student_number):
 def get_student_commit_directory(base, student_number):
     return get_student_directory(base, student_number) + os.sep + 'commitX' + os.sep
 
-def get_student_out_directory(base, student_number):
-    return get_student_directory(base, student_number) + os.sep + 'commitX_out' + os.sep
+def discover_commit_hash(target):
+    target = os.path.abspath(target)
+    previous_directory = os.path.abspath(os.getcwd())
+    
+    os.chdir(target)
+    
+    cmd = 'git rev-parse --verify HEAD'
+    
+    output = ''
+    
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
+    for line in iter(proc.stdout.readline,''):
+        output = line
+        break
+    
+    if len(output) > 0 and output[-1] == '\n':
+        output = output[:-1]
+    
+    os.chdir(previous_directory)
+    
+    return output
 
 # create temporary base directory
-base_directory = ''
-for i in range(500):
-    random_hash = get_random_hash()
-    candidate_directory = temporary_directory + os.sep + random_hash
-    if not directory_exists(candidate_directory):
-        base_directory = candidate_directory
-        break
-
+base_directory = temporary_directory + os.sep + args.exname
 if base_directory == '':
     print('could not create a temporary base directory')
     sys.exit(1)
+code = subprocess.call('mkdir {}'.format(base_directory), shell=True)
 
-os.makedirs(base_directory)
 
 # create temporary directory structure with:, all inside the base directory
 #model
@@ -93,8 +109,6 @@ os.makedirs(base_directory)
 for i in range(len(the_students_gits)):
     os.makedirs(get_student_directory(base_directory, i))
     os.makedirs(get_student_config_directory(base_directory, i))
-    #os.makedirs(get_student_commit_directory(base_directory, i))
-    os.makedirs(get_student_out_directory(base_directory, i))
 
 # clone the model answer
 if args.model and args.model != '':
@@ -107,24 +121,43 @@ if args.model and args.model != '':
 
 os.chdir(home_directory)
 
+student_commit_directories = []
+
 # clone the student git repos
 for i in range(len(the_students_gits)):
-    os.chdir(get_student_directory(base_directory, i))
+    student_base_directory = get_student_directory(base_directory, i)
+    
+    os.chdir(student_base_directory)
+    
+    # first, clone into a commitX directory
     cmd = 'git clone {} {} --depth {}'.format(the_students_gits[i], 'commitX', max_clone_depth)
     code = subprocess.call(cmd, shell=True)
     if code != 0:
         print('Cloning of student repository at {} failed. Aborting...'.format(the_students_gits[i]))
         sys.exit(1)
+        
+    # now, enter the commitX directory to discover the commit hash
+    commithash = discover_commit_hash(get_student_commit_directory(base_directory, i))
+    
+    # rename it with the hash
+    cmd = 'mv {} {}'.format(os.path.abspath(student_base_directory + os.sep + 'commitX'), os.path.abspath(student_base_directory + os.sep + 'commit' + commithash))
+    subprocess.call(cmd, shell=True)
+    
+    student_commit_dir = os.path.abspath(student_base_directory + os.sep + 'commit' + commithash)
+    os.makedirs(student_commit_dir + '_out')
+    student_commit_directories.append(os.path.abspath(student_commit_dir))
+    
     os.chdir(home_directory)
 
 postpro_all_outputs = []
 
 # create the configuration JSON file for the JobManager
 for i in range(len(the_students_gits)):
-    student_out_directory = get_student_out_directory(base_directory, i)
+    student_in_directory = student_commit_directories[i]
+    student_out_directory = student_in_directory + '_out'
     
     jsonobj = {
-        'input_directory': get_student_commit_directory(base_directory, i),
+        'input_directory': student_in_directory,
         'type': args.extype,
         'additional_config': '',
         'output_directory': student_out_directory,
