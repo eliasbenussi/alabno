@@ -33,7 +33,7 @@ object InitialTraining {
     trainingData.map(g => String.format("%s\t%s\n", g._1, g._2))
   }
 
-  private def analyseFolder(file: File, extension: String) = {
+  def analyseFolder(file: File, extension: String): (String, String) = {
     if (file.isFile) throw new SainsburyException
     val grade = file.listFiles().find(_.getName == "grade").get
     val f = Utils.getFiles(file, extension)
