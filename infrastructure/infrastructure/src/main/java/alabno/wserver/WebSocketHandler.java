@@ -44,7 +44,7 @@ public class WebSocketHandler {
     private Permissions permissions;
 
     public WebSocketHandler(ExecutorService executor, FeedbackUpdaters updaters, DatabaseConnection db, 
-            Authenticator authenticator, TokenGenerator tokenGenerator, Permissions permissions) {
+            Authenticator authenticator, TokenGenerator tokenGenerator, Permissions permissions, boolean repopulateJobs) {
         this.executor = executor;
         this.updaters = updaters;
         this.db = db;
@@ -54,6 +54,10 @@ public class WebSocketHandler {
         
         uncheckedCredentialsMessages.add("validatetoken");
         uncheckedCredentialsMessages.add("login");
+        
+        if (repopulateJobs) {
+            allJobs.repopulate(db);
+        }
     }
 
     public void handleMessage(WebSocket conn, String message) {

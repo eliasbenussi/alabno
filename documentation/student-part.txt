@@ -1,0 +1,6 @@
+when a student needs to retrieve something, 
+need
+
+exercise name
+student name
+commit hash

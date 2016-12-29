@@ -41,9 +41,9 @@ public class WebSocketHandlerTest {
     TokenGenerator tokenGenerator = new TestTokenGenerator();
     Permissions permissions = new AllPermissions();
     WebSocketHandler handler = new WebSocketHandler(mockExecutorService, new FeedbackUpdaters(), mockDatabase,
-            authenticator, tokenGenerator, permissions);
+            authenticator, tokenGenerator, permissions, false);
     WebSocketHandler handler2 = new WebSocketHandler(mockExecutorService, new FeedbackUpdaters(), nullDatabase,
-            authenticator, tokenGenerator, permissions);
+            authenticator, tokenGenerator, permissions, false);
 
     @Test
     public void handleMessageEmpty() {

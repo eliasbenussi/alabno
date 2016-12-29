@@ -31,7 +31,7 @@ public class AutoMarkerWSServer extends WebSocketServer implements Runnable {
     public AutoMarkerWSServer(int listenPort, FeedbackUpdaters updaters, DatabaseConnection db,
             Authenticator authenticator, TokenGenerator tokenGenerator, Permissions permissions) {
         super(new InetSocketAddress(listenPort));
-        this.handler = new WebSocketHandler(executor, updaters, db, authenticator, tokenGenerator, permissions);
+        this.handler = new WebSocketHandler(executor, updaters, db, authenticator, tokenGenerator, permissions, true);
         this.updaters = updaters;
     }
 
