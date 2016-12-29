@@ -44,7 +44,7 @@ theapp.controller('mycontroller', function($scope) {
   $scope.logout = function() {
     $scope.logged_in_flag = false;
     
-    $localstore.save_username(undefined);
+    $localstore.save_username('');
     $localstore.save_token(undefined);
     
     location.reload();

@@ -8,6 +8,7 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 
+import alabno.msfeedback.markmarker.MarkMarkerUpdater;
 import org.java_websocket.server.DefaultSSLWebSocketServerFactory;
 
 import alabno.database.DatabaseConnection;
@@ -53,6 +54,7 @@ public class Main {
         DatabaseConnection dbconn = new MySqlDatabaseConnection();
         FeedbackUpdaters updaters = new FeedbackUpdaters();
         updaters.register(new HaskellMarkerUpdater(dbconn));
+        updaters.register(new MarkMarkerUpdater(dbconn));
 
         // Setup account manager
         AccountManager accountManager = null;
