@@ -9,6 +9,7 @@ import java.util.Map;
 import alabno.database.MySqlDatabaseConnection;
 import alabno.msfeedback.Mark;
 import alabno.msfeedback.MicroServiceUpdater;
+import alabno.msfeedback.Runner;
 import alabno.simple_haskell_marker.HaskellSplitter;
 import alabno.utils.FileUtils;
 import alabno.utils.StringUtils;
@@ -38,7 +39,7 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
         SubprocessUtils.call("mkdir " + FileUtils.getWorkDir() + "/simple-haskell-marker/training");
 
         // Start updater thread
-        Thread updaterThread = new Thread(new HaskellMarkerRunner(this));
+        Thread updaterThread = new Thread(new Runner(this));
         updaterThread.start();
     }
     
@@ -80,7 +81,7 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
         }
         conn.executeStatement(queryTraining, parametersTraining);
         
-        // update Training set is done by the HaskellMarkerRunner
+        // update Training set is done by the Runner
     }
     
     public synchronized void updateTraining() {
