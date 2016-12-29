@@ -34,7 +34,7 @@ public class WebSocketHandler {
 
     private ActiveSessions sessionManager = new ActiveSessions();
     private ExecutorService executor;
-    private JobsCollection allJobs = new JobsCollection(this);
+    private JobsCollection allJobs;
     private FeedbackUpdaters updaters;
     private DatabaseConnection db;
     private Authenticator authenticator;
@@ -51,6 +51,8 @@ public class WebSocketHandler {
         this.authenticator = authenticator;
         this.tokenGenerator = tokenGenerator;
         this.permissions = permissions;
+        
+        this.allJobs = new JobsCollection(this, this.db);
         
         uncheckedCredentialsMessages.add("validatetoken");
         uncheckedCredentialsMessages.add("login");
@@ -510,11 +512,7 @@ public class WebSocketHandler {
         System.out.println("all checks passed");
         
         // insert into database with status "pending"
-        String sql = "REPLACE INTO `exercise`(`exname`, `extype`, `status`) VALUES (?,?,?)";
-        String[] params = {title, exerciseType, "pending"};
-        db.executeStatement(sql, params);
-        
-        // TODO send to everyone an update of the list of jobs?
+        allJobs.addJobPending(title, exerciseType);
 
         AssignmentCreator newAssignmentProcessor = new AssignmentCreator(title, exerciseType, modelAnswerGitLink,
                 studentGitLinks, conn, allJobs, db);
@@ -641,12 +639,22 @@ public class WebSocketHandler {
         sessionManager.broadcastMessage(msg);
     }
 
+    @SuppressWarnings("unchecked")
     private JSONObject getJobsListMessage() {
         JSONObject msgobj = new JSONObject();
         msgobj.put("type", "job_list");
         JSONArray jobs = new JSONArray();
         for (String name : allJobs.getJobNames()) {
-            jobs.add(name);
+            JSONObject jobobj = new JSONObject();
+            jobobj.put("title", name);
+            String status = "ok";
+            if (allJobs.isFailed(name)) {
+                status = "error";
+            } else if (allJobs.isPending(name)) {
+                status = "pending";
+            }
+            jobobj.put("status", status);
+            jobs.add(jobobj);
         }
         msgobj.put("jobs", jobs);
         return msgobj;

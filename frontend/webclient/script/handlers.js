@@ -46,20 +46,25 @@ $handlers.handle_job_list = function(msgobj) {
     return;
   }
 
-  // check that each element in jobs is a string
-  for (var i = 0; i < jobs.length; i++) {
-    if (!(typeof jobs[i] === 'string')) {
-      console.log("Error, jobs_list.job[" + i + "] is not a String");
-      return;
-    }
-  }
-
   // Write to model
   $globals.professor_scope.all_jobs = [];
 
   for (var i = 0; i < jobs.length; i++) {
+    var in_job = jobs[i];
+    var in_job_title = in_job.title;
+    var in_job_status = in_job.status;
+    
+    var color = "green";
+    if (in_job_status == "pending") {
+      color = "yellow";
+    } else if (in_job_status == "error") {
+      color = "red";
+    }
+
     var a_job = {};
-    a_job.title = jobs[i];
+    a_job.title = in_job_title;
+    a_job.status = in_job_status;
+    a_job.color = color;
     a_job.displayed = false;
     a_job.display = function(title) {
       a_job.displayed = !a_job.displayed;

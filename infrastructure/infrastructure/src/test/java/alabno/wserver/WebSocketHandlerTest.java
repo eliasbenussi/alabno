@@ -92,6 +92,7 @@ public class WebSocketHandlerTest {
         
         
         mockWebSocketConnection.send((String) anyObject());
+        mockWebSocketConnection.send((String) anyObject());
         
         Capture<String> captured_string = EasyMock.<String>newCapture();
         mockWebSocketConnection.send(EasyMock.capture(captured_string)); // success

@@ -3,12 +3,15 @@ package alabno.wserver;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.java_websocket.WebSocket;
 
 import alabno.database.DatabaseConnection;
+import alabno.database.TransactionBuilder;
 import alabno.utils.ConnUtils;
 import alabno.utils.FileUtils;
 
@@ -22,10 +25,14 @@ public class JobsCollection {
     // TODO database supported jobs collection
 
     private final Map<String, List<StudentJob>> allJobs = new HashMap<>();
+    private final Set<String> pendingJobs = new HashSet<>();
+    private final Set<String> failedJobs = new HashSet<>();
     private WebSocketHandler webSocketHandler;
+    private DatabaseConnection db;
 
-    public JobsCollection(WebSocketHandler webSocketHandler) {
+    public JobsCollection(WebSocketHandler webSocketHandler, DatabaseConnection db) {
         this.webSocketHandler = webSocketHandler;
+        this.db = db;
     }
 
     /**
@@ -38,16 +45,50 @@ public class JobsCollection {
      * @param conn
      *            client connection who requested it
      */
-    public synchronized void addJob(String title, List<StudentJob> newJobs, WebSocket conn) {
+    public synchronized void addJob(String title, List<StudentJob> newJobs, WebSocket conn, List<String> gitList, List<String> unameList, List<String> hashList, String exerciseType) {
 
+        recordJobsSucceeded(title, gitList, unameList, hashList, exerciseType);
+        
         if (allJobs.containsKey(title)) {
-            ConnUtils.sendAlert(conn, "A job with name " + title + " already exists. It will not be added");
-            return;
+            List<StudentJob> studentJobs = allJobs.get(title);
+            if (studentJobs != null && !studentJobs.isEmpty()) {
+                ConnUtils.sendAlert(conn, "A job with name " + title + " already exists. It will not be added");
+                return;
+            }
         }
 
         allJobs.put(title, newJobs);
+        pendingJobs.remove(title);
+        failedJobs.remove(title);
 
         webSocketHandler.broadcastJobList();
+    }
+    
+    private void recordJobsSucceeded(String title, List<String> gitList, List<String> unameList, List<String> hashList, String exerciseType) {
+
+        if (gitList.size() != hashList.size()) {
+            throw new RuntimeException("Error: size of gitList is different from size of hashList: cloner.py missed something?");
+        }
+        
+        TransactionBuilder tb = new TransactionBuilder();
+        
+        // update status to OK
+        String sql = "REPLACE INTO `exercise`(`exname`, `extype`, `status`) VALUES (?,?,?)";
+        String[] params = {title, exerciseType, "ok"};
+        tb.add(sql, params);
+        
+        for (int i = 0; i < gitList.size(); i++) {
+            String uname = unameList.get(i);
+            String userindex = "" + i;
+            String hash = hashList.get(i);
+            
+            // insert entries in the bigtable
+            sql = "REPLACE INTO `exercise_big_table`(`exname`, `uname`, `userindex`, `hash`) VALUES (?,?,?,?)";
+            params = new String[] {title, uname, userindex, hash};
+            tb.add(sql, params);
+        }
+        
+        db.executeTransaction(tb);
     }
 
     /**
@@ -115,6 +156,39 @@ public class JobsCollection {
         } else {
             return null;
         }
+    }
+
+    public void addJobPending(String title, String exerciseType) {
+        String sql = "REPLACE INTO `exercise`(`exname`, `extype`, `status`) VALUES (?,?,?)";
+        String[] params = {title, exerciseType, "pending"};
+        db.executeStatement(sql, params);
+        
+        allJobs.put(title, new ArrayList<StudentJob>());
+        pendingJobs.add(title);
+        webSocketHandler.broadcastJobList();
+    }
+    
+    public boolean isPending(String title) {
+        return pendingJobs.contains(title);
+    }
+
+    public void addFailedJob(String title, String exerciseType) {
+        recordJobsFailed(title, exerciseType);
+        
+        allJobs.put(title, new ArrayList<StudentJob>());
+        failedJobs.add(title);
+        webSocketHandler.broadcastJobList();
+    }
+    
+    public boolean isFailed(String title) {
+        return failedJobs.contains(title);
+    }
+    
+    private void recordJobsFailed(String title, String exerciseType) {
+        // update status to FAIL
+        String sql = "REPLACE INTO `exercise`(`exname`, `extype`, `status`) VALUES (?,?,?)";
+        String[] params = {title, exerciseType, "fail"};
+        db.executeStatement(sql, params);
     }
 
 }

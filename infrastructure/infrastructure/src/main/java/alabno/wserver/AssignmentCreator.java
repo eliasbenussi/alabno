@@ -109,9 +109,8 @@ public class AssignmentCreator implements Runnable {
                     
                     hashList.add(hash);
                 }
-                allJobs.addJob(title, newJob, conn);
+                allJobs.addJob(title, newJob, conn, gitList, unameList, hashList, exerciseType);
                 
-                recordJobsSucceeded(title, gitList, unameList, hashList);
                 return;
             }
 
@@ -121,42 +120,12 @@ public class AssignmentCreator implements Runnable {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
-        recordJobsFailed(title);
+
+        allJobs.addFailedJob(title, exerciseType);
 
     }
 
-    private void recordJobsSucceeded(String title, List<String> gitList, List<String> unameList, List<String> hashList) {
 
-        if (gitList.size() != hashList.size()) {
-            throw new RuntimeException("Error: size of gitList is different from size of hashList: cloner.py missed something?");
-        }
-        
-        TransactionBuilder tb = new TransactionBuilder();
-        
-        // update status to OK
-        String sql = "REPLACE INTO `exercise`(`exname`, `extype`, `status`) VALUES (?,?,?)";
-        String[] params = {title, exerciseType, "ok"};
-        tb.add(sql, params);
-        
-        for (int i = 0; i < gitList.size(); i++) {
-            String uname = unameList.get(i);
-            String userindex = "" + i;
-            String hash = hashList.get(i);
-            
-            // insert entries in the bigtable
-            sql = "REPLACE INTO `exercise_big_table`(`exname`, `uname`, `userindex`, `hash`) VALUES (?,?,?,?)";
-            params = new String[] {title, uname, userindex, hash};
-            tb.add(sql, params);
-        }
-        
-        dbconn.executeTransaction(tb);
-    }
 
-    private void recordJobsFailed(String title2) {
-        // update status to FAIL
-        String sql = "REPLACE INTO `exercise`(`exname`, `extype`, `status`) VALUES (?,?,?)";
-        String[] params = {title, exerciseType, "fail"};
-        dbconn.executeStatement(sql, params);
-    }
+
 }
