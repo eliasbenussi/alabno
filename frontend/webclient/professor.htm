@@ -24,7 +24,7 @@
               <h4>Exercise name:  <span style="color:{{job.color}};font-weight: bold;">{{job.title}}</span></h4>
             </div>
             <div class="col-xs-2">
-              <button ng-click="job.display(job.title)" class="btn btn-info">Show students taking exercise <span class="caret"></span></button>
+              <button ng-click="job.display(job.title)" ng-show="job.status=='ok'" class="btn btn-info">Show students taking exercise <span class="caret"></span></button>
             </div>
           </div>
           <table class="table" ng-show="job.students.length != 0">
