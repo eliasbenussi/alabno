@@ -3,7 +3,7 @@ package complexity_analyser
 import java.io.File
 import java.nio.file.Files.copy
 import java.nio.file.StandardCopyOption.REPLACE_EXISTING
-import java.util.concurrent.{Callable, Executors}
+import java.util.concurrent.ExecutorService
 
 import json_parser.Error
 
@@ -11,8 +11,9 @@ import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.io.Source
 
-class HaskellProcessor(modelAnswer: File, studentAnswer: File) {
+class HaskellProcessor(modelAnswer: File, studentAnswer: File, executorService: ExecutorService) {
 
+  private final lazy val TIME_THRESHOLD = 25000
   /*
    * Regexes
    */
@@ -21,7 +22,7 @@ class HaskellProcessor(modelAnswer: File, studentAnswer: File) {
   """benchmarking tests/(\w+)""".r
   // Matches "number.number"
   private final val matchMean =
-  """(\d+.\d+)""".r
+    """(\d+.\d+)""".r
   // Used to find test names and scores
   // Matches "word: number / number"
   private final val TestLine =
@@ -30,18 +31,10 @@ class HaskellProcessor(modelAnswer: File, studentAnswer: File) {
   // Matches "word some whitespace :: something else"
   private final val FunctionLine =
   """(\w+)\s+::\s+.+""".r
-
   // Map that stores test name and the max score that you can get (taken from model solution)
   private final val TestScore = new mutable.HashMap[String, Int]
-
   // Map that stores function name, line and file where it is located
   private final val FunctionMap = new mutable.HashMap[String, (Int, String)]
-
-  // Used to run the compilations and the benchmarks
-  private final val eP = Executors.newFixedThreadPool(2)
-
-  private final lazy val TIME_THRESHOLD = 25000
-
   val GRAPH_FILE = "/res.html"
 
   /**
@@ -53,7 +46,7 @@ class HaskellProcessor(modelAnswer: File, studentAnswer: File) {
   def prepare(): Unit = {
     val benchFile = "/Bench.hs"
     val tests = "/Tests.hs"
-    val bench = new File("complexity_analyser/res/Bench.hs")
+    val bench = new File("backend/complexity_analyser/res/Bench.hs")
     if (!bench.exists()) throw new Exception("Missing resource Bench.hs")
     if (!modelAnswer.isDirectory) throw new Exception("Model solution should be a directory")
     if (!studentAnswer.isDirectory) throw new Exception("Student submission should be a directory")
@@ -82,8 +75,8 @@ class HaskellProcessor(modelAnswer: File, studentAnswer: File) {
 
   def runTests() = {
     compileClassOnBoth("Tests")
-    val testOutcomeStudent = eP.submit(new ShellExecutor(s"$studentAnswer/Tests"))
-    val testOutcomeModel = eP.submit(new ShellExecutor(s"$modelAnswer/Tests"))
+    val testOutcomeStudent = executorService.submit(new ShellExecutor(s"$studentAnswer/Tests"))
+    val testOutcomeModel = executorService.submit(new ShellExecutor(s"$modelAnswer/Tests"))
     testOutcomeModel.get.split("\n").foreach(findMaxScoreHeader)
     calculateTestScores(findStudentScore(testOutcomeStudent.get))
   }
@@ -124,26 +117,27 @@ class HaskellProcessor(modelAnswer: File, studentAnswer: File) {
     }
     (buff, Math.max(score, 0))
   }
-  def runBench(): ((ArrayBuffer[Error], Int), String, String) = {
-    compileClassOnBoth("Bench")
-    val benchOutcomeStudent = eP.submit(new ShellExecutor(s"$studentAnswer/Bench ${bFlags(studentAnswer)}"))
-    val benchOutcomeModel = eP.submit(new ShellExecutor(s"$modelAnswer/Bench ${bFlags(modelAnswer)}"))
-    val zippedMeanModel = genListBenchNameMean(benchOutcomeModel.get)
-    val zippedMeanStud = genListBenchNameMean(benchOutcomeStudent.get)
-    val deltas = produceDelta(zippedMeanModel, zippedMeanStud)
-    (calculateScore(deltas), studentAnswer.getAbsolutePath + GRAPH_FILE, modelAnswer.getAbsolutePath + GRAPH_FILE)
-  }
 
   private def compileClassOnBoth(name: String) = {
-    val exitModel = eP.submit(new ShellExecutor(s"ghc -i$modelAnswer/IC -i$modelAnswer " +
+    val exitModel = executorService.submit(new ShellExecutor(s"ghc -i$modelAnswer/IC -i$modelAnswer " +
       s"--make -O3 $name -main-is $name"))
 
-    val exitStudent = eP.submit(new ShellExecutor(s"ghc -i$studentAnswer/IC -i$studentAnswer " +
+    val exitStudent = executorService.submit(new ShellExecutor(s"ghc -i$studentAnswer/IC -i$studentAnswer " +
       s"--make -O3 $name -main-is $name"))
 
     val outputModel = exitModel.get
     val outputStudent = exitStudent.get
     (outputModel, outputStudent)
+  }
+
+  def runBench(): ((ArrayBuffer[Error], Int), String, String) = {
+    compileClassOnBoth("Bench")
+    val benchOutcomeStudent = executorService.submit(new ShellExecutor(s"$studentAnswer/Bench ${bFlags(studentAnswer)}"))
+    val benchOutcomeModel = executorService.submit(new ShellExecutor(s"$modelAnswer/Bench ${bFlags(modelAnswer)}"))
+    val zippedMeanModel = genListBenchNameMean(benchOutcomeModel.get)
+    val zippedMeanStud = genListBenchNameMean(benchOutcomeStudent.get)
+    val deltas = produceDelta(zippedMeanModel, zippedMeanStud)
+    (calculateScore(deltas), studentAnswer.getAbsolutePath + GRAPH_FILE, modelAnswer.getAbsolutePath + GRAPH_FILE)
   }
 
   private final def bFlags(o: File) = s"--output=$o$GRAPH_FILE"
@@ -176,6 +170,7 @@ class HaskellProcessor(modelAnswer: File, studentAnswer: File) {
     }
     double * factor
   }
+
   def calculateScore(deltas: ArrayBuffer[(String, Double)]) = {
     var score = 100
     val annotations = new ArrayBuffer[Error]
@@ -183,7 +178,6 @@ class HaskellProcessor(modelAnswer: File, studentAnswer: File) {
     for ((n, diff) <- deltas) {
       if (Math.abs(diff) > TIME_THRESHOLD) {
         score -= (diff / 20000).toInt
-        println("Score is: " + score)
         val (line, file) = FunctionMap.getOrElse(n, (0, studentAnswer.getName))
         if (diff > 0) {
           eff = s"Function $n is inefficient -> $diff ns diff!"
