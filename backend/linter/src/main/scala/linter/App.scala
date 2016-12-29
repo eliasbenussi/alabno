@@ -2,7 +2,7 @@ package linter
 
 import java.io.File
 
-import json_parser.{Error, MicroServiceOutputParser, MicroServiceInputParser}
+import json_parser.{Error, MicroServiceInputParser, MicroServiceOutputParser}
 import linter.linters.{BaseLinter, ExternalLinter, LengthCheckerLinter}
 
 import scala.collection.JavaConverters._
@@ -52,8 +52,8 @@ object App {
     path = new File(inputJSON.getPath)
     language = Language.matchString(inputJSON.getLanguage)
     var list = inputJSON.getList.asScala.toSeq
-    if(list.length == 0)
-        list = Seq("baselinter", "external_linter")
+    if (list.isEmpty)
+      list = Seq("base_linter", "external_linter")
     try {
       list.foreach(parseLinters)
       mistakes ++= lintersList.flatMap(_.parseFiles)
@@ -65,7 +65,7 @@ object App {
   }
 
   private def parseLinters(str: String): Unit = str match {
-    case "baselinter" => lintersList += new LengthCheckerLinter(path, language)
+    case "base_linter" => lintersList += new LengthCheckerLinter(path, language)
     case "external_linter" => lintersList += new ExternalLinter(path, language)
     case _ => executionErrors += s"No such linter <$str>"
   }
