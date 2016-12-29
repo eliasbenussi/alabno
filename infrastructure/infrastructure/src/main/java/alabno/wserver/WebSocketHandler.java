@@ -16,7 +16,7 @@ import org.java_websocket.WebSocket;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import alabno.database.MySqlDatabaseConnection;
+import alabno.database.DatabaseConnection;
 import alabno.msfeedback.FeedbackUpdaters;
 import alabno.msfeedback.Mark;
 import alabno.useraccount.UserAccount;
@@ -36,14 +36,14 @@ public class WebSocketHandler {
     private ExecutorService executor;
     private JobsCollection allJobs = new JobsCollection(this);
     private FeedbackUpdaters updaters;
-    private MySqlDatabaseConnection db;
+    private DatabaseConnection db;
     private Authenticator authenticator;
 	private TokenGenerator tokenGenerator;
 	
 	private Set<String> uncheckedCredentialsMessages = new HashSet<>();
     private Permissions permissions;
 
-    public WebSocketHandler(ExecutorService executor, FeedbackUpdaters updaters, MySqlDatabaseConnection db, 
+    public WebSocketHandler(ExecutorService executor, FeedbackUpdaters updaters, DatabaseConnection db, 
             Authenticator authenticator, TokenGenerator tokenGenerator, Permissions permissions) {
         this.executor = executor;
         this.updaters = updaters;
@@ -499,11 +499,21 @@ public class WebSocketHandler {
                 return;
             }
         }
+        
+        // TODO check exercise in database. If same name exists and it is OK,
+        // trigger an update flag
 
         System.out.println("all checks passed");
+        
+        // insert into database with status "pending"
+        String sql = "REPLACE INTO `exercise`(`exname`, `extype`, `status`) VALUES (?,?,?)";
+        String[] params = {title, exerciseType, "pending"};
+        db.executeStatement(sql, params);
+        
+        // TODO send to everyone an update of the list of jobs?
 
         AssignmentCreator newAssignmentProcessor = new AssignmentCreator(title, exerciseType, modelAnswerGitLink,
-                studentGitLinks, conn, allJobs);
+                studentGitLinks, conn, allJobs, db);
 
         executor.submit(newAssignmentProcessor);
 

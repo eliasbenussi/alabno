@@ -10,6 +10,7 @@ import javax.net.ssl.TrustManagerFactory;
 
 import org.java_websocket.server.DefaultSSLWebSocketServerFactory;
 
+import alabno.database.DatabaseConnection;
 import alabno.database.MySqlDatabaseConnection;
 import alabno.msfeedback.FeedbackUpdaters;
 import alabno.msfeedback.haskellupdater.HaskellMarkerUpdater;
@@ -49,7 +50,7 @@ public class Main {
         }
 
         // Setup microservices feedback
-        MySqlDatabaseConnection dbconn = new MySqlDatabaseConnection();
+        DatabaseConnection dbconn = new MySqlDatabaseConnection();
         FeedbackUpdaters updaters = new FeedbackUpdaters();
         updaters.register(new HaskellMarkerUpdater(dbconn));
 

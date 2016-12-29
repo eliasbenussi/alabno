@@ -7,13 +7,12 @@ professor(Kusername)
 
 admin(Kusername)
 
-exercise(Kexname, extype, exdir)
+exercise(Kexname, extype, status)
+    status can be 'fail' 'ok' or 'pending'
 
-commit(Khash, Kusername, gitroot, timestamp)
+exercise_big_table(Kexname, Kuname, userindex, Khash, timestamp)
 
-student_exercise_commit(Kusername, Kexname, Khash)
-
-
+################################################################################
 
 SAMPLE QUERIES
 
@@ -38,6 +37,7 @@ COMMIT;
 Check if user exists
 SELECT * FROM `user` WHERE `username` = ?
 
+################################################################################
 
 The Exercise Big Table  exname, username, userindex, hash, timestamp
 professor creates exercise E for students A and B

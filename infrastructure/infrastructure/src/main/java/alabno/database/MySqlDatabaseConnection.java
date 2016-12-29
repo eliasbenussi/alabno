@@ -17,7 +17,7 @@ import java.util.Scanner;
 
 import alabno.utils.FileUtils;
 
-public class MySqlDatabaseConnection {
+public class MySqlDatabaseConnection implements DatabaseConnection {
 
     // JDBC driver name and database URL
     private String DB_URL = "jdbc:mysql://tc.jstudios.ovh:3306/Automarker";
@@ -60,11 +60,10 @@ public class MySqlDatabaseConnection {
         }
     }
 
-    /**
-     * @param sql
-     *            the SELECT query
-     * @return results of the query where columns content is all strings
+    /* (non-Javadoc)
+     * @see alabno.database.DatabaseConnection#retrieveQueryString(java.lang.String)
      */
+    @Override
     public synchronized List<Map<String, String>> retrieveQueryString(String sql) {
         return retrieveQueryString(sql, true);
     }
@@ -105,15 +104,18 @@ public class MySqlDatabaseConnection {
         return result;
     }
 
-    /**
-     * @param query
-     *            the SELECT query
-     * @return results of the query
+    /* (non-Javadoc)
+     * @see alabno.database.DatabaseConnection#retrieveQuery(java.lang.String)
      */
+    @Override
     public synchronized List<Map<String, Object>> retrieveQuery(String query) {
         return retrieveQuery(query, new String[0], true);
     }
 
+    /* (non-Javadoc)
+     * @see alabno.database.DatabaseConnection#retrieveStatement(java.lang.String, java.lang.String[])
+     */
+    @Override
     public synchronized List<Map<String, Object>> retrieveStatement(String query, String[] parameters) {
         return retrieveQuery(query, parameters, true);
     }
@@ -156,11 +158,10 @@ public class MySqlDatabaseConnection {
         return result;
     }
 
-    /**
-     * @param query
-     *            the INSERT, UPDATE, or DELETE query
-     * @return number of rows returned
+    /* (non-Javadoc)
+     * @see alabno.database.DatabaseConnection#executeQuery(java.lang.String)
      */
+    @Override
     public synchronized int executeQuery(String query) {
         return executeQuery(query, true);
     }
@@ -185,13 +186,10 @@ public class MySqlDatabaseConnection {
         return result;
     }
 
-    /**
-     * @param query
-     *            the INSERT, UPDATE, or DELETE query
-     * @param parameters
-     *            to interpolate in statement
-     * @return number of rows returned
+    /* (non-Javadoc)
+     * @see alabno.database.DatabaseConnection#executeStatement(java.lang.String, java.lang.String[])
      */
+    @Override
     public synchronized int executeStatement(String query, String[] parameters) {
         return executeStatement(query, parameters, true);
     }
@@ -217,6 +215,10 @@ public class MySqlDatabaseConnection {
         return result;
     }
     
+    /* (non-Javadoc)
+     * @see alabno.database.DatabaseConnection#executeTransaction(alabno.database.TransactionBuilder)
+     */
+    @Override
     public synchronized int executeTransaction(TransactionBuilder tb) {
         return executeTransaction(tb, true);
     }

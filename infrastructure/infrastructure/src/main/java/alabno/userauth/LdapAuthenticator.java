@@ -15,6 +15,7 @@ import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import alabno.database.DatabaseConnection;
 import alabno.database.MySqlDatabaseConnection;
 import alabno.useraccount.AccountManager;
 import alabno.useraccount.DatabaseAccountManager;
@@ -24,14 +25,14 @@ import alabno.utils.FileUtils;
 
 public class LdapAuthenticator implements Authenticator {
 
-    private MySqlDatabaseConnection dbconn;
+    private DatabaseConnection dbconn;
     private String configUrl;
     private String configPrincipal;
     private String configDomainBase;
     private AccountManager accountManager;
     private static String[] returnAttributes = {"employeeType", "mail", "displayName"};
 
-    public LdapAuthenticator(MySqlDatabaseConnection dbconn, AccountManager accountManager) {
+    public LdapAuthenticator(DatabaseConnection dbconn, AccountManager accountManager) {
         this.dbconn = dbconn;
         this.accountManager = accountManager;
     }
@@ -152,7 +153,7 @@ public class LdapAuthenticator implements Authenticator {
 
         Scanner scanner = new Scanner(System.in);
 
-        MySqlDatabaseConnection dbconn = new MySqlDatabaseConnection();
+        DatabaseConnection dbconn = new MySqlDatabaseConnection();
         AccountManager accountManager = new DatabaseAccountManager(dbconn);
 
         LdapAuthenticator authenticator = new LdapAuthenticator(dbconn, accountManager);

@@ -14,7 +14,7 @@ import org.java_websocket.server.WebSocketServer;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import alabno.database.MySqlDatabaseConnection;
+import alabno.database.DatabaseConnection;
 import alabno.msfeedback.FeedbackUpdaters;
 import alabno.userauth.Authenticator;
 import alabno.userauth.TokenGenerator;
@@ -28,7 +28,7 @@ public class AutoMarkerWSServer extends WebSocketServer implements Runnable {
     private FeedbackUpdaters updaters;
     private boolean running = false;
 
-    public AutoMarkerWSServer(int listenPort, FeedbackUpdaters updaters, MySqlDatabaseConnection db,
+    public AutoMarkerWSServer(int listenPort, FeedbackUpdaters updaters, DatabaseConnection db,
             Authenticator authenticator, TokenGenerator tokenGenerator, Permissions permissions) {
         super(new InetSocketAddress(listenPort));
         this.handler = new WebSocketHandler(executor, updaters, db, authenticator, tokenGenerator, permissions);
