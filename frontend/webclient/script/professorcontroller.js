@@ -287,3 +287,7 @@ theapp.controller('professorController', function($scope) {
   }
 
 });
+
+
+$localstore.ready += 1;
+$localstore.check_ready();

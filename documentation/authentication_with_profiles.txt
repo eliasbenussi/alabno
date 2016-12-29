@@ -1,0 +1,13 @@
+when user AUTHENTICATES
+if login succeeds
+try to get UserDb information for corresponding userAccount
+if nothing is found, create information in db
+if something is found, create the userSession
+
+ACTIVESESSIONS object contains all the online users at any time.
+From the UserSession object of each user it is possible to retrieve information both about the user identity and infor, and its current state in the application, such as which document the user is viewing and what action is being done.
+
+HTML5 window.sessionStorage will be used to store the login identification token, so that the user doesn't have to login if he uses the navigation buttons on the browser or if he refreshes the page.
+The server's ACTIVESESSIONS will have the mappings of all the valid tokens of connected users, while REMEMBEREDSESSIONS will have the sleeping sessions that can expire after a while.
+sessionStorage.username is the username
+sessionStorage.token is the token

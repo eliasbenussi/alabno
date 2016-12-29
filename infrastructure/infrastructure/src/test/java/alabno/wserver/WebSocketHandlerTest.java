@@ -1,7 +1,12 @@
 package alabno.wserver;
 
-import static org.easymock.EasyMock.*;
-import static org.junit.Assert.*;
+import static org.easymock.EasyMock.anyObject;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.isA;
+import static org.easymock.EasyMock.mock;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,9 +21,12 @@ import org.junit.Test;
 
 import alabno.database.MySqlDatabaseConnection;
 import alabno.msfeedback.FeedbackUpdaters;
-import alabno.wserver.AssignmentCreator;
-import alabno.wserver.WebSocketHandler;
-import edu.stanford.nlp.ling.CoreAnnotations.SectionDateAnnotation;
+import alabno.userauth.Authenticator;
+import alabno.userauth.NullAuthenticator;
+import alabno.userauth.TestTokenGenerator;
+import alabno.userauth.TokenGenerator;
+import alabno.usercapabilities.AllPermissions;
+import alabno.usercapabilities.Permissions;
 
 public class WebSocketHandlerTest {
 
@@ -26,8 +34,10 @@ public class WebSocketHandlerTest {
     WebSocket mockWebSocketConnection = mock(WebSocket.class);
     ExecutorService mockExecutorService = mock(ExecutorService.class);
     MySqlDatabaseConnection mockDatabase = mock(MySqlDatabaseConnection.class);
-
-    WebSocketHandler handler = new WebSocketHandler(mockExecutorService, new FeedbackUpdaters(), mockDatabase);
+    Authenticator authenticator = new NullAuthenticator();
+    TokenGenerator tokenGenerator = new TestTokenGenerator();
+    Permissions permissions = new AllPermissions();
+    WebSocketHandler handler = new WebSocketHandler(mockExecutorService, new FeedbackUpdaters(), mockDatabase, authenticator, tokenGenerator, permissions);
 
     @Test
     public void handleMessageEmpty() {

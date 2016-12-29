@@ -7,6 +7,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -64,7 +65,7 @@ public class MySqlDatabaseConnection {
      *            the SELECT query
      * @return results of the query where columns content is all strings
      */
-    public List<Map<String, String>> retrieveQueryString(String sql) {
+    public synchronized List<Map<String, String>> retrieveQueryString(String sql) {
         return retrieveQueryString(sql, true);
     }
 
@@ -109,11 +110,11 @@ public class MySqlDatabaseConnection {
      *            the SELECT query
      * @return results of the query
      */
-    public List<Map<String, Object>> retrieveQuery(String query) {
+    public synchronized List<Map<String, Object>> retrieveQuery(String query) {
         return retrieveQuery(query, new String[0], true);
     }
 
-    public List<Map<String, Object>> retrieveStatement(String query, String[] parameters) {
+    public synchronized List<Map<String, Object>> retrieveStatement(String query, String[] parameters) {
         return retrieveQuery(query, parameters, true);
     }
 
@@ -160,7 +161,7 @@ public class MySqlDatabaseConnection {
      *            the INSERT, UPDATE, or DELETE query
      * @return number of rows returned
      */
-    public int executeQuery(String query) {
+    public synchronized int executeQuery(String query) {
         return executeQuery(query, true);
     }
 
@@ -191,7 +192,7 @@ public class MySqlDatabaseConnection {
      *            to interpolate in statement
      * @return number of rows returned
      */
-    public int executeStatement(String query, String[] parameters) {
+    public synchronized int executeStatement(String query, String[] parameters) {
         return executeStatement(query, parameters, true);
     }
 
@@ -209,6 +210,46 @@ public class MySqlDatabaseConnection {
             if (retry) {
                 return executeStatement(query, parameters, false);
             } else {
+                e.printStackTrace();
+            }
+        }
+
+        return result;
+    }
+    
+    public synchronized int executeTransaction(TransactionBuilder tb) {
+        return executeTransaction(tb, true);
+    }
+
+    private  int executeTransaction(TransactionBuilder tb, boolean retry) {
+        int result = 0;
+        try {
+            conn.setAutoCommit(false);
+
+            for (TransactionElement element : tb.getElements()) {
+                String query = element.getSql();
+                String[] parameters = element.getArgs();
+                
+                PreparedStatement stmt = conn.prepareStatement(query);
+                for (int i = 0; i < parameters.length; i++) {
+                    stmt.setString(i + 1, parameters[i]);
+                }
+                result = stmt.executeUpdate();
+                stmt.close();
+            }
+
+            conn.commit();
+        } catch (Exception e) {
+            connect();
+            if (retry) {
+                return executeTransaction(tb, false);
+            } else {
+                e.printStackTrace();
+            }
+        } finally {
+            try {
+                conn.setAutoCommit(true);
+            } catch (SQLException e) {
                 e.printStackTrace();
             }
         }

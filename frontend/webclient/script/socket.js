@@ -4,11 +4,13 @@ var ws_address = location.protocol == 'https:' ?
                  'wss' + ws_address_stem + '4444' :
                  'ws' + ws_address_stem + '8686';
 
-$globals.socket = new WebSocket(ws_address);
-
-$globals.socket.onopen = function() {
-    console.log('Connection opened');
+$globals.is_secure = function() {
+    return location.protocol == 'https:';
 };
+
+$globals.msgqueue = [];
+                 
+$globals.socket = new WebSocket(ws_address);
 
 $globals.socket.onmessage = function(message) {
     console.log(message.data);
@@ -61,6 +63,17 @@ $globals.send = function(msg) {
     try {
         $globals.socket.send(msg);
     } catch (err) {
+        $globals.msgqueue.push(msg);
         console.log('tried to send ' + msg + ' but connection is not open yet');
     }
 };
+
+$globals.socket.onopen = function() {
+    console.log('Connection opened');
+    for (var i = 0; i < $globals.msgqueue.length; i++) {
+        var a_message = $globals.msgqueue[i];
+        $globals.send(a_message);
+    }
+    $globals.msgqueue = [];
+};
+

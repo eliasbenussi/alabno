@@ -9,13 +9,13 @@ theapp.config(['$routeProvider', function($routeProvider) {
       controller: 'studentController'
     }).
 
-  when('/professor', {
-    templateUrl: 'professor.htm',
-    controller: 'professorController'
-  }).
+    when('/professor', {
+      templateUrl: 'professor.htm',
+      controller: 'professorController'
+    }).
 
-  otherwise({
-    redirectTo: '/professor'
-  });
+    otherwise({
+      redirectTo: '/professor'
+    });
 
 }]);
