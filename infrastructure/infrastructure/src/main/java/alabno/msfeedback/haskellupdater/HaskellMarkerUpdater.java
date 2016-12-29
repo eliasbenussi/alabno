@@ -39,7 +39,7 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
         SubprocessUtils.call("mkdir " + FileUtils.getWorkDir() + "/simple-haskell-marker/training");
 
         // Start updater thread
-        Thread updaterThread = new Thread(new Runner(this));
+        Thread updaterThread = new Thread(new Runner(this, "HaskellMarker"));
         updaterThread.start();
     }
     

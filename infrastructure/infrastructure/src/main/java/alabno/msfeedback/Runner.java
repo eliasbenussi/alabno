@@ -5,10 +5,12 @@ import alabno.utils.NumericUtils;
 public class Runner implements Runnable {
 
     private final MicroServiceUpdater updater;
+    private String name;
     private static final int INTERVAL_MINUTES = 5;
 
-    public Runner(MicroServiceUpdater updater) {
+    public Runner(MicroServiceUpdater updater, String name) {
         this.updater = updater;
+        this.name = name;
     }
 
     @Override
@@ -21,7 +23,7 @@ public class Runner implements Runnable {
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
-            System.out.println("HaskellMarkerRunner interrupted. Thread will be terminated");
+            System.out.println("Runner for "+name+" interrupted. Thread will be terminated");
         }
     }
 }
