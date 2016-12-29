@@ -41,7 +41,7 @@ to show the server's console
 to start the server in secure mode (both HTTPS and WSS)
 
 ```
-./RunServer start https
+./RunServer start --https
 ```
 For local testing, use 'albano' as passphrase. Before you can use WSS with a self-signed certificate, you need to browse to https://localhost:4444 and add it to the certificate exceptions of your browser.
 
