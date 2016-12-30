@@ -127,6 +127,9 @@ public class WebSocketHandler {
         UserSession session = sessionManager.getSession(token);
         UserAccount account = session.getAccount();
         List<StudentCommit> jobs = allJobs.getJobsOfStudent(account);
+        
+        System.out.println("handleStdRefreshList: found " + jobs.size() + " jobs");
+        
         // group up all student commits by exercise
         Map<String, List<StudentCommit>> exerciseMap = new HashMap<>();
         for (StudentCommit j : jobs) {

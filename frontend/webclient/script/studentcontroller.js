@@ -1,7 +1,8 @@
 theapp.controller('studentController', function($scope) {
+    console.log("Setting student scope");
     $globals.student_scope = $scope;
     
-    $scope.name = 'X';
+    $scope.username = '';
     
     // #########################################################################
     // Show-Hide flags
@@ -61,6 +62,8 @@ theapp.controller('studentController', function($scope) {
     // Exercise visualizer
     
     $scope.annotated_files = {};
+
+
   
 });
 

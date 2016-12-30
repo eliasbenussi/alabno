@@ -1,19 +1,6 @@
 var $handlers = {};
 
 $handlers.handle_login_success = function(msgobj) {
-  var token = msgobj.id;
-  var username = $globals.top_scope.username;
-  $globals.token = token;
-  $globals.professor_scope.name = username;
-  $globals.professor_scope.$apply();
-  
-  // Store into local storage
-  $localstore.save_username(username);
-  $localstore.save_token(token);
-  
-  $globals.top_scope.logged_in_flag = true;
-  $globals.top_scope.$apply();
-  
   // get user type
   var usertype = msgobj.usertype;
   if (usertype == "s") {
@@ -29,6 +16,47 @@ $handlers.handle_login_success = function(msgobj) {
   } else {
       console.error("Unrecognized user type " + usertype);
   }
+  
+  if ($globals.usertype == "s") {
+    if (!$globals.student_scope) {
+        console.error("student scope not loaded yet. Delaying...");
+        setTimeout(function() { $handlers.handle_login_success(msgobj) }, 500);
+        return;
+    }
+      
+    var token = msgobj.id;
+
+    var username = $globals.top_scope.username;
+    $globals.token = token;
+    $globals.student_scope.username = username;
+    
+    // Store into local storage
+    $localstore.save_username(username);
+    $localstore.save_token(token);
+    
+    $globals.top_scope.logged_in_flag = true;
+    $globals.top_scope.$apply();
+    $globals.student_scope.$apply();
+  } else {
+    if (!$globals.professor_scope) {
+        console.error("professor scope not loaded yet. Delaying...");
+        setTimeout(function() { $handlers.handle_login_success(msgobj) }, 500);
+        return;
+    }
+      
+    var token = msgobj.id;
+
+    var username = $globals.top_scope.username;
+    $globals.token = token;
+    
+    // Store into local storage
+    $localstore.save_username(username);
+    $localstore.save_token(token);
+    
+    $globals.top_scope.logged_in_flag = true;
+    $globals.top_scope.$apply();
+  }
+
 };
 
 $handlers.handle_login_failure = function(msgobj) {
