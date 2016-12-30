@@ -25,7 +25,7 @@
             <div class="panel-body">
                 <div class="row" ng-repeat="commit in data.commits">
                     <div class="col-xs-6">
-                        <p>{{commit.hash}}</p>
+                        <p><span style="color:{{get_color_from_status(commit.status)}}">{{commit.hash}}</span></p>
                     </div>
                     <div class="col-xs-6">
                         <button type="button" class="btn btn-primary" ng-click="request_exercise_view(data.title, commit.stdno, commit.hash)">View</button>
@@ -39,5 +39,33 @@
 
 <!--SECTION: Exercise visualizer (but no editor!)-->
 <div ng-show="showhide.visualizer">
-
+    <div class="row">
+        <button type="button" class="btn btn-primary" ng-click="showhide_view('exercise_list')">Back</button>
+    </div>
+    
+    <div class="row">
+        <div class="jumbotron">
+            <h1>{{annotated_files.mark}}</h1>
+            <h2>{{annotated_files.exercise_type}}</h2>
+            
+            <div class="row" ng-repeat="file in annotated_files.files">
+                <div class="row">
+                    <h2>{{file.filename}}</h2>
+                </div>
+                
+                <div class="row" ng-repeat="data in file.data">
+                    <div class="col-xs-1">
+                        <code>{{data.no}}</code>
+                    </div>
+                    <div class="col-xs-6">
+                        <code>{{data.content}}</code>
+                    </div>
+                    <div class="col-xs-5">
+                        <code>{{data.annotation}}</code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
 </div>

@@ -92,9 +92,9 @@ public class AssignmentCreator implements Runnable {
                 String[] level2Split = outputs.split(" ");
 
                 // Add the job to the JobsCollection
-                List<StudentJob> newJob = new ArrayList<>();
+                List<StudentJobOld> newJob = new ArrayList<>();
                 for (String s : level2Split) {
-                    StudentJob aStudentJob = new StudentJob(s, exerciseType);
+                    StudentJobOld aStudentJob = new StudentJobOld(s, exerciseType);
                     newJob.add(aStudentJob);
                     
                     // split the hash

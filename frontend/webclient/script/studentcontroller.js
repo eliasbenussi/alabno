@@ -43,6 +43,24 @@ theapp.controller('studentController', function($scope) {
         msgobj.hash = hash;
         $globals.send(JSON.stringify(msgobj));
     }
+    
+    $scope.get_color_from_status = function(status) {
+        if (status == 'ok') {
+            return 'green';
+        } else if (status == 'pending') {
+            return 'yellow';
+        } else if (status == 'error') {
+            return 'red';
+        } else {
+            console.err("Unrecognized status " + status);
+            return 'black';
+        }
+    }
+    
+    // #########################################################################
+    // Exercise visualizer
+    
+    $scope.annotated_files = {};
   
 });
 

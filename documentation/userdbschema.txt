@@ -7,10 +7,10 @@ professor(Kusername)
 
 admin(Kusername)
 
-exercise(Kexname, extype, status)
-    status can be 'fail' 'ok' or 'pending'
+exercise(Kexname, extype)
 
-exercise_big_table(Kexname, Kuname, userindex, Khash, timestamp)
+exercise_big_table(Kexname, Kuname, userindex, Khash, timestamp, status)
+    status can be 'fail' 'ok' or 'pending'
 
 ################################################################################
 

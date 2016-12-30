@@ -18,11 +18,14 @@ $handlers.handle_login_success = function(msgobj) {
   var usertype = $globals.usertype;
   if (usertype == "s") {
       window.location.hash = 'student';
+      $globals.usertype = "s";
   } else if (usertype == "p") {
       window.location.hash = 'professor';
+      $globals.usertype = "p";
   } else if (usertype == "a") {
       window.location.hash = 'professor';
       $globals.is_admin = true;
+      $globals.usertype = "p";
   } else {
       console.err("Unrecognized user type " + usertype);
   }
@@ -153,46 +156,55 @@ $handlers.handle_postpro_result = function(msgobj) {
 };
 
 $handlers.handle_annotated_file = function(msgobj) {
+    
+    if ($globals.usertype == 's') {
+        
+        $globals.student_scope.annotated_files = msgobj;
+        $globals.student_scope.showhide_view('visualizer');
+        $globals.student_scope.$apply();
+        
+    } else {
 
-  $globals.professor_scope.annotated_files = [];
+        $globals.professor_scope.annotated_files = [];
 
-  $globals.professor_scope.student_exercise_type = msgobj.exercise_type;
-  
-  $globals.professor_scope.student_exercise_mark = msgobj.mark;
-  
-  var files = msgobj.files;
+        $globals.professor_scope.student_exercise_type = msgobj.exercise_type;
+        
+        $globals.professor_scope.student_exercise_mark = msgobj.mark;
+        
+        var files = msgobj.files;
 
-  for (var i = 0; i < files.length; i++) {
-    var file = {};
-    file.filename = files[i].filename;
+        for (var i = 0; i < files.length; i++) {
+        var file = {};
+        file.filename = files[i].filename;
 
-    file.displayed = false;
-    file.display = function(f) {
-      f.displayed = !f.displayed;
-    };
+        file.displayed = false;
+        file.display = function(f) {
+            f.displayed = !f.displayed;
+        };
 
-    var data_list = [];
+        var data_list = [];
 
-    var data_list_length = files[i].data.length;
-    for (var j = 0; j < data_list_length; j++) {
-      var data_entry = {};
-      data_entry.no = files[i].data[j].no;
-      data_entry.content = files[i].data[j].content;
-      data_entry.annotation = files[i].data[j].annotation;
-      data_entry.show_icons = false;
-      data_entry.show_icons_unlocked = true;
-      data_entry.show_editor = false;
-      data_list.push(data_entry);
+        var data_list_length = files[i].data.length;
+        for (var j = 0; j < data_list_length; j++) {
+            var data_entry = {};
+            data_entry.no = files[i].data[j].no;
+            data_entry.content = files[i].data[j].content;
+            data_entry.annotation = files[i].data[j].annotation;
+            data_entry.show_icons = false;
+            data_entry.show_icons_unlocked = true;
+            data_entry.show_editor = false;
+            data_list.push(data_entry);
+        }
+        file.data = data_list;
+        $globals.professor_scope.annotated_files.push(file);
+        }
+
+        // change view
+        $globals.professor_scope.show_section('show_annotated_file');
+
+        // apply
+        $globals.professor_scope.$apply();
     }
-    file.data = data_list;
-    $globals.professor_scope.annotated_files.push(file);
-  }
-
-  // change view
-  $globals.professor_scope.show_section('show_annotated_file');
-
-  // apply
-  $globals.professor_scope.$apply();
 };
 
 $handlers.handle_type_list = function(msgobj) {

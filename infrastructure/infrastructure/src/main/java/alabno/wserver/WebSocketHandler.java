@@ -110,9 +110,30 @@ public class WebSocketHandler {
         case "markfeedback":
             handleMarkFeedback(parser, conn);
             break;
+        case "std_refresh_list":
+            handleStdRefreshList(parser, conn);
+            break;
         default:
             System.out.println("Unrecognized client message type " + type);
         }
+    }
+
+    private void handleStdRefreshList(JsonParser parser, WebSocket conn) {
+        JSONObject msgobj = new JSONObject();
+        
+        msgobj.put("type", "std_ex_list");
+        
+        JSONArray data = new JSONArray();
+        // get exercises of this student
+        String token = parser.getString("id");
+        UserSession session = sessionManager.getSession(token);
+        UserAccount account = session.getAccount();
+        int jobs = allJobs.getJobsOfStudent(account);
+        msgobj.put("data", data);
+        
+        conn.send(msgobj.toJSONString());
+        
+        fpohaphe
     }
 
     private boolean isPermitted(JsonParser parser, WebSocket conn, String action) {
@@ -136,7 +157,9 @@ public class WebSocketHandler {
 		
 		boolean success = sessionManager.restoreSession(conn, username, token);
 		if (success) {
-			sendWelcomeMessages(conn, token);
+		    UserSession session = sessionManager.getSession(token);
+		    UserAccount account = session.getAccount();
+			sendWelcomeMessages(conn, token, account.getUserType());
 		}
     }
 
@@ -573,7 +596,7 @@ public class WebSocketHandler {
             // Register in the session manager
             sessionManager.createSession(token, conn, userAccount);
         	
-            sendWelcomeMessages(conn, token);
+            sendWelcomeMessages(conn, token, userAccount.getUserType());
 
             return;
         }
@@ -591,11 +614,28 @@ public class WebSocketHandler {
 		conn.send(failure_msg.toJSONString());
 	}
 
-	private void sendWelcomeMessages(WebSocket conn, String token) {
+	private void sendWelcomeMessages(WebSocket conn, String token, UserType userType) {
 		// send login success
 		JSONObject success_msg = new JSONObject();
 		success_msg.put("type", "login_success");
 		success_msg.put("id", "" + token);
+		
+		String usertypeString = "";
+		switch (userType) {
+        case ADMIN:
+            usertypeString = "a";
+            break;
+        case PROFESSOR:
+            usertypeString = "p";
+            break;
+        case STUDENT:
+            usertypeString = "s";
+            break;
+        default:
+            throw new RuntimeException("Usertype not recognized: " + userType);
+		}
+		success_msg.put("usertype", usertypeString);
+		
 		conn.send(success_msg.toJSONString());
 
 		// Send the currently existing jobs
