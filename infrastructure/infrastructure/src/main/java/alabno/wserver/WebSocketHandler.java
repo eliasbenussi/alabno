@@ -111,9 +111,42 @@ public class WebSocketHandler {
         case "std_refresh_list":
             handleStdRefreshList(parser, conn);
             break;
+        case "std_retrieve_result":
+            handleStdRetrieveResult(parser, conn);
+            break;
         default:
             System.out.println("Unrecognized client message type " + type);
         }
+    }
+
+    private void handleStdRetrieveResult(JsonParser parser, WebSocket conn) {
+        String title = parser.getString("title");
+        String studentNumber = parser.getString("student");
+        String hash = parser.getString("hash");
+        
+        StudentCommit studentCommit = allJobs.findJob(title, studentNumber, hash);
+
+        // Read the JSON file
+        String fileContent = studentCommit.readPostProcessorOutput();
+        // Type of exercise
+        String exerciseType = studentCommit.getExerciseType();
+        // Mark received
+        String mark = studentCommit.getMark();
+
+        // Holds annotation information for each student-submitted file
+        Map<String, List<AnnotationWrapper>> submissionFeedbackMap = generateSubmissionFeedbackMap(fileContent);
+
+        // Create a set of file names from the annotations in the JSON output
+        Set<String> uniqueFiles = new HashSet<>();
+        JsonParser jsonParser = new JsonParser(fileContent);
+        JsonArrayParser annotations = jsonParser.getArrayParser("annotations");
+        for (JsonParser a : annotations) {
+            String filePath = a.getString("filename");
+            uniqueFiles.add(filePath);
+        }
+
+        sendAnnotatedMsg(uniqueFiles, submissionFeedbackMap, conn, exerciseType, mark);
+
     }
 
     private void handleStdRefreshList(JsonParser parser, WebSocket conn) {

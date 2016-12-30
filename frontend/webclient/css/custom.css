@@ -25,3 +25,8 @@ tr:hover {
 #sidebar-wrapper .alert {
     line-height: 100%;
 }
+
+.customcode {
+    color: black;
+    background-color: white;
+}

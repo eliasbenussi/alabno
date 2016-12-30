@@ -71,7 +71,6 @@ CLIENT -> SERVER
     }
     Student view requests to refresh the list of exercises
     
-    // TODO SERVER
     {
         "type": "std_retrieve_result",
         "id": "687ba687de5",

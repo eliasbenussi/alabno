@@ -78,6 +78,16 @@ $handlers.handle_job_sent = function(msgobj) {
 };
 
 $handlers.handle_job_list = function(msgobj) {
+    if ($globals.usertype == "s") {
+        return;
+    }
+    
+    if (!$globals.professor_scope) {
+        console.error("professor scope not loaded yet. Delaying...");
+        setTimeout(function() { $handlers.handle_login_success(msgobj) }, 500);
+        return;
+    }
+    
   var jobs = msgobj.jobs;
 
   if (!jobs) {

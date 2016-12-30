@@ -38,31 +38,29 @@
 </div>
 
 <!--SECTION: Exercise visualizer (but no editor!)-->
-<div ng-show="showhide.visualizer">
+<div class="col-xs-12" ng-show="showhide.visualizer">
     <div class="row">
         <button type="button" class="btn btn-primary" ng-click="showhide_view('exercise_list')">Back</button>
     </div>
     
     <div class="row">
-        <div class="jumbotron">
-            <h1>{{annotated_files.mark}}</h1>
-            <h2>{{annotated_files.exercise_type}}</h2>
+        <h1>{{annotated_files.mark}}</h1>
+        <h2>{{annotated_files.exercise_type}}</h2>
+        
+        <div class="row-fluid" ng-repeat="file in annotated_files.files">
+            <div class="row">
+                <h2>{{file.filename}}</h2>
+            </div>
             
-            <div class="row" ng-repeat="file in annotated_files.files">
-                <div class="row">
-                    <h2>{{file.filename}}</h2>
+            <div class="row" ng-repeat="data in file.data">
+                <div class="col-xs-1">
+                    <code class="customcode">{{data.no}}</code>
                 </div>
-                
-                <div class="row" ng-repeat="data in file.data">
-                    <div class="col-xs-1">
-                        <code>{{data.no}}</code>
-                    </div>
-                    <div class="col-xs-6">
-                        <code>{{data.content}}</code>
-                    </div>
-                    <div class="col-xs-5">
-                        <code>{{data.annotation}}</code>
-                    </div>
+                <div class="col-xs-6">
+                    <code class="customcode">{{data.content}}</code>
+                </div>
+                <div class="col-xs-5">
+                    <code class="customcode">{{data.annotation}}</code>
                 </div>
             </div>
         </div>

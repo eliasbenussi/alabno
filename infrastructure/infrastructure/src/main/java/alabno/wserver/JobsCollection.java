@@ -92,4 +92,24 @@ public class JobsCollection {
         return out;
     }
 
+    public StudentCommit findJob(String title, String studentNumber, String qhash) {
+        String sql = 
+                "SELECT exercise_big_table.exname AS exname,\r\nexercise_big_table.uname AS uname,\r\nexercise_big_table.userindex AS userindex,\r\nexercise_big_table.hash AS hash,\r\nexercise_big_table.status AS status,\r\nexercise.extype AS extype\r\nFROM exercise_big_table JOIN exercise ON exercise_big_table.exname = exercise.exname\r\nWHERE exercise_big_table.userindex = ? AND\r\nexercise_big_table.exname = ? AND\r\nexercise_big_table.hash = ?";
+        String[] params = {studentNumber, title, qhash};
+        List<Map<String, Object>> results = db.retrieveStatement(sql, params);
+        if (results.isEmpty()) {
+            return null;
+        }
+        for (Map<String, Object> row : results) {
+            String exname = (String) row.get("exname");
+            String uname = (String) row.get("uname");
+            String userindex = (String) row.get("userindex");
+            String hash = (String) row.get("hash");
+            String status = (String) row.get("status");
+            String extype = (String) row.get("extype");
+            return new StudentCommit(exname, extype, uname, userindex, hash, status, db);
+        }
+        return null;
+    }
+
 }
