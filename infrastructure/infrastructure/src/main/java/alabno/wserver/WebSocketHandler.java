@@ -17,6 +17,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import alabno.database.DatabaseConnection;
+import alabno.exercise.StudentCommit;
 import alabno.msfeedback.FeedbackUpdaters;
 import alabno.msfeedback.Mark;
 import alabno.useraccount.UserAccount;
@@ -44,7 +45,7 @@ public class WebSocketHandler {
     private Permissions permissions;
 
     public WebSocketHandler(ExecutorService executor, FeedbackUpdaters updaters, DatabaseConnection db, 
-            Authenticator authenticator, TokenGenerator tokenGenerator, Permissions permissions, boolean repopulateJobs) {
+            Authenticator authenticator, TokenGenerator tokenGenerator, Permissions permissions) {
         this.executor = executor;
         this.updaters = updaters;
         this.db = db;
@@ -56,10 +57,7 @@ public class WebSocketHandler {
         
         uncheckedCredentialsMessages.add("validatetoken");
         uncheckedCredentialsMessages.add("login");
-        
-        if (repopulateJobs) {
-            allJobs.repopulate(db);
-        }
+
     }
 
     public void handleMessage(WebSocket conn, String message) {
@@ -128,12 +126,36 @@ public class WebSocketHandler {
         String token = parser.getString("id");
         UserSession session = sessionManager.getSession(token);
         UserAccount account = session.getAccount();
-        int jobs = allJobs.getJobsOfStudent(account);
+        List<StudentCommit> jobs = allJobs.getJobsOfStudent(account);
+        // group up all student commits by exercise
+        Map<String, List<StudentCommit>> exerciseMap = new HashMap<>();
+        for (StudentCommit j : jobs) {
+            String exerciseName = j.getExerciseName();
+            if (!exerciseMap.containsKey(exerciseName)) {
+                exerciseMap.put(exerciseName, new ArrayList<>());
+            }
+            exerciseMap.get(exerciseName).add(j);
+        }
+        // generate data objects
+        for (String key : exerciseMap.keySet()) {
+            JSONObject dataobj = new JSONObject();
+            dataobj.put("title", key);
+            // add each of the commits
+            JSONArray commits = new JSONArray();
+            for (StudentCommit c : exerciseMap.get(key)) {
+                JSONObject acommit = new JSONObject();
+                acommit.put("stdno", c.getUserId());
+                acommit.put("hash", c.getHash());
+                acommit.put("status", c.getStatus());
+                commits.add(acommit);
+            }
+            dataobj.put("commits", commits);
+            data.add(dataobj);
+        }
         msgobj.put("data", data);
         
         conn.send(msgobj.toJSONString());
-        
-        fpohaphe
+
     }
 
     private boolean isPermitted(JsonParser parser, WebSocket conn, String action) {
@@ -194,10 +216,9 @@ public class WebSocketHandler {
         String title = userSession.getTitle();
         String studentNumber = userSession.getStudent();
         
-        List<StudentJob> group = allJobs.getJobGroupByTitle(title);
-        StudentJob studentJob = group.get(Integer.parseInt(studentNumber));
-        studentJob.changeMark(mark);
-        return studentJob.getSourceDocument(filename);
+        StudentCommit studentCommit = allJobs.findJobLatest(title, studentNumber);
+        studentCommit.changeMark(mark);
+        return studentCommit.getSourceDocument(filename);
     }
 
     private void handleFeedback(JsonParser parser, WebSocket conn) {
@@ -222,9 +243,8 @@ public class WebSocketHandler {
         String title = userSession.getTitle();
         String studentNumber = userSession.getStudent();
         
-        List<StudentJob> group = allJobs.getJobGroupByTitle(title);
-        StudentJob studentJob = group.get(Integer.parseInt(studentNumber));
-        return studentJob.amend(fileName, lineno, annType, annotation);
+        StudentCommit studentCommit = allJobs.findJobLatest(title, studentNumber);
+        return studentCommit.amend(fileName, lineno, annType, annotation);
     }
 
     private void handleRetrieveResult(JsonParser parser, WebSocket conn) {
@@ -254,31 +274,19 @@ public class WebSocketHandler {
             return;
         }
 
-        // get the object from memory
-        List<StudentJob> group = allJobs.getJobGroupByTitle(title);
-        if (group == null) {
-            ConnUtils.sendAlert(conn, "retrieve_results: no group with name " + title);
-            return;
-        }
-
-        if (studentNumber < 0 || studentNumber >= group.size()) {
-            ConnUtils.sendAlert(conn, "retrieve_results: student id out of range");
-            return;
-        }
-        
         UserState userState = sessionManager.getUserState(parser.getString("id"));
         // update user state
         userState.setTitle(title);
         userState.setStudent(student);
 
-        StudentJob studentJob = group.get(studentNumber);
+        StudentCommit studentCommit = allJobs.findJobLatest(title, student);
 
         // Read the JSON file
-        String fileContent = studentJob.readPostProcessorOutput();
+        String fileContent = studentCommit.readPostProcessorOutput();
         // Type of exercise
-        String exerciseType = studentJob.getExerciseType();
+        String exerciseType = studentCommit.getExerciseType();
         // Mark received
-        String mark = studentJob.getMark();
+        String mark = studentCommit.getMark();
 
         // Holds annotation information for each student-submitted file
         Map<String, List<AnnotationWrapper>> submissionFeedbackMap = generateSubmissionFeedbackMap(fileContent);
@@ -461,20 +469,16 @@ public class WebSocketHandler {
             ConnUtils.sendAlert(conn, "Received request for null title");
             return;
         }
-
-        List<StudentJob> jobGroup = allJobs.getJobGroupByTitle(title);
-        if (jobGroup == null) {
-            ConnUtils.sendAlert(conn, "Couldn't find any job named " + title);
-            return;
-        }
+        
+        List<String> commits = allJobs.getStudentIdxsByTitle(title);
 
         // generate job_group message
         JSONObject msgobj = new JSONObject();
         msgobj.put("type", "job_group");
         msgobj.put("title", title);
         JSONArray groupArray = new JSONArray();
-        for (int i = 0; i < jobGroup.size(); i++) {
-            groupArray.add("" + i);
+        for (String c : commits) {
+            groupArray.add(c);
         }
         msgobj.put("group", groupArray);
         conn.send(msgobj.toJSONString());
@@ -528,14 +532,8 @@ public class WebSocketHandler {
                 return;
             }
         }
-        
-        // TODO check exercise in database. If same name exists and it is OK,
-        // trigger an update flag
 
         System.out.println("all checks passed");
-        
-        // insert into database with status "pending"
-        allJobs.addJobPending(title, exerciseType);
 
         AssignmentCreator newAssignmentProcessor = new AssignmentCreator(title, exerciseType, modelAnswerGitLink,
                 studentGitLinks, conn, allJobs, db);
@@ -688,11 +686,6 @@ public class WebSocketHandler {
             JSONObject jobobj = new JSONObject();
             jobobj.put("title", name);
             String status = "ok";
-            if (allJobs.isFailed(name)) {
-                status = "error";
-            } else if (allJobs.isPending(name)) {
-                status = "pending";
-            }
             jobobj.put("status", status);
             jobs.add(jobobj);
         }

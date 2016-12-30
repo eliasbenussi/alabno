@@ -18,19 +18,23 @@ import alabno.wserver.SourceDocument;
 
 public class StudentCommit {
     
-    private StudentJob parentStudentJob;
     private String hash;
     private String jsonLocation = null;
     private String status;
     private DatabaseConnection db;
+    private String exname;
+    private String extype;
+    private String username;
+    private String userid;
     
-    public StudentCommit(String hash, StudentJob parentStudentJob, DatabaseConnection db, String status) {
+    public StudentCommit(String exname, String extype, String username, String userid, String hash, String status, DatabaseConnection db) {
+        this.exname = exname;
+        this.extype = extype;
+        this.username = username;
+        this.userid = userid;
         this.hash = hash;
-        this.parentStudentJob = parentStudentJob;
         this.status = status;
         this.db = db;
-        
-        updateDatabase();
     }
     
     public String getStatus() {
@@ -51,8 +55,6 @@ public class StudentCommit {
 
     public String getJsonLocation() {
         if (jsonLocation == null) {
-            String exname = parentStudentJob.getExerciseName();
-            String userindex = parentStudentJob.getStudentId();
             
             StringBuilder sb = new StringBuilder();
             sb.append(FileUtils.getWorkDir());
@@ -61,7 +63,7 @@ public class StudentCommit {
             sb.append("/");
             sb.append(exname);
             sb.append("/");
-            sb.append("student" + userindex);
+            sb.append("student" + userid);
             sb.append("/");
             sb.append("commit" + hash + "_out");
             sb.append("/");
@@ -146,7 +148,7 @@ public class StudentCommit {
     }
     
     public String getExerciseType() {
-        return parentStudentJob.getExerciseType();
+        return extype;
     }
 
     public SourceDocument getSourceDocument(String fileName) {
@@ -168,18 +170,14 @@ public class StudentCommit {
         parser.putDouble("number_score", mark.toDouble());
         rewriteJson(parser);
     }
-    
-    public void setParent(StudentJob parentStudentJob) {
-        this.parentStudentJob = parentStudentJob;
-    }
-    
+
     public void updateDatabase() {
         TransactionBuilder tb = new TransactionBuilder();
         
-        String title = parentStudentJob.getExerciseName();
+        String title = exname;
         String exerciseType = getExerciseType();
-        String uname = parentStudentJob.getUsername();
-        String userindex = parentStudentJob.getStudentId();
+        String uname = username;
+        String userindex = userid;
         
         String sql = "REPLACE INTO `exercise`(`exname`, `extype`) VALUES (?,?)";
         String[] params = {title, exerciseType};
@@ -193,49 +191,16 @@ public class StudentCommit {
         db.executeTransaction(tb);
     }
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((hash == null) ? 0 : hash.hashCode());
-        result = prime * result + ((parentStudentJob == null) ? 0 : parentStudentJob.hashCode());
-        return result;
+    public String getExerciseName() {
+        return exname;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        StudentCommit other = (StudentCommit) obj;
-        if (hash == null) {
-            if (other.hash != null)
-                return false;
-        } else if (!hash.equals(other.hash))
-            return false;
-        if (parentStudentJob == null) {
-            if (other.parentStudentJob != null)
-                return false;
-        } else if (!parentStudentJob.equals(other.parentStudentJob))
-            return false;
-        return true;
+    public Object getUserId() {
+        return this.userid;
     }
 
-    public void tryMergeWith(StudentCommit commit) {
-        if (this.equals(commit)) {
-            if (!this.status.equals(commit.status)) {
-                if (this.status.equals("ok") || commit.status.equals("ok")) {
-                    this.status = "ok";
-                } else if (this.status.equals("pending") || commit.status.equals("pending")) {
-                    this.status = "pending";
-                }
-            }
-        }
+    public Object getHash() {
+        return this.hash;
     }
-    
-    
 
 }

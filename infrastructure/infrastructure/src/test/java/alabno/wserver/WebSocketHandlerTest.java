@@ -35,15 +35,15 @@ public class WebSocketHandlerTest {
     // Mockeries
     WebSocket mockWebSocketConnection = mock(WebSocket.class);
     ExecutorService mockExecutorService = mock(ExecutorService.class);
-    DatabaseConnection mockDatabase = mock(MySqlDatabaseConnection.class);
+    DatabaseConnection mockDatabase = mock(DatabaseConnection.class);
     DatabaseConnection nullDatabase = new NullDatabaseConnection();
     Authenticator authenticator = new NullAuthenticator();
     TokenGenerator tokenGenerator = new TestTokenGenerator();
     Permissions permissions = new AllPermissions();
     WebSocketHandler handler = new WebSocketHandler(mockExecutorService, new FeedbackUpdaters(), mockDatabase,
-            authenticator, tokenGenerator, permissions, false);
+            authenticator, tokenGenerator, permissions);
     WebSocketHandler handler2 = new WebSocketHandler(mockExecutorService, new FeedbackUpdaters(), nullDatabase,
-            authenticator, tokenGenerator, permissions, false);
+            authenticator, tokenGenerator, permissions);
 
     @Test
     public void handleMessageEmpty() {
@@ -64,11 +64,12 @@ public class WebSocketHandlerTest {
 
         mockWebSocketConnection.send(EasyMock.capture(captured_string));
         mockWebSocketConnection.send((String) anyObject());
-
+        mockWebSocketConnection.send((String) anyObject());
+ 
         replay(mockWebSocketConnection);
         replay(mockExecutorService);
 
-        handler.handleMessage(mockWebSocketConnection,
+        handler2.handleMessage(mockWebSocketConnection,
                 "    {\r\n        \"type\": \"login\",\r\n        \"username\": \"gj414\",\r\n        \"password\": \"9c4b8a984db84c98b49fa849a8\"\r\n    }");
 
         verify(mockWebSocketConnection);
@@ -91,7 +92,6 @@ public class WebSocketHandlerTest {
                                                                                           // submitted
         
         
-        mockWebSocketConnection.send((String) anyObject());
         mockWebSocketConnection.send((String) anyObject());
         
         Capture<String> captured_string = EasyMock.<String>newCapture();
