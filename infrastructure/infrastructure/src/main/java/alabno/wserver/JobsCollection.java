@@ -30,7 +30,7 @@ public class JobsCollection {
         List<Map<String, String>> results = db.retrieveQueryString(sql);
         for (Map<String, String> row : results) {
             String exname = row.get("exname");
-            out.add("exname");
+            out.add(exname);
         }
         return out;
     }

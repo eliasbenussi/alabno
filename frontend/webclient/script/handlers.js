@@ -15,7 +15,7 @@ $handlers.handle_login_success = function(msgobj) {
   $globals.top_scope.$apply();
   
   // get user type
-  var usertype = $globals.usertype;
+  var usertype = msgobj.usertype;
   if (usertype == "s") {
       window.location.hash = 'student';
       $globals.usertype = "s";
@@ -27,7 +27,7 @@ $handlers.handle_login_success = function(msgobj) {
       $globals.is_admin = true;
       $globals.usertype = "p";
   } else {
-      console.err("Unrecognized user type " + usertype);
+      console.error("Unrecognized user type " + usertype);
   }
 };
 

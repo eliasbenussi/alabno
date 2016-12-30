@@ -33,7 +33,11 @@ class MysqlConn:
     def dbconnect(self):
         try:
             the_password = get_pass()
-            connection = pymysql.connect(host='tc.jstudios.ovh',
+            if os.environ['ALABNOLOCAL'] == '1':
+                hostname = 'localhost'
+            else:
+                hostname = 'tc.jstudios.ovh'
+            connection = pymysql.connect(host=hostname,
                                 user='python',
                                 password=the_password,
                                 db='Automarker',

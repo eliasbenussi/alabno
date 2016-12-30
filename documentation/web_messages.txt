@@ -155,7 +155,6 @@ SERVER -> CLIENT
     }
     Allowed exercise types. Will be sent upon successful login
     
-    // TODO SERVER
     {
         "type": "std_ex_list",
         "data": [
