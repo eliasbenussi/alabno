@@ -24,11 +24,13 @@ public class StudentCommit {
     private String status;
     private DatabaseConnection db;
     
-    public StudentCommit(String hash, StudentJob parentStudentJob, DatabaseConnection db) {
+    public StudentCommit(String hash, StudentJob parentStudentJob, DatabaseConnection db, String status) {
         this.hash = hash;
         this.parentStudentJob = parentStudentJob;
-        this.status = "pending";
+        this.status = status;
         this.db = db;
+        
+        updateDatabase();
     }
     
     public String getStatus() {
@@ -171,7 +173,7 @@ public class StudentCommit {
         this.parentStudentJob = parentStudentJob;
     }
     
-    public void updateDatabase(DatabaseConnection db) {
+    public void updateDatabase() {
         TransactionBuilder tb = new TransactionBuilder();
         
         String title = parentStudentJob.getExerciseName();
@@ -220,6 +222,18 @@ public class StudentCommit {
         } else if (!parentStudentJob.equals(other.parentStudentJob))
             return false;
         return true;
+    }
+
+    public void tryMergeWith(StudentCommit commit) {
+        if (this.equals(commit)) {
+            if (!this.status.equals(commit.status)) {
+                if (this.status.equals("ok") || commit.status.equals("ok")) {
+                    this.status = "ok";
+                } else if (this.status.equals("pending") || commit.status.equals("pending")) {
+                    this.status = "pending";
+                }
+            }
+        }
     }
     
     

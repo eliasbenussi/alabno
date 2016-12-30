@@ -46,7 +46,11 @@ public class StudentJob {
     }
 
     public void addAllFrom(StudentJob job) {
-        // TODO
+        for (StudentCommit commit : job.commits) {
+            for (StudentCommit c : this.commits) {
+                c.tryMergeWith(commit);
+            }
+        }
     }
 
     @Override

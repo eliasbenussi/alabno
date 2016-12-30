@@ -2,17 +2,13 @@ package alabno.wserver;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
-import org.java_websocket.WebSocket;
 
 import alabno.database.DatabaseConnection;
-import alabno.database.TransactionBuilder;
 import alabno.exercise.Exercise;
-import alabno.utils.ConnUtils;
+import alabno.exercise.StudentCommit;
+import alabno.exercise.StudentJob;
 
 /**
  * Contains the known exercises in the system
@@ -54,21 +50,19 @@ public class JobsCollection {
         }
     }
 
-    private void update(String exname, String extype, String uname, String userindex, String hash, String status) {
+    public void update(String exname, String extype, String uname, String userindex, String hash, String status) {
         updateExercise(exname, extype);
-        updateStudentJob(exname, uname, userindex);
-        
-        // TODO insert the StudentCommit
+        Exercise exercise = allJobs.get(exname);
+        StudentJob studentJob = new StudentJob(uname, userindex, exercise, db);
+        StudentCommit studentCommit = new StudentCommit(hash, studentJob, db, status);
+        studentJob.addStudentCommit(studentCommit);
+        exercise.addStudentJob(studentJob);
     }
 
-    private void updateStudentJob(String exname, String uname, String userindex) {
-        Exercise exercise = allJobs.get(exname);
-        StudentJob
-    }
 
     private void updateExercise(String exname, String extype) {
         if (!allJobs.containsKey(exname)) {
-            Exercise exercise = new Exercise(exname, extype);
+            Exercise exercise = new Exercise(exname, extype, db);
             allJobs.put(exname, exercise);
         }
     }

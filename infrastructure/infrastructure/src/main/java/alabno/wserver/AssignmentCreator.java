@@ -92,10 +92,7 @@ public class AssignmentCreator implements Runnable {
                 String[] level2Split = outputs.split(" ");
 
                 // Add the job to the JobsCollection
-                List<StudentJobOld> newJob = new ArrayList<>();
                 for (String s : level2Split) {
-                    StudentJobOld aStudentJob = new StudentJobOld(s, exerciseType);
-                    newJob.add(aStudentJob);
                     
                     // split the hash
                     // This split removes the final part containing _out/postpro.json
@@ -108,9 +105,11 @@ public class AssignmentCreator implements Runnable {
                     String hash = befhash.substring(6, befhash.length());
                     
                     hashList.add(hash);
+
                 }
-                allJobs.addJob(title, newJob, conn, gitList, unameList, hashList, exerciseType);
-                
+                for (int i = 0; i < gitList.size(); i++) {
+                    allJobs.update(title, exerciseType, unameList.get(i), "" + i, hashList.get(i), "ok");
+                }
                 return;
             }
 
@@ -120,8 +119,6 @@ public class AssignmentCreator implements Runnable {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        allJobs.addFailedJob(title, exerciseType);
 
     }
 

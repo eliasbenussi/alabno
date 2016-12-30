@@ -20,7 +20,7 @@ import alabno.utils.FileUtils;
 public class MySqlDatabaseConnection implements DatabaseConnection {
 
     // JDBC driver name and database URL
-    private String DB_URL = "jdbc:mysql://tc.jstudios.ovh:3306/Automarker";
+    private String DB_URL;
 
     // Database credentials
     static final String USER = "python";
@@ -29,6 +29,12 @@ public class MySqlDatabaseConnection implements DatabaseConnection {
     private Connection conn;
 
     public MySqlDatabaseConnection() {
+        if (System.getenv("ALABNOLOCAL").equals("1")) {
+            DB_URL = "jdbc:mysql://localhost:3306/Automarker";
+        } else {
+            DB_URL = "jdbc:mysql://tc.jstudios.ovh:3306/Automarker";
+        }
+        
         setupPassword();
         connect();
     }
