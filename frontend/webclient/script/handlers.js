@@ -13,6 +13,19 @@ $handlers.handle_login_success = function(msgobj) {
   
   $globals.top_scope.logged_in_flag = true;
   $globals.top_scope.$apply();
+  
+  // get user type
+  var usertype = $globals.usertype;
+  if (usertype == "s") {
+      window.location.hash = 'student';
+  } else if (usertype == "p") {
+      window.location.hash = 'professor';
+  } else if (usertype == "a") {
+      window.location.hash = 'professor';
+      $globals.is_admin = true;
+  } else {
+      console.err("Unrecognized user type " + usertype);
+  }
 };
 
 $handlers.handle_login_failure = function(msgobj) {
@@ -190,4 +203,9 @@ $handlers.handle_type_list = function(msgobj) {
     }
     
     $globals.professor_scope.$apply();
+};
+
+$handlers.handle_std_ex_list = function(msgobj) {
+    $globals.student_scope.exercise_list = msgobj;
+    $globals.student_scope.$apply();
 };
