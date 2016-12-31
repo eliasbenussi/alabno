@@ -32,6 +32,10 @@ public class HaskellMarker {
         List<HaskellSplitDocument> documents = new ArrayList<>();
 
         for (String haskellScriptPath : arguments.getHaskellInputs()) {
+            if(haskellScriptPath.contains("Bench"))
+                continue;
+            if(haskellScriptPath.contains("Test"))
+                continue;
             // create the HaskellSplitDocument
             HaskellSplitter splitter = new HaskellSplitter(haskellScriptPath);
             List<HaskellBlock> blocks = splitter.split();
@@ -63,7 +67,8 @@ public class HaskellMarker {
     JSONObject getOutputObject() {
         return outputObject;
     }
-    
+
+    @SuppressWarnings("unchecked")
     private JSONObject generateOutput(List<HaskellSplitDocument> documents) {
         JSONObject obj = new JSONObject();
         obj.put("score", calculateScore(documents));
@@ -78,11 +83,13 @@ public class HaskellMarker {
         return obj;
     }
 
+    @SuppressWarnings("unchecked")
+    // TODO: Switch to my errors
     private void addAnnotations(JSONArray annotations, HaskellSplitDocument doc) {
         for (HaskellBlock block : doc.getBlocks()) {
             String ann = block.getAnnotation();
             // NOTE should also ignore comments, which will be classified as ok
-            if (ann != null && !ann.equals("ok")) {
+            if (ann != null && !ann.equals("ok") && !ann.equals("comment")) {
                 JSONObject annotationObject = new JSONObject();
                 annotationObject.put("errortype", categoryConverter.getErrorType(ann));
                 annotationObject.put("filename", doc.getName());
