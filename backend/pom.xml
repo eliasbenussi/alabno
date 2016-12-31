@@ -17,5 +17,6 @@
     <module>complexity_analyser</module>
     <module>mark_marker</module>
     <module>simple-haskell-marker</module>
+    <module>java-marker</module>
   </modules>
 </project>
