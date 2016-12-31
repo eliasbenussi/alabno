@@ -1,28 +1,25 @@
 package alabno.simple_haskell_marker;
 
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
+import json_parser.Error;
+import json_parser.MicroServiceOutput;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 
 /**
  * Manages the Haskell source codes and runs the Classifier on them. Produces
  * the required JSON output at the end of the process
- *
  */
 public class HaskellMarker {
 
     private ScriptClassifier haskellClassifier;
     private Arguments arguments;
     private CategoryConverterInterface categoryConverter;
-    private JSONObject outputObject = null;
+    private MicroServiceOutput outputObject = null;
 
     public HaskellMarker(ScriptClassifier haskellClassifier, Arguments arguments,
-            CategoryConverterInterface categoryConverter) {
+                         CategoryConverterInterface categoryConverter) {
         this.haskellClassifier = haskellClassifier;
         this.arguments = arguments;
         this.categoryConverter = categoryConverter;
@@ -32,9 +29,9 @@ public class HaskellMarker {
         List<HaskellSplitDocument> documents = new ArrayList<>();
 
         for (String haskellScriptPath : arguments.getHaskellInputs()) {
-            if(haskellScriptPath.contains("Bench"))
+            if (haskellScriptPath.contains("Bench"))
                 continue;
-            if(haskellScriptPath.contains("Test"))
+            if (haskellScriptPath.contains("Test"))
                 continue;
             // create the HaskellSplitDocument
             HaskellSplitter splitter = new HaskellSplitter(haskellScriptPath);
@@ -55,50 +52,47 @@ public class HaskellMarker {
             return;
         }
         // Write it to output file
-        try {
-            PrintWriter writer = new PrintWriter(arguments.getOutputJsonPath(), "UTF-8");
-            writer.println(outputObject.toJSONString());
-            writer.close();
-        } catch (FileNotFoundException | UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        outputObject.writeFile(new File(arguments.getOutputJsonPath()));
     }
 
-    JSONObject getOutputObject() {
+    MicroServiceOutput getOutputObject() {
         return outputObject;
     }
 
-    @SuppressWarnings("unchecked")
-    private JSONObject generateOutput(List<HaskellSplitDocument> documents) {
-        JSONObject obj = new JSONObject();
-        obj.put("score", calculateScore(documents));
+    private MicroServiceOutput generateOutput(List<HaskellSplitDocument> documents) {
 
         // generate annotations
-        JSONArray annotations = new JSONArray();
+        List<Error> annotations = new ArrayList<>();
 
         for (HaskellSplitDocument doc : documents) {
-            addAnnotations(annotations, doc);
+            annotations.addAll(addAnnotations(doc));
         }
-        obj.put("annotations", annotations);
-        return obj;
+
+        return new MicroServiceOutput(
+                calculateScore(documents),
+                annotations,
+                new ArrayList<>(),
+                new ArrayList<>());
     }
 
-    @SuppressWarnings("unchecked")
-    // TODO: Switch to my errors
-    private void addAnnotations(JSONArray annotations, HaskellSplitDocument doc) {
+    private List<Error> addAnnotations(HaskellSplitDocument doc) {
+        List<Error> annotations = new ArrayList<>();
         for (HaskellBlock block : doc.getBlocks()) {
             String ann = block.getAnnotation();
             // NOTE should also ignore comments, which will be classified as ok
             if (ann != null && !ann.equals("ok") && !ann.equals("comment")) {
-                JSONObject annotationObject = new JSONObject();
-                annotationObject.put("errortype", categoryConverter.getErrorType(ann));
-                annotationObject.put("filename", doc.getName());
-                annotationObject.put("lineno", block.getLineNumber());
-                annotationObject.put("charno", 1);
-                annotationObject.put("text", categoryConverter.getDescription(ann));
+
+                Error annotationObject = new Error(
+                        categoryConverter.getDescription(ann),
+                        doc.getName(),
+                        block.getLineNumber(),
+                        1,
+                        categoryConverter.getErrorType(ann));
+
                 annotations.add(annotationObject);
             }
         }
+        return annotations;
     }
 
     private int calculateScore(List<HaskellSplitDocument> documents) {

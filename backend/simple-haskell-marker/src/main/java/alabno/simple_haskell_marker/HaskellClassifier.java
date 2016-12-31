@@ -14,8 +14,7 @@ import edu.stanford.nlp.ling.Datum;
 public class HaskellClassifier implements ScriptClassifier {
 
     private URL trainingSetPath;
-    private URL propertiesPath;
-    
+
     private ColumnDataClassifier cdc;
     private Classifier<String, String> cl;
     
@@ -26,7 +25,7 @@ public class HaskellClassifier implements ScriptClassifier {
             e.printStackTrace();
             System.out.println("Training file is not valid. The Classifier will NOT work correctly!");
         }
-        this.propertiesPath = this.getClass().getClassLoader().getResource("hs_basic_training.prop");
+        URL propertiesPath = this.getClass().getClassLoader().getResource("hs_basic_training.prop");
         
         // Initialize the classifier
         System.out.println("Initializing classifier...");

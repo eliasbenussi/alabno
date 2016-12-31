@@ -10,7 +10,7 @@ public class HaskellBlockTest {
     public void blocktestNoAnnotation() {
         HaskellBlock haskellBlock = new HaskellBlock(12, "sample text");
         
-        assertEquals(haskellBlock.getAnnotation(), null);
+        assertNull(haskellBlock.getAnnotation());
         
         assertEquals(haskellBlock.getBlockText(), "sample text");
         

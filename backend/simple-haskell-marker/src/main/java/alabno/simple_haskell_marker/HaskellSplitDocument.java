@@ -9,8 +9,8 @@ import java.util.List;
  */
 public class HaskellSplitDocument {
 
-    private String name;
-    private List<HaskellBlock> blocks;
+    private final String name;
+    private final List<HaskellBlock> blocks;
     
     public HaskellSplitDocument(String name, List<HaskellBlock> blocks) {
         this.name = name;
