@@ -29,4 +29,5 @@ tr:hover {
 .customcode {
     color: black;
     background-color: white;
+    white-space: pre;
 }

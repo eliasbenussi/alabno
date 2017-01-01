@@ -9,6 +9,7 @@ class DatabaseConnector(dbName: String) {
   private val driver = "com.mysql.cj.jdbc.Driver"
   private val username = "python"
   private val url = "jdbc:mysql://tc.jstudios.ovh:3306/Automarker"
+  private val locurl = "jdbc:mysql://localhost:3306/Automarker"
   private val psw = findPsw("dbpass.txt")
   private var connection: Connection = _
 
@@ -18,7 +19,7 @@ class DatabaseConnector(dbName: String) {
 
   def connect() = {
     Class.forName(driver)
-    connection = DriverManager.getConnection(url, username, psw)
+    connection = DriverManager.getConnection(if (sys.env("ALABNOLOCAL") == "1") locurl else url, username, psw)
   }
 
   def close() = connection.close()
