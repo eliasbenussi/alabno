@@ -16,7 +16,7 @@ abstract class BaseLinter(file: File, language: Language.Value) {
    * fileList is protected lazy so that other linters may use it if needed
    */
   protected lazy val fileList = findFiles
-
+  private final val regex = """\w*Bench|Test\w+""".r
   /**
     * <p> Inheriting classes should override this method </p>
     * <p> This method should run an operation on every file given and produce a list of mistakes </p>
@@ -30,10 +30,13 @@ abstract class BaseLinter(file: File, language: Language.Value) {
     these ++ these.filter(_.isDirectory).flatMap(recursiveListFiles)
   }
 
+
+  private def skipBenchAndTests(f: File) = regex.findFirstIn(f.getName).isDefined
+
   private def findFiles = {
     if (!file.exists) throw new NoSuchFileException(s"File $file does not exist")
     if (file.isDirectory) {
-      recursiveListFiles(file).filter(f => Language.matchExtension(f.getName, language))
+      recursiveListFiles(file).filter(f => Language.matchExtension(f.getName, language)).filterNot(skipBenchAndTests)
     } else {
       Seq(file)
     }

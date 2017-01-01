@@ -2,15 +2,13 @@ package mark_marker
 
 import java.io.File
 
-import edu.stanford.nlp.classify.{Classifier, ColumnDataClassifier}
-import mark_marker.trainer.DatabaseConnector
-
 import scala.io.Source
 
 /**
   * Created by eb1314 on 27/11/16.
   */
 object Utils {
+  private final val regex = """\w*Bench|Test\w+""".r
 
   def matchType(t: String): String = t match {
     case s if s.contains("haskell") => ".hs"
@@ -19,10 +17,13 @@ object Utils {
   }
 
   def getFiles(file: File, extension: String): Array[File] = {
-    file.listFiles().filter(_.getName.endsWith(extension))
+    file.listFiles().filter(_.getName.endsWith(extension)).filterNot(skipBenchAndTests)
   }
+
+  private def skipBenchAndTests(f: File) = regex.findFirstIn(f.getName).isDefined
 
   def stringifyFile(files: Array[File]): String = {
     files.flatMap(e => Source.fromFile(e).getLines.mkString("\\n").replace("\t", "\\t")).mkString("")
   }
+
 }

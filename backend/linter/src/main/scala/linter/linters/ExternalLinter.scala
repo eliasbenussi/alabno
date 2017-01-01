@@ -39,9 +39,6 @@ class ExternalLinter(file: File, language: Language.Value) extends BaseLinter(fi
     def check: Seq[Error] = Seq()
   }
 
-  /*
-   * TODO: implement
-   */
   private class JLinter extends Linter {
     private lazy val pathMatch = "(.*?.java)".r
     private lazy val reasonMatch = ":(.*?\n)".r
@@ -84,12 +81,10 @@ class ExternalLinter(file: File, language: Language.Value) extends BaseLinter(fi
      * Checks for mistakes using HLint
      */
     override def check: Seq[Error] = {
-      val hlint = s"hlint ${file.getPath} --no-exit-code" !!
-      val scan = fileList.map(e => s"scan ${e.getPath}" !!).mkString("\n")
+      val hlint = fileList.map(e => s"hlint ${e.getPath} --no-exit-code" !!).mkString("\n")
       val fileFinder = s"$pathMatch$posMatch$reasonMatch".r
       val hlintErrors = fileFinder.findAllIn(hlint).toArray.map(matchHaskellMistake(_, 1, "semantic"))
-      val scanErrors = fileFinder.findAllIn(scan).toArray.map(matchHaskellMistake(_, 0.1, "style"))
-      hlintErrors ++ scanErrors
+      hlintErrors
     }
 
     private def matchHaskellMistake(string: String, value: Double, t: String) = {

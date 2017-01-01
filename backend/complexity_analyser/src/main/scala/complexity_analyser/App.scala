@@ -1,6 +1,7 @@
 package complexity_analyser
 
 import java.io.File
+import java.util.concurrent.Executors
 
 import json_parser.{Error, MicroServiceInputParser, MicroServiceOutputParser}
 
@@ -14,6 +15,9 @@ import scala.collection.mutable.ArrayBuffer
 object App {
 
   var additional: Seq[String] = Seq()
+
+  // Used to process compilation and benchmarking
+  private final lazy val executorService = Executors.newFixedThreadPool(2)
 
   def main(args: Array[String]): Unit = {
     if (args.length != 2)
@@ -34,13 +38,13 @@ object App {
     }
     MicroServiceOutputParser.writeFile(new File(args apply 1), score,
       annotations.asJava, errors.asJava, additional.asJava)
-    System.exit(0)
+    executorService.shutdown()
   }
 
   def processLanguage(language: String, modelAnswer: File, inputPath: File) = {
     language match {
       case l if l.contains("haskell") =>
-        val h = new HaskellProcessor(modelAnswer, inputPath)
+        val h = new HaskellProcessor(modelAnswer, inputPath, executorService)
         h.prepare()
         val (errors, score) = h.runTests()
         val ((compErrors, compScore), studPath, modPath) = h.runBench()
@@ -48,7 +52,7 @@ object App {
         additional = Seq(modPath, studPath)
         (errors ++ compErrors, (compScore + 3 * score)/4)
       case l if l.contains("java") =>
-        val j = new JavaProcessor(modelAnswer, inputPath)
+        val j = new JavaProcessor(modelAnswer, inputPath, executorService)
         j.prepare()
         j.benchmark()
       case _ => throw new IllegalArgumentException("Wrong language")

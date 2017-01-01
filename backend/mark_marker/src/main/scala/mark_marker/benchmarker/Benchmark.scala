@@ -19,7 +19,7 @@ object Benchmark {
     val dirs = bPath.listFiles().filter(_.isDirectory)
     val ts = dirs map (d => pool.submit(new BenchmarkRun(exType, d.getAbsolutePath)))
     val values = ts map (_.get())
-    val fw = new FileWriter("markMarkBench.log")
+    val fw = new FileWriter(s"$exType.log")
     for ((elem, idx) <- values.zipWithIndex) {
       fw.write(String.format("%8s\t%10s\t%10s\n", idx.toString, elem._1.toString, elem._2.toString))
     }
