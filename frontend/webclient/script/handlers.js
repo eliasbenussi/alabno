@@ -110,9 +110,11 @@ $handlers.handle_job_list = function(msgobj) {
     
     var color = "green";
     if (in_job_status == "pending") {
-      color = "yellow";
+      color = "orange";
     } else if (in_job_status == "error") {
       color = "red";
+    } else if (in_job_status == "processing") {
+      color = "yellow";
     }
 
     var a_job = {};

@@ -114,7 +114,7 @@ SERVER -> CLIENT
             ]
     }
     Sends the list of existing jobs to the client
-    valid status are "ok" "pending" "error"
+    valid status are "ok" "pending" "error" "processing"
     
     {
     	"type": "job_group",

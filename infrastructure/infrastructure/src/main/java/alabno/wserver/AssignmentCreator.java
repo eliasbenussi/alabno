@@ -12,7 +12,8 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import alabno.database.DatabaseConnection;
-import alabno.database.TransactionBuilder;
+import alabno.localjobstatus.JobState;
+import alabno.localjobstatus.LocalJobStatusAll;
 
 public class AssignmentCreator implements Runnable {
 
@@ -23,9 +24,11 @@ public class AssignmentCreator implements Runnable {
     private WebSocket conn;
     private JobsCollection allJobs;
     private DatabaseConnection dbconn;
+    private String username;
+    private LocalJobStatusAll jobStatus;
 
     public AssignmentCreator(String title, String exerciseType, String modelAnswer, JSONArray studentGitLinks,
-            WebSocket conn, JobsCollection allJobs, DatabaseConnection dbconn) {
+            WebSocket conn, JobsCollection allJobs, DatabaseConnection dbconn, String username, LocalJobStatusAll jobStatus) {
         this.title = title;
         this.exerciseType = exerciseType;
         this.modelAnswerGitLink = modelAnswer;
@@ -33,11 +36,32 @@ public class AssignmentCreator implements Runnable {
         this.conn = conn;
         this.allJobs = allJobs;
         this.dbconn = dbconn;
+        this.username = username;
+        this.jobStatus = jobStatus;
     }
 
     @Override
     public void run() {
         try {
+            // Set jobstatus to processing
+            jobStatus.updateJob(username, title, JobState.PROCESSING);
+            
+            boolean success = execute();
+            
+            if (success) {
+                jobStatus.updateJob(username, title, JobState.FINISHED);
+            } else {
+                jobStatus.updateJob(username, title, JobState.ERROR);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            jobStatus.updateJob(username, title, JobState.ERROR);
+        }
+    }
+
+    private boolean execute() {
+        try {
+
             String clonerScriptPath = "infrastructure/cloner.py";
             StringBuilder studentGitArguments = new StringBuilder();
 
@@ -86,7 +110,7 @@ public class AssignmentCreator implements Runnable {
                 String[] level1Split = lastLine.split("=");
                 if (level1Split.length != 2) {
                     System.out.println("Invalid");
-                    return;
+                    return false;
                 }
                 String outputs = level1Split[1];
                 String[] level2Split = outputs.split(" ");
@@ -110,18 +134,21 @@ public class AssignmentCreator implements Runnable {
                 for (int i = 0; i < gitList.size(); i++) {
                     allJobs.update(title, exerciseType, unameList.get(i), "" + i, hashList.get(i), "ok");
                 }
-                return;
+                return true;
             }
+            
+            return false;
 
         } catch (IOException e) {
             System.out.println("Subprocess encountered an error");
             e.printStackTrace();
+            return false;
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
 
     }
-
 
 
 

@@ -1,5 +1,8 @@
 package alabno.wserver;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -18,6 +21,8 @@ import org.json.simple.JSONObject;
 
 import alabno.database.DatabaseConnection;
 import alabno.exercise.StudentCommit;
+import alabno.localjobstatus.JobState;
+import alabno.localjobstatus.LocalJobStatusAll;
 import alabno.msfeedback.FeedbackUpdaters;
 import alabno.msfeedback.Mark;
 import alabno.useraccount.UserAccount;
@@ -43,17 +48,21 @@ public class WebSocketHandler {
 	
 	private Set<String> uncheckedCredentialsMessages = new HashSet<>();
     private Permissions permissions;
+    private LocalJobStatusAll localJobs;
 
     public WebSocketHandler(ExecutorService executor, FeedbackUpdaters updaters, DatabaseConnection db, 
-            Authenticator authenticator, TokenGenerator tokenGenerator, Permissions permissions) {
+            Authenticator authenticator, TokenGenerator tokenGenerator, Permissions permissions,
+            LocalJobStatusAll localJobs) {
         this.executor = executor;
         this.updaters = updaters;
         this.db = db;
         this.authenticator = authenticator;
         this.tokenGenerator = tokenGenerator;
         this.permissions = permissions;
+        this.localJobs = localJobs;
         
         this.allJobs = new JobsCollection(this, this.db);
+        this.localJobs.setJobsCollection(this.allJobs);
         
         uncheckedCredentialsMessages.add("validatetoken");
         uncheckedCredentialsMessages.add("login");
@@ -538,6 +547,38 @@ public class WebSocketHandler {
     }
 
     private void handleNewAssignment(JsonParser parser, WebSocket conn) {
+        try {
+            String title = parser.getString("title");
+
+            if (title == null || title.isEmpty()) {
+                ConnUtils.sendAlert(conn, "title is required");
+                return;
+            }
+
+            UserSession session = sessionManager.getSession(parser);
+            UserAccount account = session.getAccount();
+            String username = account.getUsername();
+            
+            // Create the new pending job
+            localJobs.addJob(username, conn, title);
+            
+            // Call primary handler
+            boolean success = handleNewAssignmentInternal(parser, conn, username);
+            if (!success) {
+                localJobs.updateJob(username, title, JobState.ERROR);
+            }
+            
+        } catch (Exception e) {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            PrintStream ps = new PrintStream(baos);
+            e.printStackTrace(ps);
+            String content = new String(baos.toByteArray(), StandardCharsets.UTF_8);
+            ConnUtils.sendAlert(conn, content);
+            return;
+        }
+    }
+    
+    private boolean handleNewAssignmentInternal(JsonParser parser, WebSocket conn, String username) {
         String title = parser.getString("title");
         String exerciseType = parser.getString("ex_type");
         String modelAnswerGitLink = parser.getString("model_git");
@@ -545,34 +586,34 @@ public class WebSocketHandler {
 
         if (title == null || title.isEmpty()) {
             ConnUtils.sendAlert(conn, "title is required");
-            return;
+            return false;
         }
 
         if (exerciseType == null || exerciseType.isEmpty()) {
             ConnUtils.sendAlert(conn, "exercise type is required");
-            return;
+            return false;
         }
 
         if (modelAnswerGitLink == null || modelAnswerGitLink.isEmpty()) {
             ConnUtils.sendAlert(conn, "model answer git repository required");
-            return;
+            return false;
         }
 
         if (studentGitLinks == null) {
             ConnUtils.sendAlert(conn, "students repo git links required");
-            return;
+            return false;
         } else {
             String msg = checkStudentGitLinks(studentGitLinks);
             if (msg != null) {
                 ConnUtils.sendAlert(conn, msg);
-                return;
+                return false;
             }
         }
 
         System.out.println("all checks passed");
 
         AssignmentCreator newAssignmentProcessor = new AssignmentCreator(title, exerciseType, modelAnswerGitLink,
-                studentGitLinks, conn, allJobs, db);
+                studentGitLinks, conn, allJobs, db, username, localJobs);
 
         executor.submit(newAssignmentProcessor);
 
@@ -580,6 +621,8 @@ public class WebSocketHandler {
         JSONObject msgobj = new JSONObject();
         msgobj.put("type", "job_sent");
         conn.send(msgobj.toJSONString());
+        
+        return true;
     }
 
     /**

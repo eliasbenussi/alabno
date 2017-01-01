@@ -6,6 +6,7 @@ import java.util.Map;
 import org.java_websocket.WebSocket;
 
 import alabno.useraccount.UserAccount;
+import alabno.wserver.JsonParser;
 
 public class ActiveSessions {
 
@@ -119,6 +120,11 @@ public class ActiveSessions {
         return activeSessions.get(token);
     }
     
+    public UserSession getSession(JsonParser parser) {
+        String token = parser.getString("id");
+        return getSession(token);
+    }
+    
     public UserState getUserState(String token) {
         UserSession theSession = activeSessions.get(token);
         if (theSession == null) {
@@ -126,5 +132,7 @@ public class ActiveSessions {
         }
         return theSession.getState();
     }
+
+
 
 }

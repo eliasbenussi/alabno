@@ -20,8 +20,8 @@ import org.java_websocket.WebSocket;
 import org.junit.Test;
 
 import alabno.database.DatabaseConnection;
-import alabno.database.MySqlDatabaseConnection;
 import alabno.database.NullDatabaseConnection;
+import alabno.localjobstatus.LocalJobStatusAll;
 import alabno.msfeedback.FeedbackUpdaters;
 import alabno.userauth.Authenticator;
 import alabno.userauth.NullAuthenticator;
@@ -40,10 +40,12 @@ public class WebSocketHandlerTest {
     Authenticator authenticator = new NullAuthenticator();
     TokenGenerator tokenGenerator = new TestTokenGenerator();
     Permissions permissions = new AllPermissions();
+    LocalJobStatusAll localJobs = new LocalJobStatusAll();
+    LocalJobStatusAll localJobs2 = new LocalJobStatusAll();
     WebSocketHandler handler = new WebSocketHandler(mockExecutorService, new FeedbackUpdaters(), mockDatabase,
-            authenticator, tokenGenerator, permissions);
+            authenticator, tokenGenerator, permissions, localJobs);
     WebSocketHandler handler2 = new WebSocketHandler(mockExecutorService, new FeedbackUpdaters(), nullDatabase,
-            authenticator, tokenGenerator, permissions);
+            authenticator, tokenGenerator, permissions, localJobs2);
 
     @Test
     public void handleMessageEmpty() {
@@ -92,6 +94,7 @@ public class WebSocketHandlerTest {
                                                                                           // submitted
         
         
+        mockWebSocketConnection.send((String) anyObject());
         mockWebSocketConnection.send((String) anyObject());
         
         Capture<String> captured_string = EasyMock.<String>newCapture();
