@@ -246,6 +246,16 @@ $handlers.handle_annotated_file = function(msgobj) {
 };
 
 $handlers.handle_type_list = function(msgobj) {
+    if ($globals.usertype == "s") {
+        return;
+    }
+    
+    if (!$globals.professor_scope) {
+        console.error("professor scope not loaded yet. Delaying...");
+        setTimeout(function() { $handlers.handle_login_success(msgobj) }, 500);
+        return;
+    }
+    
     var data = msgobj.data;
     $globals.professor_scope.valid_exercise_types = [];
     for (var i = 0; i < data.length; i++) {
