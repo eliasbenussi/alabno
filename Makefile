@@ -3,15 +3,15 @@ all: frontend infrastructure backend
 test: all
 	make testall
 
-testall: backendtest infrastructuretest 
+testall: backendtest infrastructuretest
 
 backend: repo
-	cd backend && mvn -T 1C package -q -Dmaven.test.skip=true
+	cd backend && mvn -T 1C install -q -Dmaven.test.skip=true
 
 backendtest:
 	cd backend && mvn -T 1C test -q
 
-infrastructure: repo 
+infrastructure: repo backend
 	cd infrastructure && make
 
 infrastructuretest:
