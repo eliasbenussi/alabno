@@ -45,7 +45,10 @@ class Scorer {
     }
 
     private List<Double> getScoresFromMicroServiceOutputs() {
-        return microServiceOutputs.stream().map(MicroServiceOutput::getScore).collect(Collectors.toList());
+        return microServiceOutputs.stream()
+                .filter(mo -> mo.getErrors().isEmpty())
+                .map(MicroServiceOutput::getScore)
+                .collect(Collectors.toList());
     }
 
     private void applyMeanMicroServiceGrading() {

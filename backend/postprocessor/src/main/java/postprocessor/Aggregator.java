@@ -73,7 +73,6 @@ public class Aggregator {
             microServiceOutput.getAnnotations().forEach(a -> addAnnotation(mAnnotations, a));
         }
 
-        mAnnotations.values().forEach(System.out::println);
         annotations.addAll(mAnnotations.values());
         return annotations;
     }
