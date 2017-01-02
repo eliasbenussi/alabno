@@ -2,43 +2,27 @@ package javamarker;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.net.URL;
 import java.util.*;
 
-public class OverlapBlockSplitter {
+public class JavaSplitter {
 
-    private String filePath;
-    private List<JavaBlock> container = new ArrayList<>();
+    String filePath;
+    File file;
 
     // Default values for block size and offset
-    private int blockSize = 200;
-    private int blockOffset = 50;
+    private final int blockSize = 200;
+    private final int blockOffset = 50;
+    Map<Integer, Integer> inverseMap = new HashMap<>();
+    List<String> lines = new ArrayList<>();
+    String fileContent;
 
-    public OverlapBlockSplitter(String filePath) {
-        this.filePath = filePath;
+    public JavaSplitter(String filePath) {
+       this.filePath = filePath;
+       init();
     }
 
-    public List<JavaBlock> getContainer() {
-        return container;
-    }
-
-    public void setBlockSize(int newBlockSize) {
-        this.blockSize = newBlockSize;
-    }
-
-    public void setBlockOffset(int newBlockOffset) {
-        this.blockOffset = newBlockOffset;
-    }
-
-    /**
-     * Split the file @filePath in overlapping blocks of size blockSize.
-     * The blocks are collected in the container.
-     */
-    public void split() {
-
-        Map<Integer, Integer> inverseMap = new HashMap<>();
-        int charIndex = 0;
-        int lineIndex = 1;
+    private void init() {
+        this.file = new File(filePath);
 
         Scanner scanner = null;
         try {
@@ -47,23 +31,34 @@ public class OverlapBlockSplitter {
             e.printStackTrace();
         }
 
+        int charIndex = 0;
+        int lineIndex = 1;
+
         StringBuilder builder = new StringBuilder();
 
         // Initialize inverse map
         while (scanner.hasNextLine()) {
             String theLine = scanner.nextLine();
+            lines.add(theLine);
             builder.append(theLine);
-            char[] line = theLine.toCharArray();
-            for (char c : line) {
+            for (char c : theLine.toCharArray()) {
                 inverseMap.put(charIndex, lineIndex);
                 charIndex++;
             }
             lineIndex++;
         }
-
         scanner.close();
 
-        String fileContent = builder.toString();
+        fileContent = builder.toString();
+    }
+
+    /**
+     * Split the file @filePath in overlapping blocks of size blockSize.
+     * The blocks are collected in the container.
+     */
+    public List<JavaBlock> split() {
+
+        List<JavaBlock> container = new ArrayList<>();
 
         int i = 0;
         while (i < fileContent.length()) {
@@ -87,7 +82,6 @@ public class OverlapBlockSplitter {
             }
             i -= blockSize - blockOffset;
         }
-
-
+        return container;
     }
 }
