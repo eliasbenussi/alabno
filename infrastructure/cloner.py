@@ -6,6 +6,7 @@ import binascii
 import json
 
 import microservices
+import gitauth
 
 # #########################################################################
 # CONFIGURATION
@@ -113,7 +114,7 @@ for i in range(len(the_students_gits)):
 # clone the model answer
 if args.model and args.model != '':
     os.chdir(base_directory)
-    cmd = 'timeout 60 git clone {} {} --depth {}'.format(args.model, 'model', max_clone_depth)
+    cmd = 'timeout 60 git clone {} {} --depth {}'.format(gitauth.format_git_url(args.model), 'model', max_clone_depth)
     code = subprocess.call(cmd, shell=True)
     if code != 0:
         print('Cloning of the model answer at {} failed. Aborting...'.format(args.model))
@@ -130,7 +131,7 @@ for i in range(len(the_students_gits)):
     os.chdir(student_base_directory)
     
     # first, clone into a commitX directory
-    cmd = 'timeout 60 git clone {} {} --depth {}'.format(the_students_gits[i], 'commitX', max_clone_depth)
+    cmd = 'timeout 60 git clone {} {} --depth {}'.format(gitauth.format_git_url(the_students_gits[i]), 'commitX', max_clone_depth)
     code = subprocess.call(cmd, shell=True)
     if code != 0:
         print('Cloning of student repository at {} failed. Aborting...'.format(the_students_gits[i]))
