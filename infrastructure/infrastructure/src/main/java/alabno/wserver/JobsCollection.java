@@ -1,49 +1,24 @@
 package alabno.wserver;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.java_websocket.WebSocket;
-
-import alabno.utils.ConnUtils;
+import alabno.database.DatabaseConnection;
+import alabno.exercise.StudentCommit;
+import alabno.useraccount.UserAccount;
 
 /**
- * Contains the known CompositeJobs
- * in the system
+ * Contains the known exercises in the system
  */
 public class JobsCollection {
-    
-    // TODO allow to have states with jobs (ok, in progress, error)
-    // and to update these states
-    
-    private final Map<String, List<StudentJob>> allJobs = new HashMap<>();
+
     private WebSocketHandler webSocketHandler;
-    
-    public JobsCollection(WebSocketHandler webSocketHandler) {
+    private DatabaseConnection db;
+
+    public JobsCollection(WebSocketHandler webSocketHandler, DatabaseConnection db) {
         this.webSocketHandler = webSocketHandler;
-    }
-
-    
-    /**
-     * adds the job to the repository of all executed
-     * marking jobs
-     * 
-     * @param title the name of the job to be added
-     * @param newJobs list of student that did the exercise
-     * @param conn client connection who requested it
-     */
-    public synchronized void addJob(String title, List<StudentJob> newJobs, WebSocket conn) {
-
-        if (allJobs.containsKey(title)) {
-            ConnUtils.sendAlert(conn, "A job with name " + title + " already exists. It will not be added");
-            return;
-        }
-        
-        allJobs.put(title, newJobs);
-        
-        webSocketHandler.broadcastJobList();
+        this.db = db;
     }
 
     /**
@@ -51,16 +26,90 @@ public class JobsCollection {
      */
     public List<String> getJobNames() {
         List<String> out = new ArrayList<>();
-        out.addAll(allJobs.keySet());
+        String sql = "SELECT `exname` FROM `exercise`";
+        List<Map<String, String>> results = db.retrieveQueryString(sql);
+        for (Map<String, String> row : results) {
+            String exname = row.get("exname");
+            out.add(exname);
+        }
         return out;
     }
-    
-    /**
-     * @param title the title of the job to be found
-     * @return the list of student jobs with corresponding title
-     */
-    public List<StudentJob> getJobGroupByTitle(String title) {
-        return allJobs.get(title);
+
+    public void update(String exname, String extype, String uname, String userindex, String hash, String status) {
+        StudentCommit studentCommit = new StudentCommit(exname, extype, uname, userindex, hash, status, db);
+        studentCommit.updateDatabase();
+    }
+
+    public List<StudentCommit> getJobsOfStudent(UserAccount account) {
+        String sql = "SELECT exercise_big_table.exname AS exname,\r\nexercise_big_table.uname AS uname,\r\nexercise_big_table.userindex AS userindex,\r\nexercise_big_table.hash AS hash,\r\nexercise_big_table.status AS status,\r\nexercise.extype AS extype\r\nFROM exercise_big_table JOIN exercise ON exercise_big_table.exname = exercise.exname\r\nWHERE exercise_big_table.uname = ?";
+        String[] params = {account.getUsername()};
+        List<Map<String, Object>> results = db.retrieveStatement(sql, params);
+        List<StudentCommit> out = new ArrayList<>();
+        for (Map<String, Object> row : results) {
+            String exname = (String) row.get("exname");
+            String uname = (String) row.get("uname");
+            String userindex = (String) row.get("userindex");
+            String hash = (String) row.get("hash");
+            String status = (String) row.get("status");
+            String extype = (String) row.get("extype");
+            
+            StudentCommit scommit = new StudentCommit(exname, extype, uname, userindex, hash, status, db);
+            out.add(scommit);
+        }
+        return out;
+    }
+
+    public StudentCommit findJobLatest(String title, String studentNumber) {
+        String sql =
+                "SELECT exercise_big_table.exname AS exname,\r\nexercise_big_table.uname AS uname,\r\nexercise_big_table.userindex AS userindex,\r\nexercise_big_table.hash AS hash,\r\nexercise_big_table.status AS status,\r\nexercise.extype AS extype\r\nFROM exercise_big_table JOIN exercise ON exercise_big_table.exname = exercise.exname\r\nWHERE exercise_big_table.userindex = ? AND\r\nexercise_big_table.exname = ?\r\nORDER BY\r\nexercise_big_table.timestamp DESC";
+        String[] params = {studentNumber, title};
+        List<Map<String, Object>> results = db.retrieveStatement(sql, params);
+        if (results.isEmpty()) {
+            return null;
+        }
+        for (Map<String, Object> row : results) {
+            String exname = (String) row.get("exname");
+            String uname = (String) row.get("uname");
+            String userindex = (String) row.get("userindex");
+            String hash = (String) row.get("hash");
+            String status = (String) row.get("status");
+            String extype = (String) row.get("extype");
+            return new StudentCommit(exname, extype, uname, userindex, hash, status, db);
+        }
+        return null;
+    }
+
+    public List<String> getStudentIdxsByTitle(String title) {
+        List<String> out = new ArrayList<>();
+        String sql =
+                "SELECT `userindex` FROM `exercise_big_table` WHERE `exname` = ?";
+        String[] params = {title};
+        List<Map<String, Object>> results = db.retrieveStatement(sql, params);
+        for (Map<String, Object> row : results) {
+            String userindex = (String) row.get("userindex");
+            out.add(userindex);
+        }
+        return out;
+    }
+
+    public StudentCommit findJob(String title, String studentNumber, String qhash) {
+        String sql = 
+                "SELECT exercise_big_table.exname AS exname,\r\nexercise_big_table.uname AS uname,\r\nexercise_big_table.userindex AS userindex,\r\nexercise_big_table.hash AS hash,\r\nexercise_big_table.status AS status,\r\nexercise.extype AS extype\r\nFROM exercise_big_table JOIN exercise ON exercise_big_table.exname = exercise.exname\r\nWHERE exercise_big_table.userindex = ? AND\r\nexercise_big_table.exname = ? AND\r\nexercise_big_table.hash = ?";
+        String[] params = {studentNumber, title, qhash};
+        List<Map<String, Object>> results = db.retrieveStatement(sql, params);
+        if (results.isEmpty()) {
+            return null;
+        }
+        for (Map<String, Object> row : results) {
+            String exname = (String) row.get("exname");
+            String uname = (String) row.get("uname");
+            String userindex = (String) row.get("userindex");
+            String hash = (String) row.get("hash");
+            String status = (String) row.get("status");
+            String extype = (String) row.get("extype");
+            return new StudentCommit(exname, extype, uname, userindex, hash, status, db);
+        }
+        return null;
     }
 
 }

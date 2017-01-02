@@ -1,6 +1,17 @@
 package alabno.msfeedback.markmarker;
 
-import alabno.database.MySqlDatabaseConnection;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import alabno.database.DatabaseConnection;
 import alabno.msfeedback.Mark;
 import alabno.msfeedback.MicroServiceUpdater;
 import alabno.msfeedback.Runner;
@@ -10,19 +21,13 @@ import alabno.wserver.SourceDocument;
 import edu.stanford.nlp.classify.Classifier;
 import edu.stanford.nlp.classify.ColumnDataClassifier;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 public class MarkMarkerUpdater implements MicroServiceUpdater {
 
-    private final MySqlDatabaseConnection conn;
+    private final DatabaseConnection conn;
     private static final String pathToMMarker = "backend/mark_marker/";
     private static final String trainingPath = FileUtils.getWorkDir() + "/" + pathToMMarker + "training";
 
-    public MarkMarkerUpdater(MySqlDatabaseConnection conn) {
+    public MarkMarkerUpdater(DatabaseConnection conn) {
         this.conn = conn;
     }
 
@@ -35,7 +40,7 @@ public class MarkMarkerUpdater implements MicroServiceUpdater {
         SubprocessUtils.call("mkdir " + trainingPath);
 
         // Start updater thread
-        Thread updaterThread = new Thread(new Runner(this));
+        Thread updaterThread = new Thread(new Runner(this, "MarkMarker"));
         updaterThread.start();
     }
 

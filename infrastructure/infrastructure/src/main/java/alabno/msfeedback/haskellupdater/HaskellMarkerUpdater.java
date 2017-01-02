@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import alabno.database.MySqlDatabaseConnection;
+import alabno.database.DatabaseConnection;
 import alabno.msfeedback.Mark;
 import alabno.msfeedback.MicroServiceUpdater;
 import alabno.msfeedback.Runner;
@@ -20,13 +20,13 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
 
     private static final String TRAINING_FILE_BASENAME = "simple-haskell-marker/training/train";
 
-    private MySqlDatabaseConnection conn;
+    private DatabaseConnection conn;
     private int currentNumbering = 0;
     
     // Holds a map from annotation to identifiers, which allows to re-use some identifiers for similar annotations
     private Map<String, String> existingAnnotationsToIdentifiers = new HashMap<>();
 
-    public HaskellMarkerUpdater(MySqlDatabaseConnection conn) {
+    public HaskellMarkerUpdater(DatabaseConnection conn) {
         this.conn = conn;
     }
 
@@ -39,7 +39,7 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
         SubprocessUtils.call("mkdir " + FileUtils.getWorkDir() + "/simple-haskell-marker/training");
 
         // Start updater thread
-        Thread updaterThread = new Thread(new Runner(this));
+        Thread updaterThread = new Thread(new Runner(this, "HaskellMarker"));
         updaterThread.start();
     }
     

@@ -1,4 +1,4 @@
-package alabno.wserver;
+package alabno.exercise;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -6,26 +6,43 @@ import java.io.PrintWriter;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import alabno.database.DatabaseConnection;
+import alabno.database.TransactionBuilder;
 import alabno.msfeedback.Mark;
 import alabno.utils.FileUtils;
 import alabno.utils.SubprocessUtils;
+import alabno.wserver.Annotation;
+import alabno.wserver.JsonArrayParser;
+import alabno.wserver.JsonParser;
+import alabno.wserver.SourceDocument;
 
-/**
- * Represents the script of a single student
- *
- */
-public class StudentJob {
-
-    private final String jsonLocation;
-    private final String exerciseType;
+public class StudentCommit {
     
-    /**
-     * @param jsonLocation path where the json
-     * produced by the postprocessor is located
-     */
-    public StudentJob(String jsonLocation, String exerciseType) {
-        this.jsonLocation = jsonLocation;
-        this.exerciseType = exerciseType;
+    private String hash;
+    private String jsonLocation = null;
+    private String status;
+    private DatabaseConnection db;
+    private String exname;
+    private String extype;
+    private String username;
+    private String userid;
+    
+    public StudentCommit(String exname, String extype, String username, String userid, String hash, String status, DatabaseConnection db) {
+        this.exname = exname;
+        this.extype = extype;
+        this.username = username;
+        this.userid = userid;
+        this.hash = hash;
+        this.status = status;
+        this.db = db;
+    }
+    
+    public String getStatus() {
+        return status;
+    }
+    
+    public void setStatus(String status) {
+        this.status = status;
     }
     
     /**
@@ -33,10 +50,30 @@ public class StudentJob {
      * output of the student
      */
     public String readPostProcessorOutput() {
-        return FileUtils.read_file(jsonLocation);
+        return FileUtils.read_file(getJsonLocation());
     }
 
     public String getJsonLocation() {
+        if (jsonLocation == null) {
+            
+            StringBuilder sb = new StringBuilder();
+            sb.append(FileUtils.getWorkDir());
+            sb.append("/");
+            sb.append("tmp");
+            sb.append("/");
+            sb.append(exname);
+            sb.append("/");
+            sb.append("student" + userid);
+            sb.append("/");
+            sb.append("commit" + hash + "_out");
+            sb.append("/");
+            sb.append("postpro.json");
+    
+            String postproPath = sb.toString();
+            System.out.println("Generated a json location from DB: " + postproPath);
+    
+            jsonLocation = postproPath;
+        }
         return jsonLocation;
     }
     
@@ -94,8 +131,8 @@ public class StudentJob {
     
     private synchronized void rewriteJson(JsonParser parser) {
         try {
-            SubprocessUtils.call("rm " + jsonLocation);
-            File jsonFile = new File(jsonLocation);
+            SubprocessUtils.call("rm " + getJsonLocation());
+            File jsonFile = new File(getJsonLocation());
             PrintWriter writer = new PrintWriter(jsonFile);
             writer.print(parser.getObject().toJSONString());
             writer.close();
@@ -107,11 +144,11 @@ public class StudentJob {
     String toAbsolute(String relpath) {
         // utility to convert to absolute path based on the relative one
         // the 17 removes the final part of the path containing _out/postpro.json
-        return jsonLocation.substring(0, Math.max(0, jsonLocation.length() - 17)) + "/" + relpath;
+        return getJsonLocation().substring(0, Math.max(0, getJsonLocation().length() - 17)) + "/" + relpath;
     }
     
     public String getExerciseType() {
-        return exerciseType;
+        return extype;
     }
 
     public SourceDocument getSourceDocument(String fileName) {
@@ -133,4 +170,37 @@ public class StudentJob {
         parser.putDouble("number_score", mark.toDouble());
         rewriteJson(parser);
     }
+
+    public void updateDatabase() {
+        TransactionBuilder tb = new TransactionBuilder();
+        
+        String title = exname;
+        String exerciseType = getExerciseType();
+        String uname = username;
+        String userindex = userid;
+        
+        String sql = "REPLACE INTO `exercise`(`exname`, `extype`) VALUES (?,?)";
+        String[] params = {title, exerciseType};
+        tb.add(sql, params);
+        
+        // insert entries in the bigtable
+        sql = "REPLACE INTO `exercise_big_table`(`exname`, `uname`, `userindex`, `hash`, `status`) VALUES (?,?,?,?,?)";
+        params = new String[] {title, uname, userindex, hash, status};
+        tb.add(sql, params);
+        
+        db.executeTransaction(tb);
+    }
+
+    public String getExerciseName() {
+        return exname;
+    }
+
+    public Object getUserId() {
+        return this.userid;
+    }
+
+    public Object getHash() {
+        return this.hash;
+    }
+
 }

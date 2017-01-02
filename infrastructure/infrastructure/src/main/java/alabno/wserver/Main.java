@@ -8,12 +8,14 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 
-import alabno.msfeedback.markmarker.MarkMarkerUpdater;
 import org.java_websocket.server.DefaultSSLWebSocketServerFactory;
 
+import alabno.database.DatabaseConnection;
 import alabno.database.MySqlDatabaseConnection;
+import alabno.localjobstatus.LocalJobStatusAll;
 import alabno.msfeedback.FeedbackUpdaters;
 import alabno.msfeedback.haskellupdater.HaskellMarkerUpdater;
+import alabno.msfeedback.markmarker.MarkMarkerUpdater;
 import alabno.useraccount.AccountManager;
 import alabno.useraccount.DatabaseAccountManager;
 import alabno.useraccount.LocalAccountManager;
@@ -50,7 +52,7 @@ public class Main {
         }
 
         // Setup microservices feedback
-        MySqlDatabaseConnection dbconn = new MySqlDatabaseConnection();
+        DatabaseConnection dbconn = new MySqlDatabaseConnection();
         FeedbackUpdaters updaters = new FeedbackUpdaters();
         updaters.register(new HaskellMarkerUpdater(dbconn));
         updaters.register(new MarkMarkerUpdater(dbconn));
@@ -76,13 +78,16 @@ public class Main {
         
         // Permissions loading
         Permissions permissions = new StandardPermissions();
+        
+        // Local Job status
+        LocalJobStatusAll localJobs = new LocalJobStatusAll();
 
         // Start WebSocket server
 
         while (true) {
             System.out.println("Starting WebSocket server on port " + port);
             AutoMarkerWSServer the_server = new AutoMarkerWSServer(port, updaters, dbconn, authenticator,
-                    tokenGenerator, permissions);
+                    tokenGenerator, permissions, localJobs);
 
             if (secure) {
                 // Set up the WebSocket server in secure mode

@@ -1,5 +1,8 @@
 package alabno.wserver;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -16,7 +19,10 @@ import org.java_websocket.WebSocket;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import alabno.database.MySqlDatabaseConnection;
+import alabno.database.DatabaseConnection;
+import alabno.exercise.StudentCommit;
+import alabno.localjobstatus.JobState;
+import alabno.localjobstatus.LocalJobStatusAll;
 import alabno.msfeedback.FeedbackUpdaters;
 import alabno.msfeedback.Mark;
 import alabno.useraccount.UserAccount;
@@ -34,26 +40,33 @@ public class WebSocketHandler {
 
     private ActiveSessions sessionManager = new ActiveSessions();
     private ExecutorService executor;
-    private JobsCollection allJobs = new JobsCollection(this);
+    private JobsCollection allJobs;
     private FeedbackUpdaters updaters;
-    private MySqlDatabaseConnection db;
+    private DatabaseConnection db;
     private Authenticator authenticator;
 	private TokenGenerator tokenGenerator;
 	
 	private Set<String> uncheckedCredentialsMessages = new HashSet<>();
     private Permissions permissions;
+    private LocalJobStatusAll localJobs;
 
-    public WebSocketHandler(ExecutorService executor, FeedbackUpdaters updaters, MySqlDatabaseConnection db, 
-            Authenticator authenticator, TokenGenerator tokenGenerator, Permissions permissions) {
+    public WebSocketHandler(ExecutorService executor, FeedbackUpdaters updaters, DatabaseConnection db, 
+            Authenticator authenticator, TokenGenerator tokenGenerator, Permissions permissions,
+            LocalJobStatusAll localJobs) {
         this.executor = executor;
         this.updaters = updaters;
         this.db = db;
         this.authenticator = authenticator;
         this.tokenGenerator = tokenGenerator;
         this.permissions = permissions;
+        this.localJobs = localJobs;
+        
+        this.allJobs = new JobsCollection(this, this.db);
+        this.localJobs.setJobsCollection(this.allJobs);
         
         uncheckedCredentialsMessages.add("validatetoken");
         uncheckedCredentialsMessages.add("login");
+
     }
 
     public void handleMessage(WebSocket conn, String message) {
@@ -104,9 +117,90 @@ public class WebSocketHandler {
         case "markfeedback":
             handleMarkFeedback(parser, conn);
             break;
+        case "std_refresh_list":
+            handleStdRefreshList(parser, conn);
+            break;
+        case "std_retrieve_result":
+            handleStdRetrieveResult(parser, conn);
+            break;
         default:
             System.out.println("Unrecognized client message type " + type);
         }
+    }
+
+    private void handleStdRetrieveResult(JsonParser parser, WebSocket conn) {
+        String title = parser.getString("title");
+        String studentNumber = parser.getString("student");
+        String hash = parser.getString("hash");
+        
+        StudentCommit studentCommit = allJobs.findJob(title, studentNumber, hash);
+
+        // Read the JSON file
+        String fileContent = studentCommit.readPostProcessorOutput();
+        // Type of exercise
+        String exerciseType = studentCommit.getExerciseType();
+        // Mark received
+        String mark = studentCommit.getMark();
+
+        // Holds annotation information for each student-submitted file
+        Map<String, List<AnnotationWrapper>> submissionFeedbackMap = generateSubmissionFeedbackMap(fileContent);
+
+        // Create a set of file names from the annotations in the JSON output
+        Set<String> uniqueFiles = new HashSet<>();
+        JsonParser jsonParser = new JsonParser(fileContent);
+        JsonArrayParser annotations = jsonParser.getArrayParser("annotations");
+        for (JsonParser a : annotations) {
+            String filePath = a.getString("filename");
+            uniqueFiles.add(filePath);
+        }
+
+        sendAnnotatedMsg(uniqueFiles, submissionFeedbackMap, conn, exerciseType, mark);
+
+    }
+
+    private void handleStdRefreshList(JsonParser parser, WebSocket conn) {
+        JSONObject msgobj = new JSONObject();
+        
+        msgobj.put("type", "std_ex_list");
+        
+        JSONArray data = new JSONArray();
+        // get exercises of this student
+        String token = parser.getString("id");
+        UserSession session = sessionManager.getSession(token);
+        UserAccount account = session.getAccount();
+        List<StudentCommit> jobs = allJobs.getJobsOfStudent(account);
+        
+        System.out.println("handleStdRefreshList: found " + jobs.size() + " jobs");
+        
+        // group up all student commits by exercise
+        Map<String, List<StudentCommit>> exerciseMap = new HashMap<>();
+        for (StudentCommit j : jobs) {
+            String exerciseName = j.getExerciseName();
+            if (!exerciseMap.containsKey(exerciseName)) {
+                exerciseMap.put(exerciseName, new ArrayList<>());
+            }
+            exerciseMap.get(exerciseName).add(j);
+        }
+        // generate data objects
+        for (String key : exerciseMap.keySet()) {
+            JSONObject dataobj = new JSONObject();
+            dataobj.put("title", key);
+            // add each of the commits
+            JSONArray commits = new JSONArray();
+            for (StudentCommit c : exerciseMap.get(key)) {
+                JSONObject acommit = new JSONObject();
+                acommit.put("stdno", c.getUserId());
+                acommit.put("hash", c.getHash());
+                acommit.put("status", c.getStatus());
+                commits.add(acommit);
+            }
+            dataobj.put("commits", commits);
+            data.add(dataobj);
+        }
+        msgobj.put("data", data);
+        
+        conn.send(msgobj.toJSONString());
+
     }
 
     private boolean isPermitted(JsonParser parser, WebSocket conn, String action) {
@@ -130,7 +224,9 @@ public class WebSocketHandler {
 		
 		boolean success = sessionManager.restoreSession(conn, username, token);
 		if (success) {
-			sendWelcomeMessages(conn, token);
+		    UserSession session = sessionManager.getSession(token);
+		    UserAccount account = session.getAccount();
+			sendWelcomeMessages(conn, token, account.getUserType());
 		}
     }
 
@@ -165,10 +261,9 @@ public class WebSocketHandler {
         String title = userSession.getTitle();
         String studentNumber = userSession.getStudent();
         
-        List<StudentJob> group = allJobs.getJobGroupByTitle(title);
-        StudentJob studentJob = group.get(Integer.parseInt(studentNumber));
-        studentJob.changeMark(mark);
-        return studentJob.getSourceDocument(filename);
+        StudentCommit studentCommit = allJobs.findJobLatest(title, studentNumber);
+        studentCommit.changeMark(mark);
+        return studentCommit.getSourceDocument(filename);
     }
 
     private void handleFeedback(JsonParser parser, WebSocket conn) {
@@ -193,9 +288,8 @@ public class WebSocketHandler {
         String title = userSession.getTitle();
         String studentNumber = userSession.getStudent();
         
-        List<StudentJob> group = allJobs.getJobGroupByTitle(title);
-        StudentJob studentJob = group.get(Integer.parseInt(studentNumber));
-        return studentJob.amend(fileName, lineno, annType, annotation);
+        StudentCommit studentCommit = allJobs.findJobLatest(title, studentNumber);
+        return studentCommit.amend(fileName, lineno, annType, annotation);
     }
 
     private void handleRetrieveResult(JsonParser parser, WebSocket conn) {
@@ -225,31 +319,19 @@ public class WebSocketHandler {
             return;
         }
 
-        // get the object from memory
-        List<StudentJob> group = allJobs.getJobGroupByTitle(title);
-        if (group == null) {
-            ConnUtils.sendAlert(conn, "retrieve_results: no group with name " + title);
-            return;
-        }
-
-        if (studentNumber < 0 || studentNumber >= group.size()) {
-            ConnUtils.sendAlert(conn, "retrieve_results: student id out of range");
-            return;
-        }
-        
         UserState userState = sessionManager.getUserState(parser.getString("id"));
         // update user state
         userState.setTitle(title);
         userState.setStudent(student);
 
-        StudentJob studentJob = group.get(studentNumber);
+        StudentCommit studentCommit = allJobs.findJobLatest(title, student);
 
         // Read the JSON file
-        String fileContent = studentJob.readPostProcessorOutput();
+        String fileContent = studentCommit.readPostProcessorOutput();
         // Type of exercise
-        String exerciseType = studentJob.getExerciseType();
+        String exerciseType = studentCommit.getExerciseType();
         // Mark received
-        String mark = studentJob.getMark();
+        String mark = studentCommit.getMark();
 
         // Holds annotation information for each student-submitted file
         Map<String, List<AnnotationWrapper>> submissionFeedbackMap = generateSubmissionFeedbackMap(fileContent);
@@ -432,20 +514,16 @@ public class WebSocketHandler {
             ConnUtils.sendAlert(conn, "Received request for null title");
             return;
         }
-
-        List<StudentJob> jobGroup = allJobs.getJobGroupByTitle(title);
-        if (jobGroup == null) {
-            ConnUtils.sendAlert(conn, "Couldn't find any job named " + title);
-            return;
-        }
+        
+        List<String> commits = allJobs.getStudentIdxsByTitle(title);
 
         // generate job_group message
         JSONObject msgobj = new JSONObject();
         msgobj.put("type", "job_group");
         msgobj.put("title", title);
         JSONArray groupArray = new JSONArray();
-        for (int i = 0; i < jobGroup.size(); i++) {
-            groupArray.add("" + i);
+        for (String c : commits) {
+            groupArray.add(c);
         }
         msgobj.put("group", groupArray);
         conn.send(msgobj.toJSONString());
@@ -469,6 +547,38 @@ public class WebSocketHandler {
     }
 
     private void handleNewAssignment(JsonParser parser, WebSocket conn) {
+        try {
+            String title = parser.getString("title");
+
+            if (title == null || title.isEmpty()) {
+                ConnUtils.sendAlert(conn, "title is required");
+                return;
+            }
+
+            UserSession session = sessionManager.getSession(parser);
+            UserAccount account = session.getAccount();
+            String username = account.getUsername();
+            
+            // Create the new pending job
+            localJobs.addJob(username, conn, title);
+            
+            // Call primary handler
+            boolean success = handleNewAssignmentInternal(parser, conn, username);
+            if (!success) {
+                localJobs.updateJob(username, title, JobState.ERROR);
+            }
+            
+        } catch (Exception e) {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            PrintStream ps = new PrintStream(baos);
+            e.printStackTrace(ps);
+            String content = new String(baos.toByteArray(), StandardCharsets.UTF_8);
+            ConnUtils.sendAlert(conn, content);
+            return;
+        }
+    }
+    
+    private boolean handleNewAssignmentInternal(JsonParser parser, WebSocket conn, String username) {
         String title = parser.getString("title");
         String exerciseType = parser.getString("ex_type");
         String modelAnswerGitLink = parser.getString("model_git");
@@ -476,34 +586,34 @@ public class WebSocketHandler {
 
         if (title == null || title.isEmpty()) {
             ConnUtils.sendAlert(conn, "title is required");
-            return;
+            return false;
         }
 
         if (exerciseType == null || exerciseType.isEmpty()) {
             ConnUtils.sendAlert(conn, "exercise type is required");
-            return;
+            return false;
         }
 
         if (modelAnswerGitLink == null || modelAnswerGitLink.isEmpty()) {
             ConnUtils.sendAlert(conn, "model answer git repository required");
-            return;
+            return false;
         }
 
         if (studentGitLinks == null) {
             ConnUtils.sendAlert(conn, "students repo git links required");
-            return;
+            return false;
         } else {
             String msg = checkStudentGitLinks(studentGitLinks);
             if (msg != null) {
                 ConnUtils.sendAlert(conn, msg);
-                return;
+                return false;
             }
         }
 
         System.out.println("all checks passed");
 
         AssignmentCreator newAssignmentProcessor = new AssignmentCreator(title, exerciseType, modelAnswerGitLink,
-                studentGitLinks, conn, allJobs);
+                studentGitLinks, conn, allJobs, db, username, localJobs);
 
         executor.submit(newAssignmentProcessor);
 
@@ -511,6 +621,8 @@ public class WebSocketHandler {
         JSONObject msgobj = new JSONObject();
         msgobj.put("type", "job_sent");
         conn.send(msgobj.toJSONString());
+        
+        return true;
     }
 
     /**
@@ -522,7 +634,8 @@ public class WebSocketHandler {
         String errormsg = "Malformed Student git link. It must be an HTTPS git repository";
         try {
             for (Object l : studentGitLinks) {
-                String str = (String) l;
+                JSONObject gitobj = (JSONObject) l;
+                String str = (String) gitobj.get("git");
                 if (!str.contains("https")) {
                     return errormsg;
                 }
@@ -560,7 +673,7 @@ public class WebSocketHandler {
             // Register in the session manager
             sessionManager.createSession(token, conn, userAccount);
         	
-            sendWelcomeMessages(conn, token);
+            sendWelcomeMessages(conn, token, userAccount.getUserType());
 
             return;
         }
@@ -578,11 +691,28 @@ public class WebSocketHandler {
 		conn.send(failure_msg.toJSONString());
 	}
 
-	private void sendWelcomeMessages(WebSocket conn, String token) {
+	private void sendWelcomeMessages(WebSocket conn, String token, UserType userType) {
 		// send login success
 		JSONObject success_msg = new JSONObject();
 		success_msg.put("type", "login_success");
 		success_msg.put("id", "" + token);
+		
+		String usertypeString = "";
+		switch (userType) {
+        case ADMIN:
+            usertypeString = "a";
+            break;
+        case PROFESSOR:
+            usertypeString = "p";
+            break;
+        case STUDENT:
+            usertypeString = "s";
+            break;
+        default:
+            throw new RuntimeException("Usertype not recognized: " + userType);
+		}
+		success_msg.put("usertype", usertypeString);
+		
 		conn.send(success_msg.toJSONString());
 
 		// Send the currently existing jobs
@@ -626,12 +756,17 @@ public class WebSocketHandler {
         sessionManager.broadcastMessage(msg);
     }
 
+    @SuppressWarnings("unchecked")
     private JSONObject getJobsListMessage() {
         JSONObject msgobj = new JSONObject();
         msgobj.put("type", "job_list");
         JSONArray jobs = new JSONArray();
         for (String name : allJobs.getJobNames()) {
-            jobs.add(name);
+            JSONObject jobobj = new JSONObject();
+            jobobj.put("title", name);
+            String status = "ok";
+            jobobj.put("status", status);
+            jobs.add(jobobj);
         }
         msgobj.put("jobs", jobs);
         return msgobj;

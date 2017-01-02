@@ -1,20 +1,17 @@
 package alabno.wserver;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 
 import javax.net.ssl.SSLException;
 
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 
-import alabno.database.MySqlDatabaseConnection;
+import alabno.database.DatabaseConnection;
+import alabno.localjobstatus.LocalJobStatusAll;
 import alabno.msfeedback.FeedbackUpdaters;
 import alabno.userauth.Authenticator;
 import alabno.userauth.TokenGenerator;
@@ -28,10 +25,11 @@ public class AutoMarkerWSServer extends WebSocketServer implements Runnable {
     private FeedbackUpdaters updaters;
     private boolean running = false;
 
-    public AutoMarkerWSServer(int listenPort, FeedbackUpdaters updaters, MySqlDatabaseConnection db,
-            Authenticator authenticator, TokenGenerator tokenGenerator, Permissions permissions) {
+    public AutoMarkerWSServer(int listenPort, FeedbackUpdaters updaters, DatabaseConnection db,
+            Authenticator authenticator, TokenGenerator tokenGenerator, Permissions permissions,
+            LocalJobStatusAll localJobs) {
         super(new InetSocketAddress(listenPort));
-        this.handler = new WebSocketHandler(executor, updaters, db, authenticator, tokenGenerator, permissions);
+        this.handler = new WebSocketHandler(executor, updaters, db, authenticator, tokenGenerator, permissions, localJobs);
         this.updaters = updaters;
     }
 

@@ -1,18 +1,62 @@
 var $handlers = {};
 
 $handlers.handle_login_success = function(msgobj) {
-  var token = msgobj.id;
-  var username = $globals.top_scope.username;
-  $globals.token = token;
-  $globals.professor_scope.name = username;
-  $globals.professor_scope.$apply();
+  // get user type
+  var usertype = msgobj.usertype;
+  if (usertype == "s") {
+      window.location.hash = 'student';
+      $globals.usertype = "s";
+  } else if (usertype == "p") {
+      window.location.hash = 'professor';
+      $globals.usertype = "p";
+  } else if (usertype == "a") {
+      window.location.hash = 'professor';
+      $globals.is_admin = true;
+      $globals.usertype = "p";
+  } else {
+      console.error("Unrecognized user type " + usertype);
+  }
   
-  // Store into local storage
-  $localstore.save_username(username);
-  $localstore.save_token(token);
-  
-  $globals.top_scope.logged_in_flag = true;
-  $globals.top_scope.$apply();
+  if ($globals.usertype == "s") {
+    if (!$globals.student_scope) {
+        console.error("student scope not loaded yet. Delaying...");
+        setTimeout(function() { $handlers.handle_login_success(msgobj) }, 500);
+        return;
+    }
+      
+    var token = msgobj.id;
+
+    var username = $globals.top_scope.username;
+    $globals.token = token;
+    $globals.student_scope.username = username;
+    
+    // Store into local storage
+    $localstore.save_username(username);
+    $localstore.save_token(token);
+    
+    $globals.top_scope.logged_in_flag = true;
+    $globals.top_scope.$apply();
+    $globals.student_scope.$apply();
+  } else {
+    if (!$globals.professor_scope) {
+        console.error("professor scope not loaded yet. Delaying...");
+        setTimeout(function() { $handlers.handle_login_success(msgobj) }, 500);
+        return;
+    }
+      
+    var token = msgobj.id;
+
+    var username = $globals.top_scope.username;
+    $globals.token = token;
+    
+    // Store into local storage
+    $localstore.save_username(username);
+    $localstore.save_token(token);
+    
+    $globals.top_scope.logged_in_flag = true;
+    $globals.top_scope.$apply();
+  }
+
 };
 
 $handlers.handle_login_failure = function(msgobj) {
@@ -34,6 +78,16 @@ $handlers.handle_job_sent = function(msgobj) {
 };
 
 $handlers.handle_job_list = function(msgobj) {
+    if ($globals.usertype == "s") {
+        return;
+    }
+    
+    if (!$globals.professor_scope) {
+        console.error("professor scope not loaded yet. Delaying...");
+        setTimeout(function() { $handlers.handle_login_success(msgobj) }, 500);
+        return;
+    }
+    
   var jobs = msgobj.jobs;
 
   if (!jobs) {
@@ -46,20 +100,27 @@ $handlers.handle_job_list = function(msgobj) {
     return;
   }
 
-  // check that each element in jobs is a string
-  for (var i = 0; i < jobs.length; i++) {
-    if (!(typeof jobs[i] === 'string')) {
-      console.log("Error, jobs_list.job[" + i + "] is not a String");
-      return;
-    }
-  }
-
   // Write to model
   $globals.professor_scope.all_jobs = [];
 
   for (var i = 0; i < jobs.length; i++) {
+    var in_job = jobs[i];
+    var in_job_title = in_job.title;
+    var in_job_status = in_job.status;
+    
+    var color = "green";
+    if (in_job_status == "pending") {
+      color = "orange";
+    } else if (in_job_status == "error") {
+      color = "red";
+    } else if (in_job_status == "processing") {
+      color = "yellow";
+    }
+
     var a_job = {};
-    a_job.title = jobs[i];
+    a_job.title = in_job_title;
+    a_job.status = in_job_status;
+    a_job.color = color;
     a_job.displayed = false;
     a_job.display = function(title) {
       a_job.displayed = !a_job.displayed;
@@ -135,49 +196,68 @@ $handlers.handle_postpro_result = function(msgobj) {
 };
 
 $handlers.handle_annotated_file = function(msgobj) {
+    
+    if ($globals.usertype == 's') {
+        
+        $globals.student_scope.annotated_files = msgobj;
+        $globals.student_scope.showhide_view('visualizer');
+        $globals.student_scope.$apply();
+        
+    } else {
 
-  $globals.professor_scope.annotated_files = [];
+        $globals.professor_scope.annotated_files = [];
 
-  $globals.professor_scope.student_exercise_type = msgobj.exercise_type;
-  
-  $globals.professor_scope.student_exercise_mark = msgobj.mark;
-  
-  var files = msgobj.files;
+        $globals.professor_scope.student_exercise_type = msgobj.exercise_type;
+        
+        $globals.professor_scope.student_exercise_mark = msgobj.mark;
+        
+        var files = msgobj.files;
 
-  for (var i = 0; i < files.length; i++) {
-    var file = {};
-    file.filename = files[i].filename;
+        for (var i = 0; i < files.length; i++) {
+        var file = {};
+        file.filename = files[i].filename;
 
-    file.displayed = false;
-    file.display = function(f) {
-      f.displayed = !f.displayed;
-    };
+        file.displayed = false;
+        file.display = function(f) {
+            f.displayed = !f.displayed;
+        };
 
-    var data_list = [];
+        var data_list = [];
 
-    var data_list_length = files[i].data.length;
-    for (var j = 0; j < data_list_length; j++) {
-      var data_entry = {};
-      data_entry.no = files[i].data[j].no;
-      data_entry.content = files[i].data[j].content;
-      data_entry.annotation = files[i].data[j].annotation;
-      data_entry.show_icons = false;
-      data_entry.show_icons_unlocked = true;
-      data_entry.show_editor = false;
-      data_list.push(data_entry);
+        var data_list_length = files[i].data.length;
+        for (var j = 0; j < data_list_length; j++) {
+            var data_entry = {};
+            data_entry.no = files[i].data[j].no;
+            data_entry.content = files[i].data[j].content;
+            data_entry.annotation = files[i].data[j].annotation;
+            data_entry.show_icons = false;
+            data_entry.show_icons_unlocked = true;
+            data_entry.show_editor = false;
+            data_list.push(data_entry);
+        }
+        file.data = data_list;
+        $globals.professor_scope.annotated_files.push(file);
+        }
+
+        // change view
+        $globals.professor_scope.show_section('show_annotated_file');
+
+        // apply
+        $globals.professor_scope.$apply();
     }
-    file.data = data_list;
-    $globals.professor_scope.annotated_files.push(file);
-  }
-
-  // change view
-  $globals.professor_scope.show_section('show_annotated_file');
-
-  // apply
-  $globals.professor_scope.$apply();
 };
 
 $handlers.handle_type_list = function(msgobj) {
+    if ($globals.usertype == "s") {
+        return;
+    }
+    
+    if (!$globals.professor_scope) {
+        console.error("professor scope not loaded yet. Delaying...");
+        setTimeout(function() { $handlers.handle_login_success(msgobj) }, 500);
+        return;
+    }
+    
     var data = msgobj.data;
     $globals.professor_scope.valid_exercise_types = [];
     for (var i = 0; i < data.length; i++) {
@@ -185,4 +265,9 @@ $handlers.handle_type_list = function(msgobj) {
     }
     
     $globals.professor_scope.$apply();
+};
+
+$handlers.handle_std_ex_list = function(msgobj) {
+    $globals.student_scope.exercise_list = msgobj;
+    $globals.student_scope.$apply();
 };

@@ -5,17 +5,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import alabno.database.MySqlDatabaseConnection;
+import alabno.database.DatabaseConnection;
 import alabno.database.TransactionBuilder;
 
 public class DatabaseAccountManager implements AccountManager {
 
-    private MySqlDatabaseConnection dbconn;
+    private DatabaseConnection dbconn;
     private EnumMap<UserType, String> typeMap = new EnumMap<>(UserType.class);
     private Map<String, UserType> typeMapRev = new HashMap<>();
     private EnumMap<UserType, String> dbtableMap = new EnumMap<>(UserType.class);
 
-    public DatabaseAccountManager(MySqlDatabaseConnection dbconn) {
+    public DatabaseAccountManager(DatabaseConnection dbconn) {
         this.dbconn = dbconn;
         initTypeMap();
     }

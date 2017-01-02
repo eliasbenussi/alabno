@@ -25,6 +25,12 @@ parser.add_argument('--dbpass',
                     default=None
                     )
 
+parser.add_argument('--local',
+                    help='Connect to a localhost database',
+                    action='store_true',
+                    default=False
+                    )
+
 args = parser.parse_args()
 
 # Starts all the necessary server components as a background process
@@ -38,6 +44,12 @@ exec_dir = os.path.abspath(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(exec_dir)
 
 def start_server(https):
+    global args
+    if args.local:
+        os.environ["ALABNOLOCAL"] = "1"
+    else:
+        os.environ["ALABNOLOCAL"] = "2"
+    
     if https:
         print("Starting in secure mode")
         # check for presence of certificates

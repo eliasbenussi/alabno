@@ -21,10 +21,10 @@
         <li class="list-group-item">
           <div class="row">
             <div class="col-xs-2">
-              <h4>Exercise name: <strong>{{job.title}}</strong></h4>
+              <h4>Exercise name:  <span style="color:{{job.color}};font-weight: bold;">{{job.title}}</span></h4>
             </div>
             <div class="col-xs-2">
-              <button ng-click="job.display(job.title)" class="btn btn-info">Show students taking exercise <span class="caret"></span></button>
+              <button ng-click="job.display(job.title)" ng-show="job.status=='ok'" class="btn btn-info">Show students taking exercise <span class="caret"></span></button>
             </div>
           </div>
           <table class="table" ng-show="job.students.length != 0">
@@ -82,12 +82,19 @@
           </div>
         </div>
 
+
         <div class="form-group">
           <label>Student git repository</label>
-          <div class="input-group" data-ng-repeat="entry in entries">
-            <!-- <div class="form-group" data-ng-repeat="entry in entries"> -->
-            <input class="form-control" type="text" ng-model="entry.git">
-            <span class="input-group-addon">.git</span>
+          <div class="row" data-ng-repeat="entry in entries">
+            <div class="col-xs-8">
+              <div class="input-group">
+                <input class="form-control" type="text" ng-model="entry.git">
+                <span class="input-group-addon">.git</span>
+              </div>
+            </div>
+            <div class="col-xs-4">
+              <input class="form-control" type="text" ng-model="entry.uname">
+            </div>
           </div>
         </div>
 
