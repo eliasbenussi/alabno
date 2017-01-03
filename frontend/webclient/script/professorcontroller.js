@@ -162,6 +162,12 @@ theapp.controller('professorController', function($scope) {
     $scope.student_result.student = 'NA'
   };
 
+  // Refresh commits at intervals
+  setInterval(function(){
+    if ($scope.current_job_title && $scope.show_commits) {
+      $scope.get_commits($scope.current_job_title, $scope.current_student_id, $scope.current_student_uname);
+    }
+  }, 2000);
 
   // Annotated files
   $scope.reset_annotated_result = function() {

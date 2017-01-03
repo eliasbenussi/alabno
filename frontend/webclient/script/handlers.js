@@ -286,7 +286,7 @@ $handlers.handle_status_info = function(msgobj) {
     var checker = msgobj;
     $globals.top_scope.statusinformation.unshift(msgobj);
     setTimeout(function(){
-        for (int i = 0; i < $globals.top_scope.statusinformation.length; i++) {
+        for (var i = 0; i < $globals.top_scope.statusinformation.length; i++) {
             if (checker === $globals.top_scope.statusinformation[i]) {
                 $globals.top_scope.statusinformation.splice(i, 1);
             }

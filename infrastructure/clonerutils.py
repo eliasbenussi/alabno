@@ -1,3 +1,6 @@
+import os
+import subprocess
+
 def discover_commit_hash(target):
     target = os.path.abspath(target)
     previous_directory = os.path.abspath(os.getcwd())

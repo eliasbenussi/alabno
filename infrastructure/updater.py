@@ -6,6 +6,7 @@ import binascii
 import json
 
 import microservices
+import clonerutils
 
 ################################################################################
 # INFORMATION
@@ -76,6 +77,8 @@ cmd = 'timeout 60 git clone {} {} --depth {}'.format(the_url, 'commitX', max_clo
 code = subprocess.call(cmd, shell=True)
 if code != 0:
     print('Cloning was not successful. Return code: {}'.format(code))
+    cmd = 'rm -rf {}'.format(os.path.abspath(student_dir + os.sep + 'commitX'))
+    subprocess.call(cmd, shell=True)
     sys.exit(1)
 
 # get the commit hash
@@ -99,6 +102,8 @@ subprocess.call(cmd, shell=True)
 # create the configuration JSON file for the JobManager
 student_in_directory = student_commit_dir
 student_out_directory = student_in_directory + '_out'
+cmd = 'mkdir {}'.format(student_out_directory)
+subprocess.call(cmd, shell=True)
 
 jsonobj = {
     'input_directory': student_in_directory,
