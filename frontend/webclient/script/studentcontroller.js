@@ -43,6 +43,18 @@ theapp.controller('studentController', function($scope) {
         msgobj.student = stdno;
         msgobj.hash = hash;
         $globals.send(JSON.stringify(msgobj));
+        
+        $scope.last_title = title;
+        $scope.last_stdno = stdno;
+    }
+    
+    $scope.request_exercise_update = function() {
+        var msgobj = {};
+        msgobj.type = "refresh_commit";
+        msgobj.id = $globals.token;
+        msgobj.title = $scope.last_title;
+        msgobj.student = $scope.last_stdno;
+        $globals.send(JSON.stringify(msgobj));
     }
     
     $scope.get_color_from_status = function(status) {
