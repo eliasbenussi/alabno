@@ -142,6 +142,15 @@ theapp.controller('professorController', function($scope) {
     msgobj.student = $scope.current_student_id;
     $globals.send(JSON.stringify(msgobj));
   };
+  
+  $scope.check_updated_commits = function() {
+    var msgobj = {};
+    msgobj.type = "refresh_commit";
+    msgobj.id = $globals.token;
+    msgobj.title = $scope.current_job_title;
+    msgobj.student = $scope.current_student_id;
+    $globals.send(JSON.stringify(msgobj));
+  }
 
   // Student results
   $scope.reset_result_postpro = function() {

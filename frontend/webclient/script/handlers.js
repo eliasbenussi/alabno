@@ -282,3 +282,16 @@ $handlers.handle_commits = function(msgobj) {
     $globals.professor_scope.$apply();
 };
 
+$handlers.handle_status_info = function(msgobj) {
+    var checker = msgobj;
+    $globals.top_scope.statusinformation.unshift(msgobj);
+    setTimeout(function(){
+        for (int i = 0; i < $globals.top_scope.statusinformation.length; i++) {
+            if (checker === $globals.top_scope.statusinformation[i]) {
+                $globals.top_scope.statusinformation.splice(i, 1);
+            }
+        }
+        $globals.top_scope.$apply();
+    }, msgobj.timeout*1000);
+    $globals.top_scope.$apply();
+};

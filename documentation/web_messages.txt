@@ -89,6 +89,15 @@ CLIENT -> SERVER
     Asks for all the commit hashes of a single exercise and single student
     Reply is <commits>
     
+    {
+        "type": "refresh_commit",
+        "id": "687ba687de5",
+        "title" "haskell23",
+        "student": "1"
+    }
+    Asks to check if there are new commits for a student exercise.
+    Reply is <status_info>
+    
 SERVER -> CLIENT
 
     {
@@ -193,3 +202,10 @@ SERVER -> CLIENT
     }
     Response to retrieve_commits. The commit hashes for a specific exercise/user
     
+    {
+        "type": "status_info",
+        "message": "Your job was submitted",
+        "color": "green",
+        "timeout": 60
+    }
+    A generic status info message that is shown on top of the screen and that can be dismissed by the user.

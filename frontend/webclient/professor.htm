@@ -68,6 +68,12 @@
     </div>
   </div>
   
+  <div class="row">
+    <div class="col-xs-12">
+        <button class="btn btn-success" ng-click="check_updated_commits()">Check for updates</button>
+    </div>
+  </div>
+  
   <div class="row" ng-repeat="commit in commits">
     <div class="col-xs-6">
       <p>{{commit}}</p>
