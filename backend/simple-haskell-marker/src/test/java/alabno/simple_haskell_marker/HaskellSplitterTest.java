@@ -8,9 +8,9 @@ import static org.junit.Assert.*;
 
 public class HaskellSplitterTest {
 
-    final boolean PRINT_RESULTS = false;
+    private final boolean PRINT_RESULTS = false;
 
-    String filePath = "samples/macro.hs";
+    private String filePath = "samples/macro.hs";
 
     @Test
     public void isEmptyTest() {

@@ -14,12 +14,11 @@ import java.util.Scanner;
  */
 public class HaskellSplitter {
 
-    static final int MAX_BLOCK_LENGTH = 10;
+    private static final int MAX_BLOCK_LENGTH = 10;
     
-    String inputPath;
+    private String inputPath;
 
-    File inputFile;
-    List<String> lines = new ArrayList<>();
+    private List<String> lines = new ArrayList<>();
 
     /**
      * @param inputPath the input path of the file to be read
@@ -39,7 +38,7 @@ public class HaskellSplitter {
      *  Reads the input file and creates the Scanner for reading
      */
     private void init() {
-        this.inputFile = new File(inputPath);
+        File inputFile = new File(inputPath);
         Scanner scanner = null;
         try {
             scanner = new Scanner(inputFile);

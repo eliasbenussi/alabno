@@ -17,7 +17,5 @@
       "text": "Missing bracket around line 20"
     }
   ],
-  "errors": [
-    "0x003581753 SEGFAULT. Deal with it."
-  ]
+  "errors": []
 }
