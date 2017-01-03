@@ -6,7 +6,7 @@ import os
 
 exec_dir = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + os.sep + '..')
 
-javajar = exec_dir + os.sep + 'simple-haskell-marker' + os.sep + 'target' + os.sep + 'simple-haskell-marker-dev0.1-jar-with-dependencies.jar'
+javajar = exec_dir + os.sep + 'backend' + os.sep + 'simple-haskell-marker' + os.sep + 'target' + os.sep + 'simple-haskell-marker-dev0.1-jar-with-dependencies.jar'
 
 cmd = ['java', '-cp', javajar, 'alabno.simple_haskell_marker.ClassifierDemo']
 cmd = cmd + sys.argv[1:]
