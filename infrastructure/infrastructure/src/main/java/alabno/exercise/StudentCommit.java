@@ -195,12 +195,16 @@ public class StudentCommit {
         return exname;
     }
 
-    public Object getUserId() {
+    public String getUserId() {
         return this.userid;
     }
 
-    public Object getHash() {
+    public String getHash() {
         return this.hash;
+    }
+
+    public String getUsername() {
+        return username;
     }
 
 }

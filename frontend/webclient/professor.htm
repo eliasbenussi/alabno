@@ -37,10 +37,10 @@
             <tbody>
               <tr ng-repeat="student in job.students">
                 <td>
-                  <p>Student <strong>{{student.id}}</strong>
+                  <p>Student <strong>{{student.uname}}</strong>
                 </td>
                 <td>
-                  <button class="btn btn-success" ng-click="get_data(job.title, student.id, 'annotated')">Annotated</button>
+                  <button class="btn btn-success" ng-click="get_commits(job.title, student.id, student.uname)">Annotated</button>
                 </td>
               </tr>
             </tbody>
@@ -50,6 +50,31 @@
 
     </div>
 
+  </div>
+</div>
+
+<!--STUDENT COMMITS SECTION-->
+<div ng-show="show_commits">
+  <div class="row"> <!--Back button-->
+    <button class="btn btn-default" ng-click="show_section('show_professor_exercises')">Back</button>
+  </div>
+  
+  <div class="row"> <!--Title-->
+    <div class="col-xs-6">
+      <h3>{{current_job_title}}</h3>
+    </div>
+    <div class="col-xs-6">
+      <h3>{{current_student_uname}}</h3>
+    </div>
+  </div>
+  
+  <div class="row" ng-repeat="commit in commits">
+    <div class="col-xs-6">
+      <p>{{commit}}</p>
+    </div>
+    <div class="col-xs-6">
+      <button class="btn btn-success" ng-click="get_data(commit)">Show</button>
+    </div>
   </div>
 </div>
 

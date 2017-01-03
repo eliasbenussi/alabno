@@ -17,13 +17,15 @@ theapp.controller('professorController', function($scope) {
   $scope.show_final_result_tabs = false;
   $scope.show_student_result = false;
   $scope.show_annotated_file = false;
+  $scope.show_commits = false;
   $scope.show_hide_flags =
     [
     'show_professor_exercises',
     'show_professor_new_exercise',
     'show_final_result_tabs',
     'show_student_result',
-    'show_annotated_file'
+    'show_annotated_file',
+    'show_commits'
     ];
 
   // Show-hide-buttons
@@ -108,21 +110,33 @@ theapp.controller('professorController', function($scope) {
 
   // all_jobs contains objects of the type {title: "title", display: function(title), students: []}
   $scope.all_jobs = [];
+  
+  // commits
+  $scope.commits = [];
 
   // get data for specific job and student
-  $scope.get_data = function(job_title, student_id, subtype) {
+  $scope.get_data = function(hash) {
+    $scope.reset_annotated_result();
+
+    console.log("Get data called with title [" + $scope.current_job_title + "], studentid [" + $scope.current_studentid + " " + hash + "]");
+    var msgobj = {};
+    msgobj.type = 'std_retrieve_result';
+    msgobj.id = $globals.token;
+    msgobj.title = $scope.current_job_title;
+    msgobj.student = $scope.current_student_id;
+    msgobj.hash = hash;
+    $globals.send(JSON.stringify(msgobj));
+  };
+  
+  // get data for specific job and student
+  $scope.get_commits = function(job_title, student_id, student_uname) {
     $scope.current_job_title = job_title;
     $scope.current_student_id = student_id;
-    if (subtype == 'postprocessor') {
-      $scope.reset_result_postpro();
-    } else if (subtype == 'annotated') {
-      $scope.reset_annotated_result();
-    }
+    $scope.current_student_uname = student_uname;
 
-    console.log("Get data called with title [" + $scope.current_job_title + "], studentid [" + $scope.current_studentid + "]");
+    console.log("Get commits called with title [" + $scope.current_job_title + "], studentid [" + $scope.current_studentid + "]");
     var msgobj = {};
-    msgobj.type = 'retrieve_result';
-    msgobj.subtype = subtype;
+    msgobj.type = 'retrieve_commits';
     msgobj.id = $globals.token;
     msgobj.title = $scope.current_job_title;
     msgobj.student = $scope.current_student_id;

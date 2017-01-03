@@ -6,4 +6,5 @@ retrieve_result	a	p
 feedback	a	p
 markfeedback	a	p
 std_refresh_list	s
-std_retrieve_result	s
+std_retrieve_result	s	p
+retrieve_commits	p

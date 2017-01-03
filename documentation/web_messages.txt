@@ -80,6 +80,15 @@ CLIENT -> SERVER
     }
     Student view client asks to visualize a single exercise, specific commit hash
     
+    {
+        "type": "retrieve_commits",
+        "id": "687ba687de5",
+        "title": "haskell23",
+        "student": "1"
+    }
+    Asks for all the commit hashes of a single exercise and single student
+    Reply is <commits>
+    
 SERVER -> CLIENT
 
     {
@@ -119,7 +128,10 @@ SERVER -> CLIENT
     {
     	"type": "job_group",
     	"title": "haskell23",
-    	"group": ["0", "1"]
+    	"group": [
+            {"idx":"0","uname":"gj"},
+            {"idx":"1","uname":"ab"}
+        ]
     }
     Sends the list of students marked for one job title.
     
@@ -171,4 +183,13 @@ SERVER -> CLIENT
     }
     Server sends to the student the list of exercises the student can view
     status can be "ok" "pending" "error"
+    
+    {
+        "type": "commits",
+        "data": [
+            "ac987bf",
+            "f0f8eeb"
+        ]
+    }
+    Response to retrieve_commits. The commit hashes for a specific exercise/user
     

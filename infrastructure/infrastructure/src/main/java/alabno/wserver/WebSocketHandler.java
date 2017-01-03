@@ -123,9 +123,26 @@ public class WebSocketHandler {
         case "std_retrieve_result":
             handleStdRetrieveResult(parser, conn);
             break;
+        case "retrieve_commits":
+            handleRetrieveCommits(parser, conn);
+            break;
         default:
             System.out.println("Unrecognized client message type " + type);
         }
+    }
+
+    private void handleRetrieveCommits(JsonParser parser, WebSocket conn) {
+        String title = parser.getString("title");
+        String studentid = parser.getString("student");
+        
+        List<String> commithashes = allJobs.getCommitsOfStudent(title, studentid);
+
+        JSONObject msgobj = new JSONObject();
+        msgobj.put("type", "commits");
+        JSONArray dataarray = new JSONArray();
+        dataarray.addAll(commithashes);
+        msgobj.put("data", dataarray);
+        conn.send(msgobj.toJSONString());
     }
 
     private void handleStdRetrieveResult(JsonParser parser, WebSocket conn) {
@@ -508,6 +525,7 @@ public class WebSocketHandler {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void handleGetJob(JsonParser parser, WebSocket conn) {
         String title = parser.getString("title");
         if (title == null || title.isEmpty()) {
@@ -515,15 +533,18 @@ public class WebSocketHandler {
             return;
         }
         
-        List<String> commits = allJobs.getStudentIdxsByTitle(title);
+        List<StudentCommit> commits = allJobs.getStudentsByTitle(title);
 
         // generate job_group message
         JSONObject msgobj = new JSONObject();
         msgobj.put("type", "job_group");
         msgobj.put("title", title);
         JSONArray groupArray = new JSONArray();
-        for (String c : commits) {
-            groupArray.add(c);
+        for (StudentCommit c : commits) {
+            JSONObject studentobj = new JSONObject();
+            studentobj.put("idx", c.getUserId());
+            studentobj.put("uname", c.getUsername());
+            groupArray.add(studentobj);
         }
         msgobj.put("group", groupArray);
         conn.send(msgobj.toJSONString());
