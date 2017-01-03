@@ -1,7 +1,6 @@
 package alabno.simple_haskell_marker;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class Arguments {
@@ -18,7 +17,9 @@ public class Arguments {
             System.out.println("Not enough arguments...");
         }
 
-        haskellInputs.addAll(Arrays.asList(args).subList(2, args.length));
+        for (int i = 2; i < args.length; i++) {
+            haskellInputs.add(args[i]);
+        }
     }
 
     public List<String> getHaskellInputs() {
@@ -32,7 +33,7 @@ public class Arguments {
     public String getTrainingDataPath() {
         return trainingDataPath + ".train";
     }
-    
+
     public String getCategoryDataPath() {
         return trainingDataPath + ".csv";
     }

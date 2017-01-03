@@ -18,7 +18,7 @@ upload_path_dir = os.path.abspath(exec_dir + '/../uploads')
 subprocess.call('mkdir {}'.format(upload_path_dir), shell=True)
 
 # import mysqldb.py
-mysqldb_dir = exec_dir + os.sep + '..' + os.sep + 'simple-haskell-marker'
+mysqldb_dir = exec_dir + os.sep + '..' + os.sep + 'backend' + os.sep +'simple-haskell-marker'
 sys.path.append(mysqldb_dir)
 import mysqldb
 
