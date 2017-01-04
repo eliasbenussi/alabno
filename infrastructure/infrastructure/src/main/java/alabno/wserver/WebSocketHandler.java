@@ -20,6 +20,8 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import alabno.database.DatabaseConnection;
+import alabno.executionunit.ExecutionUnitCreate;
+import alabno.executionunit.ExecutionUnitUpdate;
 import alabno.exercise.StudentCommit;
 import alabno.localjobstatus.JobState;
 import alabno.localjobstatus.LocalJobStatusAll;
@@ -34,6 +36,7 @@ import alabno.userstate.ActiveSessions;
 import alabno.userstate.UserSession;
 import alabno.userstate.UserState;
 import alabno.utils.ConnUtils;
+import alabno.utils.ConnUtils.Color;
 import alabno.utils.FileUtils;
 
 public class WebSocketHandler {
@@ -123,9 +126,41 @@ public class WebSocketHandler {
         case "std_retrieve_result":
             handleStdRetrieveResult(parser, conn);
             break;
+        case "retrieve_commits":
+            handleRetrieveCommits(parser, conn);
+            break;
+        case "refresh_commit":
+            handleRefreshCommit(parser, conn);
+            break;
         default:
             System.out.println("Unrecognized client message type " + type);
         }
+    }
+
+    private void handleRefreshCommit(JsonParser parser, WebSocket conn) {
+
+        String title = parser.getString("title");
+        String student = parser.getString("student");
+        
+        ExecutionUnitUpdate updateJob = new ExecutionUnitUpdate(title, student, allJobs, db, conn);
+        executor.submit(updateJob);
+        
+        ConnUtils.sendStatusInfo(conn, "Job sent", Color.BLACK, 5);
+    }
+
+    @SuppressWarnings("unchecked")
+    private void handleRetrieveCommits(JsonParser parser, WebSocket conn) {
+        String title = parser.getString("title");
+        String studentid = parser.getString("student");
+        
+        List<String> commithashes = allJobs.getCommitsOfStudent(title, studentid);
+
+        JSONObject msgobj = new JSONObject();
+        msgobj.put("type", "commits");
+        JSONArray dataarray = new JSONArray();
+        dataarray.addAll(commithashes);
+        msgobj.put("data", dataarray);
+        conn.send(msgobj.toJSONString());
     }
 
     private void handleStdRetrieveResult(JsonParser parser, WebSocket conn) {
@@ -158,6 +193,7 @@ public class WebSocketHandler {
 
     }
 
+    @SuppressWarnings("unchecked")
     private void handleStdRefreshList(JsonParser parser, WebSocket conn) {
         JSONObject msgobj = new JSONObject();
         
@@ -358,6 +394,7 @@ public class WebSocketHandler {
         
     }
 
+    @SuppressWarnings("unchecked")
     private void sendPostprocessorMsg(String title, String student, String fileContent, WebSocket conn, String exerciseType) {
         JSONObject postProcResultMsg = new JSONObject();
         postProcResultMsg.put("type", "postpro_result");
@@ -368,6 +405,7 @@ public class WebSocketHandler {
         conn.send(postProcResultMsg.toJSONString());
     }
 
+    @SuppressWarnings("unchecked")
     private void sendAnnotatedMsg(Set<String> uniqueFiles, Map<String, List<AnnotationWrapper>> submissionFeedbackMap, WebSocket conn, String exerciseType, String mark) {
         // Generate a JSON message with an array containing JSON objects - each is made of the file name,
         // its contents and if a line has an annotation, its corresponding error.
@@ -438,6 +476,7 @@ public class WebSocketHandler {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private JSONArray generateAnnotatedFileArray(Set<String> uniqueFiles, Map<String, List<AnnotationWrapper>> feedbackMap) {
         JSONArray filesWithAnnotations = new JSONArray();
         for (String uniqueFile : uniqueFiles) {
@@ -465,6 +504,7 @@ public class WebSocketHandler {
      * @param fileLines
      * @return fileData
      */
+    @SuppressWarnings("unchecked")
     private JSONArray generateAnnotatedFile(String filePath, Map<String, List<AnnotationWrapper>> feedbackMap, List<String> fileLines) {
         List<AnnotationWrapper> annotations = feedbackMap.get(filePath);
 
@@ -508,6 +548,7 @@ public class WebSocketHandler {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void handleGetJob(JsonParser parser, WebSocket conn) {
         String title = parser.getString("title");
         if (title == null || title.isEmpty()) {
@@ -515,15 +556,18 @@ public class WebSocketHandler {
             return;
         }
         
-        List<String> commits = allJobs.getStudentIdxsByTitle(title);
+        List<StudentCommit> commits = allJobs.getStudentsByTitle(title);
 
         // generate job_group message
         JSONObject msgobj = new JSONObject();
         msgobj.put("type", "job_group");
         msgobj.put("title", title);
         JSONArray groupArray = new JSONArray();
-        for (String c : commits) {
-            groupArray.add(c);
+        for (StudentCommit c : commits) {
+            JSONObject studentobj = new JSONObject();
+            studentobj.put("idx", c.getUserId());
+            studentobj.put("uname", c.getUsername());
+            groupArray.add(studentobj);
         }
         msgobj.put("group", groupArray);
         conn.send(msgobj.toJSONString());
@@ -578,6 +622,7 @@ public class WebSocketHandler {
         }
     }
     
+    @SuppressWarnings("unchecked")
     private boolean handleNewAssignmentInternal(JsonParser parser, WebSocket conn, String username) {
         String title = parser.getString("title");
         String exerciseType = parser.getString("ex_type");
@@ -612,7 +657,7 @@ public class WebSocketHandler {
 
         System.out.println("all checks passed");
 
-        AssignmentCreator newAssignmentProcessor = new AssignmentCreator(title, exerciseType, modelAnswerGitLink,
+        ExecutionUnitCreate newAssignmentProcessor = new ExecutionUnitCreate(title, exerciseType, modelAnswerGitLink,
                 studentGitLinks, conn, allJobs, db, username, localJobs);
 
         executor.submit(newAssignmentProcessor);
@@ -685,13 +730,15 @@ public class WebSocketHandler {
         }
     }
 
-	private void sendLoginFailure(WebSocket conn) {
+	@SuppressWarnings("unchecked")
+    private void sendLoginFailure(WebSocket conn) {
 		JSONObject failure_msg = new JSONObject();
 		failure_msg.put("type", "login_fail");
 		conn.send(failure_msg.toJSONString());
 	}
 
-	private void sendWelcomeMessages(WebSocket conn, String token, UserType userType) {
+	@SuppressWarnings("unchecked")
+    private void sendWelcomeMessages(WebSocket conn, String token, UserType userType) {
 		// send login success
 		JSONObject success_msg = new JSONObject();
 		success_msg.put("type", "login_success");
@@ -722,6 +769,7 @@ public class WebSocketHandler {
 		sendExerciseTypes(conn);
 	}
 
+    @SuppressWarnings("unchecked")
     void sendExerciseTypes(WebSocket conn) {
         // get list of exercises from database
         String sql = "SELECT type FROM `ExerciseTypes`";

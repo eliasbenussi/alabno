@@ -6,6 +6,7 @@ import binascii
 import json
 
 import microservices
+import clonerutils
 
 # #########################################################################
 # CONFIGURATION
@@ -13,7 +14,7 @@ import microservices
 home_directory = os.path.abspath(os.getcwd());
 temporary_directory = home_directory + os.sep + 'tmp' + os.sep
 
-max_clone_depth = '50'
+max_clone_depth = '1'
 
 jobmanager_path = os.path.abspath(home_directory + os.sep + 'infrastructure' + os.sep + 'infrastructure' + os.sep + 'JobManager')
 
@@ -38,8 +39,6 @@ parser.add_argument('--model',
 parser.add_argument('--exname',
                     required=True
                     )
-
-parser.add_argument('--services')
 
 parser.add_argument('--students')
 
@@ -70,27 +69,9 @@ def get_student_config_directory(base, student_number):
 def get_student_commit_directory(base, student_number):
     return get_student_directory(base, student_number) + os.sep + 'commitX' + os.sep
 
-def discover_commit_hash(target):
-    target = os.path.abspath(target)
-    previous_directory = os.path.abspath(os.getcwd())
-    
-    os.chdir(target)
-    
-    cmd = 'git rev-parse --verify HEAD'
-    
-    output = ''
-    
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
-    for line in iter(proc.stdout.readline,''):
-        output = line
-        break
-    
-    if len(output) > 0 and output[-1] == '\n':
-        output = output[:-1]
-    
-    os.chdir(previous_directory)
-    
-    return output
+def makedirs(dirpath):
+    cmd = 'mkdir {}'.format(dirpath)
+    subprocess.call(cmd, shell=True)
 
 # create temporary base directory
 base_directory = temporary_directory + os.sep + args.exname
@@ -107,8 +88,8 @@ code = subprocess.call('mkdir {}'.format(base_directory), shell=True)
 #studentX/commitX_out
 
 for i in range(len(the_students_gits)):
-    os.makedirs(get_student_directory(base_directory, i))
-    os.makedirs(get_student_config_directory(base_directory, i))
+    makedirs(get_student_directory(base_directory, i))
+    makedirs(get_student_config_directory(base_directory, i))
 
 # clone the model answer
 if args.model and args.model != '':
@@ -135,9 +116,21 @@ for i in range(len(the_students_gits)):
     if code != 0:
         print('Cloning of student repository at {} failed. Aborting...'.format(the_students_gits[i]))
         sys.exit(1)
-        
+    
+    # Save the git url into title/studentX/url.txt
+    url_file_path = os.path.abspath(student_base_directory + os.sep + 'url.txt')
+    url_file = open(url_file_path, 'w')
+    url_file.write(the_students_gits[i])
+    url_file.close()
+
     # now, enter the commitX directory to discover the commit hash
-    commithash = discover_commit_hash(get_student_commit_directory(base_directory, i))
+    commithash = clonerutils.discover_commit_hash(get_student_commit_directory(base_directory, i))
+    
+    # Save the latest commit hash into title/studentX/last.txt
+    hash_file_path = os.path.abspath(student_base_directory + os.sep + 'last.txt')
+    hash_file = open(hash_file_path, 'w')
+    hash_file.write(commithash)
+    hash_file.close()
     
     # rename it with the hash
     cmd = 'mv {} {}'.format(os.path.abspath(student_base_directory + os.sep + 'commitX'), os.path.abspath(student_base_directory + os.sep + 'commit' + commithash))
@@ -181,7 +174,7 @@ for i in range(len(the_students_gits)):
     language = args.extype
     postpro_input_json_paths = []
     postpro_output_json_path = os.path.abspath(student_out_directory + os.sep + 'postpro.json')
-    postpro_all_outputs.append(postpro_output_json_path)
+    postpro_all_outputs.append(os.path.abspath(postpro_output_json_path))
     
     # Get the list of microservice output jsons
     for item in os.listdir(student_out_directory):
@@ -203,4 +196,4 @@ for i in range(len(the_students_gits)):
         print('cmd [{}] failed with code {}'.format(cmd, code))
 
 # Special stdout line that will be read by the caller process
-print('#FINALOUTPUTS={}'.format(os.path.abspath(' '.join(postpro_all_outputs))))
+print('#FINALOUTPUTS={}'.format(' '.join(postpro_all_outputs)))

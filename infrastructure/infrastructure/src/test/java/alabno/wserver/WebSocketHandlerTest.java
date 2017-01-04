@@ -21,6 +21,7 @@ import org.junit.Test;
 
 import alabno.database.DatabaseConnection;
 import alabno.database.NullDatabaseConnection;
+import alabno.executionunit.ExecutionUnitCreate;
 import alabno.localjobstatus.LocalJobStatusAll;
 import alabno.msfeedback.FeedbackUpdaters;
 import alabno.userauth.Authenticator;
@@ -89,7 +90,7 @@ public class WebSocketHandlerTest {
                                                             // success and token
         mockWebSocketConnection.send((String) anyObject()); // receive jobs list
         // submit job
-        expect(mockExecutorService.submit(isA(AssignmentCreator.class))).andReturn(null); // job
+        expect(mockExecutorService.submit(isA(ExecutionUnitCreate.class))).andReturn(null); // job
                                                                                           // is
                                                                                           // submitted
         

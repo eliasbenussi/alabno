@@ -47,6 +47,10 @@
         <h1>{{annotated_files.mark}}</h1>
         <h2>{{annotated_files.exercise_type}}</h2>
         
+        <div class="row-fluid">
+            <button type="button" class="btn btn-primary" ng-click="request_exercise_update()">Check for updates</button>
+        </div>
+        
         <div class="row-fluid" ng-repeat="file in annotated_files.files">
             <div class="row">
                 <h2>{{file.filename}}</h2>
