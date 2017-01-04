@@ -1,0 +1,31 @@
+ok	unknown	ok
+reuse	semantic	Reuse the functions you have already defined.
+signature	semantic	Your function does not match its declared type
+unimplemented	semantic	You didn't implement this function. Try it next time, it doesn't matter if you get it wrong!
+verbose	style	You named variables that are not used and could be underscores.
+whitespace	style	Use whitespaces around operators and align operators.
+comment	unknown	comment
+conversion	semantic	There is no need to convert characters to integers in order to compare them. You can compare characters directly.
+hs1434839314	semantic	no magic numbers should be used
+hs1804366790	semantic	dfsgdfgdfgdfg
+hs2614612255	semantic	sdf
+hs3255845659	semantic	Don't write rubbish in your code please
+hs4149228296	semantic	sadfdsaf
+hs4884133535	semantic	FAKE hey yooo
+hs5436078165	semantic	sad
+hs6030751954	semantic	Please don't write rubbish in your code
+hs6208905414	semantic	sadf
+hs6452734935	semantic	Don't use magic numbers, it's bad practice
+hs6892607470	semantic	This is some bullshitr
+hs7019784100	semantic	Oh my god what are you writing here
+hs7077426295	semantic	asdasdasd
+hs8175670588	semantic	FAKE this is really bad really
+hs8224689412	semantic	bloop
+hs8261583955	sadsemantic	sadsadsad
+hs8654881815	semantic	dsafdsaf
+hs8908876381	semantic	no magic numbers please
+hs9265489529	semantic	empty stuff
+hs9527549314	semantic	don't write rubbish
+indentation	style	Try to use consistent indentation. It makes code look clearer.
+magic	semantic	Don't use magic numbers. Give the number a name, or generate it from an expression.
+minustenk	semantic	-10000 marks! Don't check if a boolean is true or false, and then return true or false. Return the check directly.

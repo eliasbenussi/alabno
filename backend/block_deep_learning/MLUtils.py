@@ -14,7 +14,7 @@ def parse_training_file(file_path):
         try:
             splitted = line.replace('\n','').split('\t')
             category = splitted[0]
-            text = splitted[1]
+            text = splitted[1].replace('\\n', '')
             parsed.append((category, text))
         except:
             continue 

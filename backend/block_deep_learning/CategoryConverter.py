@@ -7,7 +7,7 @@ class CategoryConverter:
     # The category_map file is of the form
     # category_key      error_type      annotation
     def __init__(self, _file = 'category_map.csv'):
-        self._file = _file
+        self._file = open(_file, 'r')
         self.annotation_map = {}
         self.error_map = {}
         self.category_list = []
@@ -21,7 +21,7 @@ class CategoryConverter:
                 continue
                 
             self.error_map[splitted[0]] = splitted[1]          
-            self.annotation_map[splitted[0]] = splitted[2] 
+            self.annotation_map[splitted[0]] = splitted[2].replace('\n', '') 
 
             # The category number corresponds to the index
             # of a category in the list
