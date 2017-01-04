@@ -26,14 +26,10 @@ class Classifier:
 
     def predict(self, new_data):
         prediction
-        try:
-            prediction = self.clf.predict(new_data)
-        except:
-            print 'New data provided is malformed. Aborting.'
-            sys.exit(1)
+        prediction = self.clf.predict(new_data)
         if len(prediction) != len(new_data):
-            print '[Classifier] Classification failed. Aborting.'
-            sys.exit(-1)
+            raise Exception('[Classifier] Classification failed. Aborting.')
+            
 
 #    print 'Usage: <training sample(s)> <training label(s)> <new data>'
 #    print 'Each input must be passed without white spaces between the characters'
