@@ -81,7 +81,10 @@ def get_auth_string():
         return result
     else:
         return ''
-    
+
+# The authentication password for the file is set in the environment
+# variable at server startup. Therefore the variable containing the password
+# for decryption will be only visible by the subprocesses.
 def set_auth_passphrase():
     if os.path.isfile(encrypted_conf_file_path):
         print('Please enter the decryption key of the git authorization configuration file')
