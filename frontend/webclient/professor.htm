@@ -1,6 +1,6 @@
 <div class="row">
   <div class="col-xs-12">
-    <h2>Welcome Professor {{name}}</h2>
+    <h2>Welcome Professor {{username}}</h2>
   </div>
 </div>
 
@@ -61,7 +61,7 @@
   <div class="row"> <!--Back button-->
     <button class="btn btn-default" ng-click="show_section('show_professor_exercises')">Back</button>
   </div>
-  
+
   <div class="row"> <!--Title-->
     <div class="col-xs-6">
       <h3>{{current_job_title}}</h3>
@@ -70,13 +70,13 @@
       <h3>{{current_student_uname}}</h3>
     </div>
   </div>
-  
+
   <div class="row">
     <div class="col-xs-12">
         <button class="btn btn-success" ng-click="check_updated_commits()">Check for updates</button>
     </div>
   </div>
-  
+
   <div class="row" ng-repeat="commit in commits">
     <div class="col-xs-6">
       <p>{{commit}}</p>

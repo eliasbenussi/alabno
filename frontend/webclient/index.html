@@ -1,7 +1,8 @@
 <html>
 
   <head>
-  
+
+    <title>ALABNO</title>
     <link rel="shortcut icon" type="image/png" href="/favicon.png"/>
 
     <!--jQuery-->
@@ -28,7 +29,7 @@
     <link rel="stylesheet" type="text/css" href="css/simple-sidebar.css">
     <!--Ours-->
     <link rel="stylesheet" type="text/css" href="css/custom.css">
-
+    
   </head>
 
   <body>
@@ -36,23 +37,14 @@
       <!--Sidebar-->
       <div id="sidebar-wrapper">
         <ul class="sidebar-nav">
-          <li class="sidebar-brand" class="col-xs-offset-1 col-xs-10">
+          <li class="sidebar-brand col-xs-10">
             <a href="/">ALABNO</a>
           </li>
           <br>
 
-          <li class="col-xs-offset-1 col-xs-10">
-            <div class="alert alert-danger" role="alert">
-              <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-              <span class="sr-only">Error:</span>
-              <strong>Warning:</strong> Login not implemented yet; do not enter a sensitive password!
-            </div>
-          </li>
-          <li class="col-xs-10">
-            <p>Login below:</p>
-          </li>
           <!--Login section-->
           <form class="col-xs-offset-1 col-xs-10" ng-hide="logged_in_flag">
+            <p>Login below:</p>
             <li>
               <div class="form-group">
                 <input class="form-control" type="text" placeholder="Username" ng-model="username">
@@ -68,10 +60,8 @@
             </li>
           </form><!-- /login -->
           <!--Logout button-->
-          <div class="row" ng-show="logged_in_flag">
-            <div class="col-xs-offset-1 col-xs-6">
-              <button type="button" class="btn btn-danger" ng-click="logout()">Logout</button>
-            </div>
+          <div class="col-xs-offset-1 col-xs-10" ng-show="logged_in_flag">
+            <button class="btn btn-danger btn-block" ng-click="logout()">Logout</button>
           </div> <!--/Logout button-->
         </ul>
       </div><!-- /#sidebar-wrapper -->
@@ -107,7 +97,6 @@
 
   </body>
 
-  <script src="script/menutoggle.js"></script>
   <script src="script/endpoint.js"></script>
   <script src="script/localstorage.js"></script>
   <script src="script/socket.js"></script>

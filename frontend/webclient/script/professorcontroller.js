@@ -2,7 +2,7 @@ theapp.controller('professorController', function($scope) {
   // register callback to globals
   $globals.professor_scope = $scope;
 
-  $scope.name = 'Y';
+  // $scope.username = '';
 
   $scope.new_exercise_clicked = function()
   {

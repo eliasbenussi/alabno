@@ -15,6 +15,8 @@ $handlers.handle_login_success = function(msgobj) {
       $globals.usertype = "p";
   } else {
       console.error("Unrecognized user type " + usertype);
+      // undefined behaviour atm
+      // window.location.hash = 'landing';
   }
   
   if ($globals.usertype == "s") {

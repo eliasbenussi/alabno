@@ -47,7 +47,8 @@ theapp.controller('mycontroller', function($scope) {
         $localstore.save_username('');
         $localstore.save_token(undefined);
         
-        location.reload();
+        window.location.hash = 'landing';
+        // location.reload();
     }
     
     // #########################################################################
