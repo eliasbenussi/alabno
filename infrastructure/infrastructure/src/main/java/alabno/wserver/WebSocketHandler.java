@@ -805,7 +805,7 @@ public class WebSocketHandler {
                     ConnUtils.sendStatusInfo(conn, "Username for link " + git + " is required", Color.RED, 10);
                     throw new RuntimeException("no username" );
                 }
-                cleanedArray.add(studentdata);
+                cleanedArray.add(studentdata.getObject());
             }
             parser.putArray("students_git", cleanedArray);
             
@@ -892,10 +892,12 @@ public class WebSocketHandler {
                 JSONObject gitobj = (JSONObject) l;
                 String str = (String) gitobj.get("git");
                 if (!str.contains("https")) {
+                    System.out.println("git link check failed for " + str);
                     return errormsg;
                 }
             }
         } catch (ClassCastException e) {
+            System.out.println("git link check failed by class cast exception");
             return errormsg;
         }
 

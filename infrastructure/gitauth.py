@@ -87,8 +87,19 @@ def get_auth_string():
 # for decryption will be only visible by the subprocesses.
 def set_auth_passphrase():
     if os.path.isfile(encrypted_conf_file_path):
-        print('Please enter the decryption key of the git authorization configuration file')
-        os.environ['ALABNOGITAUTHPASS'] = getpass.getpass()
+        valid = False
+        while not valid:
+            print('Please enter the decryption key of the git authorization configuration file')
+            a_pass = getpass.getpass()
+            cmd = ['gpg', '--passphrase', a_pass, encrypted_conf_file_path]
+            code = subprocess.call(cmd, shell=False)
+            valid = code == 0
+            if code != 0:
+                print('Password incorrect. Please retry')
+        os.environ['ALABNOGITAUTHPASS'] = a_pass
+        # remove clear file
+        cmd = 'rm -rf {}'.format(conf_file_path)
+        subprocess.call(cmd, shell=True)
     
 def format_git_url(giturl):
     authstring = get_auth_string()

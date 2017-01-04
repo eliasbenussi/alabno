@@ -36,19 +36,19 @@ public class ExecutionUnitUpdate implements Runnable {
     public void run() {
         try {
             // Send message that job is being processed
-            ConnUtils.sendStatusInfo(conn, "Checking for updates: " + title, Color.YELLOW, 60);
+            ConnUtils.sendStatusInfo(conn, "Checking for updates: " + title, Color.YELLOW, 10);
 
             boolean success = execute();
             
             if (success) {
-                ConnUtils.sendStatusInfo(conn, "Update completed: " + title, Color.GREEN, 60);
+                ConnUtils.sendStatusInfo(conn, "Update completed: " + title, Color.GREEN, 10);
             } else {
-                ConnUtils.sendStatusInfo(conn, "Update failed: " + title, Color.RED, 60);
+                ConnUtils.sendStatusInfo(conn, "Update failed: " + title, Color.RED, 10);
             }
         } catch (Exception e) {
             e.printStackTrace();
             // Send message that job failed
-            ConnUtils.sendStatusInfo(conn, "Update failed: " + title, Color.RED, 60);
+            ConnUtils.sendStatusInfo(conn, "Update failed: " + title, Color.RED, 10);
         }
     }
 
@@ -90,7 +90,7 @@ public class ExecutionUnitUpdate implements Runnable {
                 return false;
             } else if (code == 34) {
                 // Send message that no update was found
-                ConnUtils.sendStatusInfo(conn, "No updates found: " + title, Color.GREEN, 60);
+                ConnUtils.sendStatusInfo(conn, "No updates found: " + title, Color.GREEN, 10);
                 return true;
             }
 
