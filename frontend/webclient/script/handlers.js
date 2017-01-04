@@ -158,8 +158,12 @@ $handlers.handle_job_group = function(msgobj) {
   // The student array has objects with field id
   var final_array = [];
   for (var i = 0; i < group.length; i++) {
+    var groupitem = group[i];
+    var studentid = groupitem.idx;
+    var studentlogin = groupitem.uname;
     var a_student_obj = {};
-    a_student_obj.id = group[i];
+    a_student_obj.id = studentid;
+    a_student_obj.uname = studentlogin;
     final_array.push(a_student_obj);
   }
 
@@ -270,4 +274,24 @@ $handlers.handle_type_list = function(msgobj) {
 $handlers.handle_std_ex_list = function(msgobj) {
     $globals.student_scope.exercise_list = msgobj;
     $globals.student_scope.$apply();
+};
+
+$handlers.handle_commits = function(msgobj) {
+    $globals.professor_scope.commits = msgobj.data;
+    $globals.professor_scope.show_section('show_commits');
+    $globals.professor_scope.$apply();
+};
+
+$handlers.handle_status_info = function(msgobj) {
+    var checker = msgobj;
+    $globals.top_scope.statusinformation.unshift(msgobj);
+    setTimeout(function(){
+        for (var i = 0; i < $globals.top_scope.statusinformation.length; i++) {
+            if (checker === $globals.top_scope.statusinformation[i]) {
+                $globals.top_scope.statusinformation.splice(i, 1);
+            }
+        }
+        $globals.top_scope.$apply();
+    }, msgobj.timeout*1000);
+    $globals.top_scope.$apply();
 };

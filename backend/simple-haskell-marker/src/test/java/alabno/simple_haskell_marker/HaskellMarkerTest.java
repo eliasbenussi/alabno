@@ -2,16 +2,15 @@ package alabno.simple_haskell_marker;
 
 import static org.junit.Assert.*;
 
-import org.json.simple.JSONObject;
-
 import static org.easymock.EasyMock.*;
 
+import json_parser.MicroServiceOutput;
 import org.junit.Test;
 
 public class HaskellMarkerTest {
 
-    ScriptClassifier scriptClassifier = mock(ScriptClassifier.class);
-    CategoryConverterInterface categoryConverter = mock(CategoryConverterInterface.class);
+    private ScriptClassifier scriptClassifier = mock(ScriptClassifier.class);
+    private CategoryConverterInterface categoryConverter = mock(CategoryConverterInterface.class);
     
     @Test
     public void simpleCase() {
@@ -27,12 +26,12 @@ public class HaskellMarkerTest {
         haskellMarker.mark();
         
         // get the output json object
-        JSONObject outputObject = haskellMarker.getOutputObject();
+        MicroServiceOutput outputObject = haskellMarker.getOutputObject();
         
         verify(scriptClassifier);
         verify(categoryConverter);
         
-        assertEquals(outputObject.get("score"), 0);
+        assertEquals(outputObject.getScore(),0.0, 0);
     }
 
 }

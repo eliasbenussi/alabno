@@ -83,7 +83,21 @@
         <!-- BUTTON TO TOGGLE SIDEBAR APPEARING -->
         <!-- <a href="#menu-toggle" class="btn btn-default" id="menu-toggle">Toggle menu</a> -->
 
+        <!--STATUS INFORMATION PANEL-->
+        <div class="panel panel-default" ng-repeat="si in statusinformation">
+          <div class="panel-body">
+            <div class="col-xs-8">
+                <span style="color:{{si.color}}">{{si.message}}</span>
+              </div>
+              <div class="col-xs-4">
+                <button type="button" class="btn btn-link" ng-click="dismiss_statusinformation($index)">Dismiss</button>
+              </div>
+          </div>
+        </div>
+        
+        <!--THIS DIV CONTAINS THE PROFESSOR OR STUDENT VIEWS-->
         <div ng-view></div>
+        <!-- /THIS DIV CONTAINS THE PROFESSOR OR STUDENT VIEWS-->
 
       </div><!-- /#page-content-wrapper -->
 

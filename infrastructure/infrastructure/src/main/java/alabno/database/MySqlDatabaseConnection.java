@@ -226,10 +226,6 @@ public class MySqlDatabaseConnection implements DatabaseConnection {
      */
     @Override
     public synchronized int executeTransaction(TransactionBuilder tb) {
-        return executeTransaction(tb, true);
-    }
-
-    private  int executeTransaction(TransactionBuilder tb, boolean retry) {
         int result = 0;
         try {
             conn.setAutoCommit(false);
@@ -248,12 +244,8 @@ public class MySqlDatabaseConnection implements DatabaseConnection {
 
             conn.commit();
         } catch (Exception e) {
+            e.printStackTrace();
             connect();
-            if (retry) {
-                return executeTransaction(tb, false);
-            } else {
-                e.printStackTrace();
-            }
         } finally {
             try {
                 conn.setAutoCommit(true);

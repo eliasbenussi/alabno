@@ -1,15 +1,5 @@
 package alabno.wserver;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.security.KeyStore;
-
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManagerFactory;
-
-import org.java_websocket.server.DefaultSSLWebSocketServerFactory;
-
 import alabno.database.DatabaseConnection;
 import alabno.database.MySqlDatabaseConnection;
 import alabno.localjobstatus.LocalJobStatusAll;
@@ -19,14 +9,18 @@ import alabno.msfeedback.markmarker.MarkMarkerUpdater;
 import alabno.useraccount.AccountManager;
 import alabno.useraccount.DatabaseAccountManager;
 import alabno.useraccount.LocalAccountManager;
-import alabno.userauth.Authenticator;
-import alabno.userauth.LdapAuthenticator;
-import alabno.userauth.NullAuthenticator;
-import alabno.userauth.StandardTokenGenerator;
-import alabno.userauth.TokenGenerator;
+import alabno.userauth.*;
 import alabno.usercapabilities.Permissions;
 import alabno.usercapabilities.StandardPermissions;
 import alabno.utils.FileUtils;
+import org.java_websocket.server.DefaultSSLWebSocketServerFactory;
+
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
+import java.io.File;
+import java.io.FileInputStream;
+import java.security.KeyStore;
 
 public class Main {
 
@@ -75,10 +69,10 @@ public class Main {
 
         // Token generator
         TokenGenerator tokenGenerator = new StandardTokenGenerator();
-        
+
         // Permissions loading
         Permissions permissions = new StandardPermissions();
-        
+
         // Local Job status
         LocalJobStatusAll localJobs = new LocalJobStatusAll();
 

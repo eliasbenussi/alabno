@@ -1,4 +1,4 @@
-package alabno.wserver;
+package alabno.executionunit;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,8 +14,9 @@ import org.json.simple.JSONObject;
 import alabno.database.DatabaseConnection;
 import alabno.localjobstatus.JobState;
 import alabno.localjobstatus.LocalJobStatusAll;
+import alabno.wserver.JobsCollection;
 
-public class AssignmentCreator implements Runnable {
+public class ExecutionUnitCreate implements Runnable {
 
     private String title;
     private String exerciseType;
@@ -27,7 +28,7 @@ public class AssignmentCreator implements Runnable {
     private String username;
     private LocalJobStatusAll jobStatus;
 
-    public AssignmentCreator(String title, String exerciseType, String modelAnswer, JSONArray studentGitLinks,
+    public ExecutionUnitCreate(String title, String exerciseType, String modelAnswer, JSONArray studentGitLinks,
             WebSocket conn, JobsCollection allJobs, DatabaseConnection dbconn, String username, LocalJobStatusAll jobStatus) {
         this.title = title;
         this.exerciseType = exerciseType;
@@ -82,7 +83,14 @@ public class AssignmentCreator implements Runnable {
             }
 
             List<String> command = new ArrayList<>();
-            command.addAll(Arrays.asList("python", clonerScriptPath, "--exname", title, "--extype", exerciseType, "--students",
+            command.addAll(Arrays.asList(
+                    "python", 
+                    clonerScriptPath, 
+                    "--exname", 
+                    title, 
+                    "--extype", 
+                    exerciseType, 
+                    "--students",
                     studentGitArguments.toString()));
 
             if (modelAnswerGitLink != null) {

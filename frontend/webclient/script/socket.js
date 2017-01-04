@@ -48,6 +48,10 @@ $globals.socket.onmessage = function(message) {
         $handlers.handle_type_list(msgobj);
     } else if (msgobj.type == 'std_ex_list') {
         $handlers.handle_std_ex_list(msgobj);
+    } else if (msgobj.type == 'commits') {
+        $handlers.handle_commits(msgobj);
+    } else if (msgobj.type == 'status_info') {
+        $handlers.handle_status_info(msgobj);
     }
     else {
         console.log("message type not recognized: " + msgobj.type);

@@ -1,11 +1,5 @@
 package alabno.msfeedback.haskellupdater;
 
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import alabno.database.DatabaseConnection;
 import alabno.msfeedback.Mark;
 import alabno.msfeedback.MicroServiceUpdater;
@@ -16,13 +10,21 @@ import alabno.utils.StringUtils;
 import alabno.utils.SubprocessUtils;
 import alabno.wserver.SourceDocument;
 
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class HaskellMarkerUpdater implements MicroServiceUpdater {
 
-    private static final String TRAINING_FILE_BASENAME = "simple-haskell-marker/training/train";
+    private static final String TRAINING_FILE_BASENAME = "backend/simple-haskell-marker/training/train";
 
     private DatabaseConnection conn;
+    private static final String SHMPath = FileUtils.getWorkDir() + "/backend/simple-haskell-marker/";
+
     private int currentNumbering = 0;
-    
+
     // Holds a map from annotation to identifiers, which allows to re-use some identifiers for similar annotations
     private Map<String, String> existingAnnotationsToIdentifiers = new HashMap<>();
 
@@ -33,30 +35,30 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
     @Override
     public void init() {
         System.out.println("HaskellMarkerUpdater:init()");
-        
+
         // create the directory
-        SubprocessUtils.call("rm -rf " + FileUtils.getWorkDir() + "/simple-haskell-marker/training");
-        SubprocessUtils.call("mkdir " + FileUtils.getWorkDir() + "/simple-haskell-marker/training");
+        SubprocessUtils.call("rm -rf " + SHMPath + "training");
+        SubprocessUtils.call("mkdir " + SHMPath + "training");
 
         // Start updater thread
         Thread updaterThread = new Thread(new Runner(this, "HaskellMarker"));
         updaterThread.start();
     }
-    
+
 
     @Override
-    public synchronized void update(SourceDocument doc, int lineNumber, String type, String annotation) { 
+    public synchronized void update(SourceDocument doc, int lineNumber, String type, String annotation) {
         HaskellSplitter haskellSplitter = new HaskellSplitter(doc.getAllLines());
         String source = haskellSplitter.getBlockTextAt(lineNumber);
         if (source == null || source.isEmpty()) {
             return;
         }
-        
+
         System.out.println("HaskellMarkerUpdater:update(" + type + "," + annotation + ")");
         CategoryName newName = createNewName(annotation);
         // add it to the map
         existingAnnotationsToIdentifiers.put(annotation, newName.name);
-        
+
         // format source, type and annotation
         source = source.replace("\n", "\\n").replace("\t", "\\t");
         source = source.trim();
@@ -69,7 +71,7 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
         if (annotation.isEmpty()) {
             return;
         }
-        
+
         String queryCategories = "INSERT INTO HaskellCategories (name, type, annotation) VALUES (?, ?, ?)";
         String[] parametersCategories = {newName.name, type, annotation};
 
@@ -80,13 +82,13 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
             conn.executeStatement(queryCategories, parametersCategories);
         }
         conn.executeStatement(queryTraining, parametersTraining);
-        
+
         // update Training set is done by the Runner
     }
-    
+
     public synchronized void updateTraining() {
         System.out.println("HaskellMarkerUpdater:updateTraining()");
-        
+
         // Read from database all entries, dump them to a temporary text file,
         // create a classifier, and then dump it out to disk
         String sql = "SELECT * FROM `HaskellTraining`";
@@ -98,10 +100,9 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
         String trainingName = getCurrentTrainingName();
 
         // Clear directory from very old entires
-        String alabnoDirectory = FileUtils.getWorkDir();
-        String cmd = "python " + alabnoDirectory + "/simple-haskell-marker/IncrementSerializedClassifier.py --clean";
+        String cmd = "python " + SHMPath + "IncrementSerializedClassifier.py --clean";
         SubprocessUtils.call(cmd);
-        
+
         PrintWriter outfile = null;
         try {
             outfile = new PrintWriter(trainingName);
@@ -150,9 +151,9 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
 
         catFile.close();
 
-        // after writing the serialized file, call alabno/simple-haskell-marker/IncrementSerializedClassifier.py
+        // after writing the serialized file, call alabno/backend/simple-haskell-marker/IncrementSerializedClassifier.py
         // Which will take care of creating/updating the manifest.txt file for the microservice
-        cmd = "python " + alabnoDirectory + "/simple-haskell-marker/IncrementSerializedClassifier.py";
+        cmd = "python " + SHMPath + "IncrementSerializedClassifier.py";
         SubprocessUtils.call(cmd);
 
         // documentation/feedback_haskell_marker.txt has more details about the formats. PLEASE refer to that
@@ -161,23 +162,24 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
     private class CategoryName {
         boolean insert; // True if a database insertion is required
         String name;
+
         CategoryName(boolean insert, String name) {
             this.insert = insert;
             this.name = name;
         }
     }
-    
+
     /**
      * @param desiredAnnotation the desired annotation string to be used
      * @return the new name for the annotation, or the existing one if an annotation with very similar text was already available.
      */
     private CategoryName createNewName(String desiredAnnotation) {
-        int maxAllowedDistance = 
+        int maxAllowedDistance =
                 (int) Math.floor(0.1d * desiredAnnotation.length());
-        
+
         int minFoundDistance = maxAllowedDistance + 1;
         String minDistanceAnnotation = null;
-        
+
         // Compute the string with minimal distance with the desired one
         for (String oldAnnotation : existingAnnotationsToIdentifiers.keySet()) {
             int currentDistance = StringUtils.computeLevenshteinDistance(desiredAnnotation.toLowerCase(), oldAnnotation.toLowerCase());
@@ -192,7 +194,7 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
         if (minFoundDistance <= maxAllowedDistance) {
             return new CategoryName(false, existingAnnotationsToIdentifiers.get(minDistanceAnnotation));
         }
-        
+
         // Otherwise, create a new name, every time checking that the database doesn't have it already
         int retryAttempts = 100;
         for (int i = 0; i < retryAttempts; i++) {
@@ -209,16 +211,16 @@ public class HaskellMarkerUpdater implements MicroServiceUpdater {
 
         return new CategoryName(false, "invalid");
     }
-    
+
     private String getCurrentFilename(String ext) {
         String numbers = String.format("%05d", currentNumbering);
         return TRAINING_FILE_BASENAME + numbers + ext;
     }
-    
+
     private String getCurrentTrainingName() {
         return getCurrentFilename(".train");
     }
-    
+
     private String getCurrentSerializedName() {
         return getCurrentFilename(".bin");
     }
