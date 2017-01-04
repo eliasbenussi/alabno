@@ -91,7 +91,11 @@ def set_auth_passphrase():
         os.environ['ALABNOGITAUTHPASS'] = getpass.getpass()
     
 def format_git_url(giturl):
+    authstring = get_auth_string()
+    if (not authstring) or (authstring == ''):
+        return giturl
+    
     words = giturl.split('https://', 1)
     if words and (len(words) == 2):
-        return 'https://' + get_auth_string() + '@' + words[1]
+        return 'https://' + authstring + '@' + words[1]
     return giturl
