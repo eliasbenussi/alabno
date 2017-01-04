@@ -19,4 +19,7 @@ public class JavaSplitDocument {
         return blocks;
     }
 
+    public String getName() {
+        return name;
+    }
 }
