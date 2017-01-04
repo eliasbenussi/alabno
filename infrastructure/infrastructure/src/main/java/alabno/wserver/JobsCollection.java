@@ -68,6 +68,9 @@ public class JobsCollection {
         String[] params = {studentNumber, title};
         List<Map<String, Object>> results = db.retrieveStatement(sql, params);
         if (results.isEmpty()) {
+            System.out.println("findJobLatest: empty results with");
+            System.out.println("title: " + title);
+            System.out.println("studentNumber " + studentNumber);
             return null;
         }
         for (Map<String, Object> row : results) {

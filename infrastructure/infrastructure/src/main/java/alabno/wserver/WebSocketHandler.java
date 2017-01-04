@@ -241,6 +241,14 @@ public class WebSocketHandler {
             ConnUtils.sendStatusInfo(conn, "Data not found on disk", Color.RED, 10);
             return;
         }
+        
+        UserState userState = sessionManager.getUserState(parser.getString("id"));
+        // update user state
+        System.out.println("Setting state for user token " + parser.getString("id"));
+        System.out.println("title: " + title);
+        System.out.println("student: " + studentNumber);
+        userState.setTitle(title);
+        userState.setStudent(studentNumber);
 
         // Read the JSON file
         String fileContent = studentCommit.readPostProcessorOutput();
@@ -396,16 +404,18 @@ public class WebSocketHandler {
     private SourceDocument amendMark(String filename, String token, Mark mark) {
         // Finds the SourceDocument file of a student
         
+        System.out.println("amendMark user token is " + token);
+        
         UserState userSession = sessionManager.getUserState(token);
         if (userSession == null) {
-            return null;
+            throw new RuntimeException("userSession is null");
         }
         String title = userSession.getTitle();
         String studentNumber = userSession.getStudent();
         
         StudentCommit studentCommit = allJobs.findJobLatest(title, studentNumber);
         if (studentCommit == null) {
-            return null;
+            throw new RuntimeException("studentCommit is null");
         }
         if (!studentCommit.dataExists()) {
             throw new RuntimeException("No disk data for this student commit?");
@@ -496,6 +506,9 @@ public class WebSocketHandler {
 
         UserState userState = sessionManager.getUserState(parser.getString("id"));
         // update user state
+        System.out.println("Setting state for user token " + parser.getString("id"));
+        System.out.println("title: " + title);
+        System.out.println("student: " + student);
         userState.setTitle(title);
         userState.setStudent(student);
 
