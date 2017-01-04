@@ -26,7 +26,7 @@ public class JavaSplitter {
 
         Scanner scanner = null;
         try {
-            scanner = new Scanner(new File(filePath));
+            scanner = new Scanner(file);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }

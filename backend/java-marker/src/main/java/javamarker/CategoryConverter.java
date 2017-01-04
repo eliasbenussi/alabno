@@ -3,14 +3,15 @@ package javamarker;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 public class CategoryConverter implements CategoryConverterInterface {
 
     private final Map<String, String> errorMap = new HashMap<>();
     private final Map<String, String> descriptionMap = new HashMap<>();
+
+    // Handle categoryName : categoryNumber relation
+    private final List<String> categoryList = new LinkedList<>();
 
     /**
      * The category_converter_map.csv file contains 3 columns
@@ -46,6 +47,7 @@ public class CategoryConverter implements CategoryConverterInterface {
             }
             errorMap.put(components[0], components[1]);
             descriptionMap.put(components[0], components[2]);
+            categoryList.add(components[0]);
         }
         scanner.close();
     }
