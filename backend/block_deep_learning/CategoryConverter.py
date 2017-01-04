@@ -26,4 +26,14 @@ class CategoryConverter:
             # The category number corresponds to the index
             # of a category in the list
             self.category_list.append(splitted[0])
+    
+    def get_category_number(self, category):
+        index = 0
+        for _category in self.category_list:
+            if _category == category:
+                return index
+            index += 1
+        return -1
 
+    def get_category(self, index):
+        return self.category_list[index]

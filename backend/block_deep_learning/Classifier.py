@@ -31,7 +31,9 @@ class Classifier:
         except:
             print 'New data provided is malformed. Aborting.'
             sys.exit(1)
-        
+        if len(prediction) != len(new_data):
+            print '[Classifier] Classification failed. Aborting.'
+            sys.exit(-1)
 
 #    print 'Usage: <training sample(s)> <training label(s)> <new data>'
 #    print 'Each input must be passed without white spaces between the characters'

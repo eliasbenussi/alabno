@@ -6,9 +6,13 @@ class Block:
     
     def __init__(self, lineno):
         self.lineno = lineno
+
+        # Default values
         self.content = ''
         self.formatted_content = []
-    
+        self.assigned_category = -1
+        self.annotation = ''
+
     def pad(self, block_size):
         while len(self.content) < block_size:
             self.content += ' '
