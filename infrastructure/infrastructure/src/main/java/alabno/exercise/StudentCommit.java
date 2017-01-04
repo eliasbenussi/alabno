@@ -83,6 +83,10 @@ public class StudentCommit {
     }
 
     public SourceDocument amend(String fileName, int lineno, String annType, String annotation) {
+        if (!dataExists()) {
+            throw new RuntimeException("Disk data does not exist");
+        }
+        
         if ("ok".equals(annotation)) {
             annotation = "";
         }
@@ -165,6 +169,9 @@ public class StudentCommit {
     }
 
     public void changeMark(Mark mark) {
+        if (!dataExists()) {
+            throw new RuntimeException("No data found on disk!");
+        }
         JsonParser parser = getPostproJson();
         parser.putString("letter_score", mark.toString());
         parser.putDouble("number_score", mark.toDouble());
@@ -205,6 +212,20 @@ public class StudentCommit {
 
     public String getUsername() {
         return username;
+    }
+    
+    public boolean dataExists() {
+        boolean result = FileUtils.isFile(getJsonLocation());
+        if (!result) {
+            System.out.println("Disk file " + getJsonLocation() + " does not exist");
+        }
+        return result;
+    }
+
+    public void removeFromDB() {
+        String sql = "DELETE FROM `exercise_big_table` WHERE `exname` = ? AND `uname` = ? AND `hash` = ?";
+        String[] params = {exname, username, hash};
+        db.executeStatement(sql, params);
     }
 
 }

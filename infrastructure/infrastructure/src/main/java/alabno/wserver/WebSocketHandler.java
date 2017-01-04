@@ -136,12 +136,63 @@ public class WebSocketHandler {
             System.out.println("Unrecognized client message type " + type);
         }
     }
+    
+    private boolean checkStringNotEmpty(String value, String name, WebSocket conn) {
+        if (value == null || value.isEmpty()) {
+            ConnUtils.sendStatusInfo(conn, "Error, " + name + " is empty", Color.RED, 10);
+            return false;
+        }
+        return true;
+    }
+    
+    private boolean checkStringNotEmptyMultiple(String[] values, String[] names, WebSocket conn) {
+        if (values == null) {
+            throw new RuntimeException("values is null");
+        }
+        if (names == null) {
+            throw new RuntimeException("names is null");
+        }
+        if (values.length != names.length) {
+            throw new RuntimeException("values.length=" + values.length + " names.length=" + names.length);
+        }
+        
+        for (int i = 0; i < values.length; i++) {
+            if (!checkStringNotEmpty(values[i], names[i], conn)) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
 
     private void handleRefreshCommit(JsonParser parser, WebSocket conn) {
 
         String title = parser.getString("title");
         String student = parser.getString("student");
         
+        // safety checks
+        if (!checkStringNotEmpty(title, "title", conn)) {
+            return;
+        }
+        
+        // check student index validity
+       if (!checkStringNotEmpty(student, "student index", conn)) {
+           return;
+       }
+
+        // check if username can be found for given title and index in db
+        String sql = "SELECT DISTINCT `uname` FROM `exercise_big_table` WHERE `exname` = ? AND `userindex` = ?";
+        String[] params = {title, student};
+        List<Map<String, Object>> results = db.retrieveStatement(sql, params);
+        if (results == null || results.isEmpty()) {
+            ConnUtils.sendStatusInfo(conn, "Error: could not find linked student username in database for selected exercise", Color.RED, 10);
+            return;
+        }
+        if (results.size() > 1) {
+            ConnUtils.sendStatusInfo(conn, "Database constraint violation: found more than 1 username for specific exercise and user index", Color.RED, 10);
+            return;
+        }
+
         ExecutionUnitUpdate updateJob = new ExecutionUnitUpdate(title, student, allJobs, db, conn);
         executor.submit(updateJob);
         
@@ -153,6 +204,11 @@ public class WebSocketHandler {
         String title = parser.getString("title");
         String studentid = parser.getString("student");
         
+        // safety checks
+        if (!checkStringNotEmpty(title, "title", conn) || !checkStringNotEmpty(studentid, "student index", conn)) {
+            return;
+        }
+
         List<String> commithashes = allJobs.getCommitsOfStudent(title, studentid);
 
         JSONObject msgobj = new JSONObject();
@@ -168,7 +224,23 @@ public class WebSocketHandler {
         String studentNumber = parser.getString("student");
         String hash = parser.getString("hash");
         
+        // Safety checks
+        if (!checkStringNotEmptyMultiple(
+                new String[] {title, studentNumber, hash},
+                new String[] {"title", "student index", "commit hash"},
+                conn)) {
+            return;
+        }
+        
         StudentCommit studentCommit = allJobs.findJob(title, studentNumber, hash);
+        if (studentCommit == null) {
+            ConnUtils.sendStatusInfo(conn, "Data not found on disk", Color.RED, 10);
+            return;
+        }
+        if (!studentCommit.dataExists()) {
+            ConnUtils.sendStatusInfo(conn, "Data not found on disk", Color.RED, 10);
+            return;
+        }
 
         // Read the JSON file
         String fileContent = studentCommit.readPostProcessorOutput();
@@ -201,16 +273,34 @@ public class WebSocketHandler {
         
         JSONArray data = new JSONArray();
         // get exercises of this student
-        String token = parser.getString("id");
-        UserSession session = sessionManager.getSession(token);
+        UserSession session = sessionManager.getSession(parser);
+        if (session == null) {
+            ConnUtils.sendStatusInfo(conn, "Error, could not find user session", Color.RED, 10);
+            return;
+        }
+        
         UserAccount account = session.getAccount();
+        if (account == null) {
+            ConnUtils.sendStatusInfo(conn, "Error, no account linked to session", Color.RED, 10);
+            return;
+        }
+        
         List<StudentCommit> jobs = allJobs.getJobsOfStudent(account);
+        if (jobs == null) {
+            ConnUtils.sendStatusInfo(conn, "Error, no jobs found", Color.RED, 10);
+        }
         
         System.out.println("handleStdRefreshList: found " + jobs.size() + " jobs");
         
         // group up all student commits by exercise
         Map<String, List<StudentCommit>> exerciseMap = new HashMap<>();
         for (StudentCommit j : jobs) {
+            // Skip commits that have no local data
+            if (!j.dataExists()) {
+                j.removeFromDB();
+                continue;
+            }
+            
             String exerciseName = j.getExerciseName();
             if (!exerciseMap.containsKey(exerciseName)) {
                 exerciseMap.put(exerciseName, new ArrayList<>());
@@ -272,20 +362,33 @@ public class WebSocketHandler {
             String filename = parser.getString("filename");
             String exerciseType = parser.getString("exercise_type");
             String markString = parser.getString("mark");
+            
+            // safety checks
+            if (!checkStringNotEmptyMultiple(
+                    new String[] {filename, exerciseType, markString},
+                    new String[] {"filename", "exercise type", "mark"},
+                    conn)) {
+                return;
+            }
+            
             String token = parser.getString("id");
             Mark mark = null;
             try {
                 mark = Mark.fromString(markString);
             } catch (Exception e) {
-                ConnUtils.sendAlert(conn, "Mark Feedback Loop: Unrecognized desired mark: " + markString);
+                ConnUtils.sendStatusInfo(conn, "Mark Feedback Loop: Unrecognized desired mark: " + markString, Color.RED, 10);
                 return;
             }
             
             SourceDocument source = amendMark(filename, token, mark);
+            if (source == null) {
+                ConnUtils.sendStatusInfo(conn, "No source document found for this exercise on disk", Color.RED, 10);
+                return;
+            }
             
             updaters.updateMark(source, exerciseType, mark);
         } catch (Exception e) {
-            ConnUtils.sendAlert(conn, e.getMessage());
+            ConnUtils.sendStatusInfo(conn, e.getMessage(), Color.RED, 10);
             e.printStackTrace();
         }
     }
@@ -294,10 +397,19 @@ public class WebSocketHandler {
         // Finds the SourceDocument file of a student
         
         UserState userSession = sessionManager.getUserState(token);
+        if (userSession == null) {
+            return null;
+        }
         String title = userSession.getTitle();
         String studentNumber = userSession.getStudent();
         
         StudentCommit studentCommit = allJobs.findJobLatest(title, studentNumber);
+        if (studentCommit == null) {
+            return null;
+        }
+        if (!studentCommit.dataExists()) {
+            throw new RuntimeException("No disk data for this student commit?");
+        }
         studentCommit.changeMark(mark);
         return studentCommit.getSourceDocument(filename);
     }
@@ -307,24 +419,51 @@ public class WebSocketHandler {
             String annType = parser.getString("ann_type");
             String annotation = parser.getString("annotation");
             String fileName = parser.getString("filename");
-            int lineno = parser.getInt("lineno");
+            int lineno;
+            try {
+                lineno = parser.getInt("lineno");
+            } catch (Exception e) {
+                e.printStackTrace();
+                ConnUtils.sendStatusInfo(conn, "Invalid line number", Color.RED, 10);
+                return;
+            }
+            
+            // safety checks
+            if (!checkStringNotEmptyMultiple(
+                    new String[] {annType, annotation, fileName},
+                    new String[] {"annotation type", "annotation text", "file name"}
+                    , conn)) {
+                return;
+            }
+            
             String token = parser.getString("id");
             
             SourceDocument doc = amendFile(fileName, lineno, annType, annotation, token);
+            if (doc == null) {
+                ConnUtils.sendStatusInfo(conn, "Source document not found, cannot amend the annotation", Color.RED, 10);
+                return;
+            }
             
             updaters.update(doc, lineno, annType, annotation);
         } catch (Exception e) {
             e.printStackTrace();
+            ConnUtils.sendStatusInfo(conn, e.getMessage(), Color.RED, 10);
         }
     }
 
     private SourceDocument amendFile(String fileName, int lineno, String annType, String annotation, String token) {
         // get the postpro.json file
         UserState userSession = sessionManager.getUserState(token);
+        if (userSession == null) {
+            throw new RuntimeException("No user session found");
+        }
         String title = userSession.getTitle();
         String studentNumber = userSession.getStudent();
         
         StudentCommit studentCommit = allJobs.findJobLatest(title, studentNumber);
+        if (studentCommit == null) {
+            throw new RuntimeException("No student exercise data found!");
+        }
         return studentCommit.amend(fileName, lineno, annType, annotation);
     }
 
@@ -361,6 +500,10 @@ public class WebSocketHandler {
         userState.setStudent(student);
 
         StudentCommit studentCommit = allJobs.findJobLatest(title, student);
+        if (studentCommit == null || !studentCommit.dataExists()) {
+            ConnUtils.sendStatusInfo(conn, "Student commit exercise files not found", Color.RED, 10);
+            return;
+        }
 
         // Read the JSON file
         String fileContent = studentCommit.readPostProcessorOutput();

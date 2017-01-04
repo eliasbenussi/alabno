@@ -41,9 +41,12 @@ public class JobsCollection {
     }
 
     public List<StudentCommit> getJobsOfStudent(UserAccount account) {
-        String sql = "SELECT exercise_big_table.exname AS exname,\r\nexercise_big_table.uname AS uname,\r\nexercise_big_table.userindex AS userindex,\r\nexercise_big_table.hash AS hash,\r\nexercise_big_table.status AS status,\r\nexercise.extype AS extype\r\nFROM exercise_big_table JOIN exercise ON exercise_big_table.exname = exercise.exname\r\nWHERE exercise_big_table.uname = ?";
+        String sql = "SELECT exercise_big_table.exname AS exname,\r\nexercise_big_table.uname AS uname,\r\nexercise_big_table.userindex AS userindex,\r\nexercise_big_table.hash AS hash,\r\nexercise_big_table.status AS status,\r\nexercise.extype AS extype\r\nFROM exercise_big_table JOIN exercise ON exercise_big_table.exname = exercise.exname\r\nWHERE exercise_big_table.uname = ?\r\nORDER BY exercise_big_table.timestamp DESC";
         String[] params = {account.getUsername()};
         List<Map<String, Object>> results = db.retrieveStatement(sql, params);
+        if (results == null) {
+            return null;
+        }
         List<StudentCommit> out = new ArrayList<>();
         for (Map<String, Object> row : results) {
             String exname = (String) row.get("exname");
@@ -115,7 +118,7 @@ public class JobsCollection {
                 "SELECT exercise_big_table.exname AS exname,\r\nexercise_big_table.uname AS uname,\r\nexercise_big_table.userindex AS userindex,\r\nexercise_big_table.hash AS hash,\r\nexercise_big_table.status AS status,\r\nexercise.extype AS extype\r\nFROM exercise_big_table JOIN exercise ON exercise_big_table.exname = exercise.exname\r\nWHERE exercise_big_table.userindex = ? AND\r\nexercise_big_table.exname = ? AND\r\nexercise_big_table.hash = ?";
         String[] params = {studentNumber, title, qhash};
         List<Map<String, Object>> results = db.retrieveStatement(sql, params);
-        if (results.isEmpty()) {
+        if (results == null || results.isEmpty()) {
             return null;
         }
         for (Map<String, Object> row : results) {
