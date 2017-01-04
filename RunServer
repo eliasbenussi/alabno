@@ -43,12 +43,20 @@ screen_name = 'alabnodaemonservice'
 exec_dir = os.path.abspath(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(exec_dir)
 
+# import git authentication library
+sys.path.append(os.path.abspath(exec_dir + os.sep + 'infrastructure'))
+import gitauth
+
 def start_server(https):
     global args
     if args.local:
         os.environ["ALABNOLOCAL"] = "1"
     else:
         os.environ["ALABNOLOCAL"] = "2"
+    
+    # Setup git authentication
+    gitauth.ask_authentication()
+    gitauth.set_auth_passphrase()
     
     if https:
         print("Starting in secure mode")

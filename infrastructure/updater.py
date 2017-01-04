@@ -7,6 +7,7 @@ import json
 
 import microservices
 import clonerutils
+import gitauth
 
 ################################################################################
 # INFORMATION
@@ -73,7 +74,10 @@ last_file.close()
 
 # Clone into a commitX directory
 os.chdir(student_dir)
-cmd = 'timeout 60 git clone {} {} --depth {}'.format(the_url, 'commitX', max_clone_depth)
+# Remove any commitX directories left there before
+cmd = 'rm -rf commitX'
+subprocess.call(cmd, shell=True)
+cmd = 'timeout 60 git clone {} {} --depth {}'.format(gitauth.format_git_url(the_url), 'commitX', max_clone_depth)
 code = subprocess.call(cmd, shell=True)
 if code != 0:
     print('Cloning was not successful. Return code: {}'.format(code))
