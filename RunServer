@@ -56,6 +56,7 @@ def start_server(https):
     
     # Setup git authentication
     gitauth.ask_authentication()
+    gitauth.set_auth_passphrase()
     
     if https:
         print("Starting in secure mode")

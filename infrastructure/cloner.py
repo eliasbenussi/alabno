@@ -74,6 +74,9 @@ def makedirs(dirpath):
     cmd = 'mkdir {}'.format(dirpath)
     subprocess.call(cmd, shell=True)
 
+# create temporary directory
+makedirs(temporary_directory)
+
 # create temporary base directory
 base_directory = temporary_directory + os.sep + args.exname
 if base_directory == '':
