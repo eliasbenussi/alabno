@@ -700,6 +700,10 @@ public class WebSocketHandler {
         }
         
         List<StudentCommit> commits = allJobs.getStudentsByTitle(title);
+        if (commits == null) {
+            ConnUtils.sendStatusInfo(conn, "Could not retrieve student jobs", Color.RED, 10);
+            throw new RuntimeException("Could not retrieve student jobs for exercise " + title);
+        }
 
         // generate job_group message
         JSONObject msgobj = new JSONObject();
@@ -707,6 +711,10 @@ public class WebSocketHandler {
         msgobj.put("title", title);
         JSONArray groupArray = new JSONArray();
         for (StudentCommit c : commits) {
+            if (!c.dataExists()) {
+                c.removeFromDB();
+                continue;
+            }
             JSONObject studentobj = new JSONObject();
             studentobj.put("idx", c.getUserId());
             studentobj.put("uname", c.getUsername());
@@ -733,18 +741,73 @@ public class WebSocketHandler {
         return conn == expected.getWebSocket();
     }
 
+    @SuppressWarnings("unchecked")
     private void handleNewAssignment(JsonParser parser, WebSocket conn) {
         try {
             String title = parser.getString("title");
 
             if (title == null || title.isEmpty()) {
-                ConnUtils.sendAlert(conn, "title is required");
+                ConnUtils.sendStatusInfo(conn, "Title is required", Color.RED, 10);
                 return;
             }
 
             UserSession session = sessionManager.getSession(parser);
+            if (session == null) {
+                ConnUtils.sendStatusInfo(conn, "Could not find user session", Color.RED, 10);
+                throw new RuntimeException("session is null");
+            }
             UserAccount account = session.getAccount();
+            if (account == null) {
+                ConnUtils.sendStatusInfo(conn, "Could not find user account", Color.RED, 10);
+                throw new RuntimeException("account is null");
+            }
             String username = account.getUsername();
+            
+            String extype = parser.getString("ex_type");
+            if (!checkStringNotEmpty(extype, "exercise type", conn)) {
+                throw new RuntimeException("Exercise type is empty or null" + extype);
+            }
+            
+            String modelgit = parser.getString("model_git");
+            if (!checkStringNotEmpty(modelgit, "model solution git repository", conn)) {
+                throw new RuntimeException("Model Solution git is " + modelgit);
+            }
+            if (!modelgit.startsWith("https://")) {
+                ConnUtils.sendStatusInfo(conn, "Invalid git URL: " + modelgit, Color.RED, 10);
+                throw new RuntimeException("invalid model solution git link");
+            }
+            
+            // Check student gits and usernames
+            JsonArrayParser studentsGitsArray = parser.getArrayParser("students_git");
+            if (studentsGitsArray == null) {
+                ConnUtils.sendStatusInfo(conn, "Please provide student git links and student usernames", Color.RED, 10);
+                throw new RuntimeException("no student gits array");
+            }
+            // Analyze each of the students links and usernames
+            JSONArray cleanedArray = new JSONArray();
+            for (JsonParser studentdata : studentsGitsArray) {
+                if (studentdata == null) {
+                    continue;
+                }
+                String git = studentdata.getString("git");
+                String uname = studentdata.getString("uname");
+                boolean gitnull = git == null || git.isEmpty();
+                boolean unamenull = uname == null || uname.isEmpty();
+                // If the entire entry is empty, skip it
+                if (gitnull && unamenull) {
+                    continue;
+                }
+                if (!git.startsWith("https://")) {
+                    ConnUtils.sendStatusInfo(conn, "Invalid git https link: " + git, Color.RED, 10);
+                    throw new RuntimeException("invalid git " + git);
+                }
+                if (uname == null || uname.isEmpty()) {
+                    ConnUtils.sendStatusInfo(conn, "Username for link " + git + " is required", Color.RED, 10);
+                    throw new RuntimeException("no username" );
+                }
+                cleanedArray.add(studentdata);
+            }
+            parser.putArray("students_git", cleanedArray);
             
             // Create the new pending job
             localJobs.addJob(username, conn, title);
@@ -755,7 +818,11 @@ public class WebSocketHandler {
                 localJobs.updateJob(username, title, JobState.ERROR);
             }
             
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            return;
+        }
+        catch (Exception e) {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             PrintStream ps = new PrintStream(baos);
             e.printStackTrace(ps);
