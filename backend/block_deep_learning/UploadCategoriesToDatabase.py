@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-# Java Training not yet implemented
-
 import SimpleHTTPServer
 import SocketServer
 import traceback
@@ -26,10 +24,11 @@ for line in input_file:
     try:
         splitted = line.replace('\n', '').split('\t')
         name = splitted[0]
-        text = splitted[1]
+        cat = splitted[1]
+        annotation = splitted[2]
         
-        sql = 'INSERT INTO `JavaTraining`(`name`, `text`) VALUES (%s,%s)'
-        values = [name, text]
+        sql = 'INSERT INTO `HaskellCategories`(`name`, `type`, `annotation`) VALUES (%s,%s,%s)'
+        values = [name, cat, annotation]
         
         db.execute(sql, values)
     except:
