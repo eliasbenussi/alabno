@@ -1,6 +1,6 @@
 import ast
 import sys
-import MLFileUtils
+import MLUtils
 from sklearn.neural_network import MLPClassifier
 
 class Classifier:
@@ -10,7 +10,7 @@ class Classifier:
         self.X = []
         self.y = []
 
-        formatted_training = MLFileUtils.format_training_file(training_file_path) 
+        formatted_training = format_training_file(training_file_path) 
         for (cat_numb, formatted_text) in formatted_training:
             self.X.append(formatted_text)
             self.y.append(cat_numb)
