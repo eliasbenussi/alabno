@@ -4,8 +4,9 @@ import MLUtils
 
 class Block:
     
-    def __init__(self, lineno):
+    def __init__(self, lineno, charno):
         self.lineno = lineno
+        self.charno = charno
 
         # Default values
         self.content = ''
@@ -33,7 +34,7 @@ class Script_Blocks_Container:
 
     def split(self):
         BLOCK_SIZE = 200
-        BLOCK_OFFSET = 52
+        BLOCK_OFFSET = 50
 
         source_file = open(self.source_p, 'r')
         inverse_map = {}
@@ -55,7 +56,7 @@ class Script_Blocks_Container:
         i = 0
         while i < len(source_text):
             j = 0
-            current_block = Block(inverse_map[i])
+            current_block = Block(inverse_map[i], i)
             while j < BLOCK_SIZE and i < len(source_text):
                 current_block.content += source_text[i]
                 i += 1
