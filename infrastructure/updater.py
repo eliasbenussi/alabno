@@ -77,8 +77,9 @@ os.chdir(student_dir)
 # Remove any commitX directories left there before
 cmd = 'rm -rf commitX'
 subprocess.call(cmd, shell=True)
+devnull = open('/dev/null', 'w')
 cmd = 'timeout 60 git clone {} {} --depth {}'.format(gitauth.format_git_url(the_url), 'commitX', max_clone_depth)
-code = subprocess.call(cmd, shell=True)
+code = subprocess.call(cmd, shell=True, stdout=devnull, stderr=devnull)
 if code != 0:
     print('Cloning was not successful. Return code: {}'.format(code))
     cmd = 'rm -rf {}'.format(os.path.abspath(student_dir + os.sep + 'commitX'))

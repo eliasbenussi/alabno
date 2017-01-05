@@ -77,7 +77,7 @@ public class LocalJobStatus {
             JSONObject jobobj = new JSONObject();
             jobobj.put("title", name);
             jobobj.put("status", stateString);
-            jobobj.put("local", FileUtils.jobDirectoryExists(name));
+            jobobj.put("local", true);
             thejobs.add(jobobj);
         }
         for (String name : globalJobs.getJobNames()) {

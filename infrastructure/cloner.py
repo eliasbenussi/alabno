@@ -98,8 +98,9 @@ for i in range(len(the_students_gits)):
 # clone the model answer
 if args.model and args.model != '':
     os.chdir(base_directory)
+    devnull = open('/dev/null', 'w')
     cmd = 'timeout 60 git clone {} {} --depth {}'.format(gitauth.format_git_url(args.model), 'model', max_clone_depth)
-    code = subprocess.call(cmd, shell=True)
+    code = subprocess.call(cmd, shell=True, stdout=devnull, stderr=devnull)
     if code != 0:
         print('Cloning of the model answer at {} failed. Aborting...'.format(args.model))
         sys.exit(1)
@@ -115,8 +116,9 @@ for i in range(len(the_students_gits)):
     os.chdir(student_base_directory)
     
     # first, clone into a commitX directory
+    devnull = open('/dev/null', 'w')
     cmd = 'timeout 60 git clone {} {} --depth {}'.format(gitauth.format_git_url(the_students_gits[i]), 'commitX', max_clone_depth)
-    code = subprocess.call(cmd, shell=True)
+    code = subprocess.call(cmd, shell=True, stdout=devnull, stderr=devnull)
     if code != 0:
         print('Cloning of student repository at {} failed. Aborting...'.format(the_students_gits[i]))
         sys.exit(1)
