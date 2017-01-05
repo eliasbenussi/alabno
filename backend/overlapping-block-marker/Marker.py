@@ -91,8 +91,9 @@ class Marker:
 
     def write_output(self, output_f):
         if self.output != None:
-            with open(output_f, 'w') as _file:
-                json.dump(self.output, _file)
+            _file = open(output_f, 'w')
+            json.dump(self.output, _file)
+            _file.close()
 
     def mark():
         
@@ -130,4 +131,23 @@ class Marker:
         
         self.output = generate_json(partial_outputs, error)
             
+
+# ============== Main Script =====================================
+
+args = sys.argv
+if len(args) < 5::
+    print '[Marker] Expecting at least three arguments:\
+            <training_file> <category_map_file> <output_file>[<source_file>]'
+
+training_f = args[1]
+cat_map_f = args[2]
+output_f = args[3
+sources = []
+
+for i in range(4, len(args)):
+    sources.append(args[i])
+
+marker = Marker(training_f, cat_map_f, sources)
+marker.mark()
+marker.write_output(output_f)
 
