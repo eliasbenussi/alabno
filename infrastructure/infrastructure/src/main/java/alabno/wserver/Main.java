@@ -87,8 +87,8 @@ public class Main {
                 // Set up the WebSocket server in secure mode
                 String STORETYPE = "JKS";
                 String KEYSTORE = "frontend/mykeystore.jks";
-                String STOREPASSWORD = "albano";
-                String KEYPASSWORD = "albano";
+                String STOREPASSWORD = System.getenv("ALABNOJKSPASS");
+                String KEYPASSWORD = System.getenv("ALABNOJKSPASS");
 
                 KeyStore ks = KeyStore.getInstance(STORETYPE);
                 File kf = new File(KEYSTORE);
