@@ -51,11 +51,11 @@ class BlockDeepMarkerTest(unittest.TestCase):
         self.assertIs(last_but_one_block.lineno, 1)
 
     # Marker =========================================
-    #def test_format_training(self):
-    #    marker = Marker('testFiles/training.txt', None, 'testFiles/category_map_test.csv')
-    #    formatted = marker.format_training_file()
-    #    form_line = MLUtils.format_line((' &#124; otherwise = y\n\n').replace('\n',''))
-    #    self.assertTrue((0, form_line) in formatted)
+    def test_format_training(self):
+        marker = Marker('testFiles/training.txt', None, 'testFiles/category_map_test.csv')
+        formatted = marker.format_training_file()
+        form_line = MLUtils.format_line((' &#124; otherwise = y\n\n').replace('\n',''))
+        self.assertTrue((0, form_line) in formatted)
         
 
 if __name__ == '__main__':
