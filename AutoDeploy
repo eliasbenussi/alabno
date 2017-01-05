@@ -47,7 +47,7 @@ def call_and_check(cmd):
         sys.exit(1)
     return
 
-pem_file = args.pem
+pem_file = os.path.abspath(args.pem)
 
 # stop any running servers
 cmd = 'screen -X -S {} quit'.format(screen_name)
@@ -88,8 +88,10 @@ call_and_check(cmd)
 
 # copy over pem and jks files
 if pem_file is not None:
+
     # Remove existing destination files
     #  alabno/frontend
+    previous_directory = os.path.abspath(os.getcwd())
     frontend_directory = os.path.abspath(destination_directory + os.sep + 'frontend')
     os.chdir(frontend_directory)
     cmds = ['rm -rf *.key',
@@ -100,10 +102,11 @@ if pem_file is not None:
             'rm -rf *.pem']
     for cmd in cmds:
         call_and_check(cmd)
-    
+
     # Copy the file
     cmd = 'cp {} {}'.format(pem_file, destination_directory + '/frontend/server.pem')
     call_and_check(cmd)
+
     print('A script will now be run to generate the necessary key and certificate files used by the servers')
     #  alabno/frontend/pem_to_jks.sh
     jks_script_path = os.path.abspath(destination_directory + os.sep + 'frontend' + os.sep + 'pem_to_jks.sh')
