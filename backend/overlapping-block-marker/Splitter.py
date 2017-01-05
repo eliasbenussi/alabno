@@ -14,10 +14,6 @@ class Block:
         self.assigned_category = -1
         self.annotation = ''
 
-    def pad(self, block_size):
-        while len(self.content) < block_size:
-            self.content += ' '
-    
     def format_content(self):
         self.formatted_content = MLUtils.format_line(self.content)
 
@@ -61,7 +57,7 @@ class Script_Blocks_Container:
                 current_block.content += source_text[i]
                 i += 1
                 j += 1
-            current_block.pad(BLOCK_SIZE)
+            current_block.content = MLUtils.pad(current_block.content, BLOCK_SIZE)
             all_blocks.append(current_block)
             if i >= len(source_text):
                 break

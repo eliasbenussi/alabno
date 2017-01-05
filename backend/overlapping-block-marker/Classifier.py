@@ -12,16 +12,19 @@ class Classifier:
         self.formatted_training = formatted_training
 
         for (cat_numb, formatted_text) in formatted_training:
-            self.X.append(formatted_text)
+            self.X.append(map(lambda n: float(n), formatted_text))
             self.y.append(cat_numb)
+
+        print self.X
         
         # Initialize the classifier (stochastic gradient-descent)
-        self.clf = MLPClassifier(solver='adam', alpha=1e-5, 
+        self.clf = MLPClassifier(solver='lbfgs', alpha=1e-5, 
                                    hidden_layer_sizes=(5, 2), random_state=1)
+        
         try: 
             self.clf.fit(self.X, self.y)
-        except:
-            print ('Training data is malformed. Aborting.')
+        except Exception as e:
+            print (str(e))
             sys.exit(1)
 
     def predict(self, new_data):

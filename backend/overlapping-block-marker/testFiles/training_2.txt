@@ -1,0 +1,11 @@
+ok	arithmeticSeries :: Double -&gt; Double -&gt; Int -&gt; Double\narithmeticSeries a d n\n  = (n' + 1) * (a + d * n' / 2)\n  where\n    n' = fromIntegral n\n\n
+comment	-- Geometric series\n
+ok	geometricSeries :: Double -&gt; Double -&gt; Int -&gt; Double\ngeometricSeries a r n\n  &#124; r == 1    = (fromIntegral n + 1) * a\n  &#124; otherwise = a * (1 - r ^ (n + 1)) / (1 - r)\n
+ok	module MP where\n\n
+ok	import System.Environment\n\n
+ok	type FileContents = String\n\n
+ok	type Keyword      = String\ntype KeywordValue = String\ntype KeywordDefs  = [(Keyword, KeywordValue)]\n\n
+ok	separators :: String\nseparators\n  = &quot; \n\t.,:;!\&quot;\'()&lt;&gt;/\\&quot;\n\n\n
+unimplemented	lookUp :: String -&gt; [(String, a)] -&gt; [a]\nlookUp = error &quot;TODO: implement lookUp&quot;\n\n
+indentation	split :: [Char] -&gt; String -&gt; (String, [String])\nsplit chs []\n    = (&quot;&quot;, [&quot;&quot;])\nsplit chs (c : cs)\n        &#124; elem c chs = (c : terms, &quot;&quot; : words)\n        &#124; otherwise = (terms, (c:w) : ws)\n        where\n                (terms, words) = split chs cs\n                (w : ws) = words\n\n
+unimplemented	combine :: String -&gt; [String] -&gt; [String]\ncombine = error &quot;TODO: implement combine&quot;\n\n

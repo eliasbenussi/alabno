@@ -1,9 +1,9 @@
 
 import MLUtils
 from CategoryConverter import CategoryConverter
-import Splitter
+from Splitter import Script_Blocks_Container, Block
 import Classifier
-import Marker
+from Marker import Marker
 import unittest
 
 # Test module for the microservice
@@ -41,7 +41,7 @@ class BlockDeepMarkerTest(unittest.TestCase):
     
     # Splitter =======================================
     def test_splitter(self):
-        splitter = Splitter.Script_Blocks_Container('testFiles/split_test.txt')
+        splitter = Script_Blocks_Container('testFiles/split_test.txt')
         splitter.split()
         splitted = splitter.container
         self.assertIs(len(splitted), 5)
@@ -51,6 +51,12 @@ class BlockDeepMarkerTest(unittest.TestCase):
         self.assertIs(last_but_one_block.lineno, 1)
 
     # Marker =========================================
+    #def test_format_training(self):
+    #    marker = Marker('testFiles/training.txt', None, 'testFiles/category_map_test.csv')
+    #    formatted = marker.format_training_file()
+    #    form_line = MLUtils.format_line((' &#124; otherwise = y\n\n').replace('\n',''))
+    #    self.assertTrue((0, form_line) in formatted)
         
+
 if __name__ == '__main__':
     unittest.main()
