@@ -7,7 +7,7 @@ class CategoryConverter:
     # The category_map file is of the form
     # category_key      error_type      annotation
     def __init__(self, _file = 'category_map.csv'):
-        self._file = open(_file, 'r')
+        self._file = open(os.path.abspath(_file), 'r')
         self.annotation_map = {}
         self.error_map = {}
         self.category_list = []

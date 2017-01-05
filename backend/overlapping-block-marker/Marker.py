@@ -27,7 +27,7 @@ class Marker:
     
     def __init__(self, training_f, sources):
         self.category_converter = CategoryCoverter()
-        self.classifier = Classifier(training_f)
+        self.classifier = Classifier(training_f, self.category_converter)
         self.sources = sources
 
     # Updates given block with given category and correspondent annotation

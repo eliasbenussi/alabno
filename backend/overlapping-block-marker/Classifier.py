@@ -5,12 +5,12 @@ from sklearn.neural_network import MLPClassifier
 
 class Classifier:
     
-    def __init__(self, training_file_path):
+    def __init__(self, formatted_training):
         
         self.X = []
         self.y = []
+        self.formatted_training = formatted_training
 
-        formatted_training = format_training_file(training_file_path) 
         for (cat_numb, formatted_text) in formatted_training:
             self.X.append(formatted_text)
             self.y.append(cat_numb)
@@ -21,7 +21,7 @@ class Classifier:
         try: 
             self.clf.fit(self.X, self.y)
         except:
-            print ('Training data from {} is malformed. Aborting.'.format(training_file_path))
+            print ('Training data is malformed. Aborting.')
             sys.exit(1)
 
     def predict(self, new_data):
@@ -29,7 +29,6 @@ class Classifier:
         prediction = self.clf.predict(new_data)
         if len(prediction) != len(new_data):
             raise Exception('[Classifier] Classification failed. Aborting.')
-            
 
 #    print 'Usage: <training sample(s)> <training label(s)> <new data>'
 #    print 'Each input must be passed without white spaces between the characters'
