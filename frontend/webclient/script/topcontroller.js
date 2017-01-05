@@ -12,6 +12,12 @@ theapp.controller('mycontroller', function($scope) {
         window.location.hash = 'student';
     };
 
+    $scope.go_to_dashboard = function(usertype)
+    {
+        console.log($globals.usertype);
+        console.log(!$globals.usertype);
+    };
+
     $scope.login_clicked = function()
     {
         var the_password = '';
