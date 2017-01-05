@@ -38,6 +38,7 @@ theapp.controller('professorController', function($scope) {
     $scope[to_show] = true;
   };
 
+ 
   //Show multiple sections (same as above, without hiding everything else)
   $scope.show_sections = function() {
     for (var i = 0; i < $scope.show_hide_flags.length; i++) {
@@ -47,6 +48,12 @@ theapp.controller('professorController', function($scope) {
       $scope[arguments[j]] = true;
     }
   };
+  
+  // Show only default flags when redirecting to dashboard
+  $scope.$on('prof_show_default_flags_only', function(show_default_flags) {
+    // console.log("Trying to show only default flags");
+    $scope.show_section('show_professor_exercises');
+  });
 
   $scope.entries = [{}];
 

@@ -12,10 +12,14 @@ theapp.controller('mycontroller', function($scope) {
         window.location.hash = 'student';
     };
 
-    $scope.go_to_dashboard = function(usertype)
+    $scope.go_to_dashboard = function()
     {
-        console.log($globals.usertype);
-        console.log(!$globals.usertype);
+        console.log("Redirecting to the dashboard of a user type: " + $globals.usertype);
+        if ($globals.usertype == "s") {
+          $scope.$broadcast('stud_show_default_flags_only');
+        } else {
+          $scope.$broadcast('prof_show_default_flags_only');
+        }
     };
 
     $scope.login_clicked = function()
