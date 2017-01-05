@@ -1,7 +1,8 @@
 
-import Splitter
-import CategoryConverter
-import Classifier
+import MLUtils
+from Splitter import Script_Blocks_Container, Block
+from CategoryConverter import CategoryConverter
+from Classifier import Classifier
 import sys
 import json
 
@@ -25,10 +26,26 @@ class Annotation:
 
 class Marker:
     
-    def __init__(self, training_f, sources):
-        self.category_converter = CategoryCoverter()
-        self.classifier = Classifier(training_f, self.category_converter)
+    def __init__(self, training_f, sources, category_file = 'category_map.csv'):
+        self.category_converter = CategoryConverter(category_file)
+        self.training_f = training_f
+        self.classifier = Classifier(self.format_training_file())
         self.sources = sources
+
+    # Format parsed file.
+    # Each pair (category, text) is replaced
+    # by (category_number, formatted_text)
+    def format_training_file(self):
+    
+        parsed = MLUtils.parse_training_file(self.training_f)
+        formatted = []
+    
+        for (category, text) in parsed:
+            cat_numb = self.category_converter.get_category_number(category)
+            formatted.append((cat_numb, MLUtils.format_line(text)))
+    
+        return formatted           
+
 
     # Updates given block with given category and correspondent annotation
     def update_category_and_annotation(self, block, category_n):
