@@ -19,7 +19,7 @@ class Block:
             self.content += ' '
     
     def format_content(self):
-        self.formatted_content = format_line(self.content)
+        self.formatted_content = MLUtils.format_line(self.content)
 
     def __str__(self):
         return '[{}, {}]'.format(self.lineno, self.content)
@@ -33,8 +33,8 @@ class Script_Blocks_Container:
         self.container = []
 
     def split(self):
-        BLOCK_SIZE = 200
-        BLOCK_OFFSET = 50
+        BLOCK_SIZE = 80
+        BLOCK_OFFSET = 20
 
         source_file = open(self.source_p, 'r')
         inverse_map = {}
@@ -67,18 +67,18 @@ class Script_Blocks_Container:
                 break
             i -= BLOCK_SIZE - BLOCK_OFFSET
 
+        source_file.close()
         self.container = all_blocks
 
 
 # Main ====================================================
 
-# block_container = Script_Blocks_Container("./test.txt")
-# block_container.split()
-# _container = block_container.get_container()
-# 
-# for c in _container:
-#   print(c.__str__())
-                         
+#block_container = Script_Blocks_Container("testFiles/split_test.txt")
+#block_container.split()
+#_container = block_container.container
+#
+#for b in container:
+#    print b.__str__()
 
 
 

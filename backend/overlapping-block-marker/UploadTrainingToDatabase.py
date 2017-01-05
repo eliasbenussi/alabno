@@ -28,7 +28,7 @@ for line in input_file:
         name = splitted[0]
         text = splitted[1]
         
-        sql = 'INSERT INTO `HaskellTraining`(`name`, `text`) VALUES (%s,%s)'
+        sql = 'INSERT INTO `OverBlockTraining`(`name`, `text`) VALUES (%s,%s)'
         values = [name, text]
         
         db.execute(sql, values)

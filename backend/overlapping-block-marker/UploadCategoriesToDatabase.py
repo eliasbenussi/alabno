@@ -27,7 +27,7 @@ for line in input_file:
         cat = splitted[1]
         annotation = splitted[2]
         
-        sql = 'INSERT INTO `HaskellCategories`(`name`, `type`, `annotation`) VALUES (%s,%s,%s)'
+        sql = 'INSERT INTO `OverBlockCategories`(`name`, `type`, `annotation`) VALUES (%s,%s,%s)'
         values = [name, cat, annotation]
         
         db.execute(sql, values)

@@ -1,3 +1,4 @@
+import CategoryConverter
 
 # Collection of utilities to manipulate
 # files for the MLPClassifier
@@ -33,14 +34,12 @@ def format_line(line):
 # Format parsed file.
 # Each pair (category, text) is replaced
 # by (category_number, formatted_text)
-def format_training_file(file_path):
+def format_training_file(file_path, converter):
     
     parsed = parse_training_file(file_path)
     formatted = []
 
-    i = 0
     for (category, text) in parsed:
-        formatted.append((i, format_line(text)))
-        i += 1
+        formatted.append((converter.get_category_number(category), format_line(text)))
 
     return formatted
