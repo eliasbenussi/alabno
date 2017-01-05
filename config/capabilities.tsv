@@ -9,3 +9,4 @@ std_refresh_list	s
 std_retrieve_result	s	p
 retrieve_commits	p
 refresh_commit	s	p
+prof_delete_exercise	p

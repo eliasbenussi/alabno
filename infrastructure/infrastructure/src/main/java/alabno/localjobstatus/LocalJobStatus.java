@@ -7,6 +7,7 @@ import org.java_websocket.WebSocket;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import alabno.utils.FileUtils;
 import alabno.wserver.JobsCollection;
 
 public class LocalJobStatus {
@@ -32,6 +33,11 @@ public class LocalJobStatus {
     
     public void addJob(String jobname) {
         jobs.put(jobname, JobState.WAITING);
+        sendUpdate();
+    }
+    
+    public void removeJob(String jobname) {
+        jobs.remove(jobname);
         sendUpdate();
     }
     
@@ -71,6 +77,7 @@ public class LocalJobStatus {
             JSONObject jobobj = new JSONObject();
             jobobj.put("title", name);
             jobobj.put("status", stateString);
+            jobobj.put("local", true);
             thejobs.add(jobobj);
         }
         for (String name : globalJobs.getJobNames()) {
@@ -78,6 +85,7 @@ public class LocalJobStatus {
             jobobj.put("title", name);
             String status = "ok";
             jobobj.put("status", status);
+            jobobj.put("local", FileUtils.jobDirectoryExists(name));
             thejobs.add(jobobj);
         }
         msgobj.put("jobs", thejobs);
@@ -112,5 +120,7 @@ public class LocalJobStatus {
     public void updateSocket(WebSocket conn) {
         this.conn = conn;
     }
+
+
 
 }

@@ -132,11 +132,60 @@ public class WebSocketHandler {
         case "refresh_commit":
             handleRefreshCommit(parser, conn);
             break;
+        case "prof_delete_exercise":
+            handleProfDeleteExercise(parser, conn);
+            break;
         default:
             System.out.println("Unrecognized client message type " + type);
         }
     }
     
+    private void handleProfDeleteExercise(JsonParser parser, WebSocket conn) {
+        try {
+            String title = parser.getString("title");
+            if (!checkStringNotEmpty(title, "title", conn)) {
+                throw new RuntimeException("title is empty");
+            }
+            
+            // Check if it's deletable
+            boolean existsOnDisk = FileUtils.jobDirectoryExists(title);
+            if (existsOnDisk) {
+                ConnUtils.sendStatusInfo(conn, "You are not allowed to delete this exercise", Color.RED, 10);
+                throw new RuntimeException(title + " exists on disk");
+            }
+            
+            // Get username
+            UserSession session = sessionManager.getSession(parser);
+            if (session == null) {
+                ConnUtils.sendStatusInfo(conn, "No user session error", Color.RED, 10);
+                throw new RuntimeException("no user session???");
+            }
+            
+            UserAccount account = session.getAccount();
+            if (account == null) {
+                ConnUtils.sendStatusInfo(conn, "Error, no account found", Color.RED, 10);
+                throw new RuntimeException("account is null");
+            }
+            
+            String username = account.getUsername();
+            
+            // Delete on the allJobs
+            allJobs.deleteExercise(title);
+            
+            // Delete from localJobs and send update
+            localJobs.removeJob(username, title, conn);
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            return;
+        }
+        catch (Exception e) {
+            ConnUtils.sendStatusInfo(conn, e.getMessage(), Color.RED, 10);
+            e.printStackTrace();
+            return;
+        }
+
+    }
+
     private boolean checkStringNotEmpty(String value, String name, WebSocket conn) {
         if (value == null || value.isEmpty()) {
             ConnUtils.sendStatusInfo(conn, "Error, " + name + " is empty", Color.RED, 10);
@@ -305,7 +354,6 @@ public class WebSocketHandler {
         for (StudentCommit j : jobs) {
             // Skip commits that have no local data
             if (!j.dataExists()) {
-                j.removeFromDB();
                 continue;
             }
             
@@ -1039,6 +1087,7 @@ public class WebSocketHandler {
             jobobj.put("title", name);
             String status = "ok";
             jobobj.put("status", status);
+            jobobj.put("local", FileUtils.jobDirectoryExists(name));
             jobs.add(jobobj);
         }
         msgobj.put("jobs", jobs);
