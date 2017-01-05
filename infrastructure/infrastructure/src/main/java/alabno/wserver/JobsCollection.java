@@ -150,6 +150,18 @@ public class JobsCollection {
         return out;
     }
 
+    public void deleteExercise(String title) {
+        // delete in exercise table
+        String sql = "DELETE FROM `exercise` WHERE `exname` = ?";
+        String[] params = {title};
+        db.executeStatement(sql, params);
+        
+        // delete in exercise_big_table
+        sql = "DELETE FROM `exercise_big_table` WHERE `exname` = ?";
+        params = new String[] {title};
+        db.executeStatement(sql, params);
+    }
+
 
 
 }

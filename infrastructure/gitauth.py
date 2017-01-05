@@ -43,7 +43,7 @@ def ask_authentication(force=False):
     
     # encrypt file using gpg
     print('The configuration file will now encrypted and stored. Please enter a password to encrypt and decrypt the configuration file')
-    cmd = 'gpg -c {}'.format(conf_file_path)
+    cmd = 'gpg --no-use-agent -c {}'.format(conf_file_path)
     code = subprocess.call(cmd, shell=True)
     if code != 0:
         print('Error, gpg encryption tool returned code {}'.format(code))
@@ -58,7 +58,7 @@ def get_auth_string():
         if not passphrase:
             print('cannot decode gitauth file: no valid passphrase')
             return ''
-        cmd = ['gpg', '--passphrase', passphrase, encrypted_conf_file_path]
+        cmd = ['gpg', '--passphrase', passphrase, '--no-use-agent', encrypted_conf_file_path]
         code = subprocess.call(cmd, shell=False)
         if code != 0:
             print('could not decode gitauth file: wrong passphrase!')
@@ -91,7 +91,7 @@ def set_auth_passphrase():
         while not valid:
             print('Please enter the decryption key of the git authorization configuration file')
             a_pass = getpass.getpass()
-            cmd = ['gpg', '--passphrase', a_pass, encrypted_conf_file_path]
+            cmd = ['gpg', '--passphrase', a_pass, '--no-use-agent', encrypted_conf_file_path]
             code = subprocess.call(cmd, shell=False)
             valid = code == 0
             if code != 0:

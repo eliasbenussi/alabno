@@ -9,6 +9,7 @@ import alabno.wserver.JobsCollection;
 
 public class LocalJobStatusAll {
 
+    // Map from username to LocalJobStatus
     private Map<String, LocalJobStatus> instructors = new HashMap<>();
     private JobsCollection allJobs = null;
 
@@ -34,6 +35,17 @@ public class LocalJobStatusAll {
 
     public void setJobsCollection(JobsCollection allJobs) {
         this.allJobs = allJobs;
+    }
+    
+    public void removeJob(String username, String jobname, WebSocket conn) {
+        if (!instructors.containsKey(username)) {
+            LocalJobStatus instructorJob = new LocalJobStatus(username, conn, allJobs);
+            instructors.put(username, instructorJob);
+        }
+        LocalJobStatus theInstructorJob = instructors.get(username);
+        theInstructorJob.updateSocket(conn); // Make sure that connection is up-to-date
+        
+        theInstructorJob.removeJob(jobname);
     }
 
 }

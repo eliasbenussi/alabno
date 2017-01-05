@@ -174,6 +174,14 @@ theapp.controller('professorController', function($scope) {
     $scope.annotated_files = [];
   };
   
+  $scope.delete_exercise = function(title) {
+    var msgobj = {};
+    msgobj.type = "prof_delete_exercise";
+    msgobj.id = $globals.token;
+    msgobj.title = title;
+    $globals.send(JSON.stringify(msgobj));
+  };
+  
   // ###########################################################################
   // marking feedback
   
