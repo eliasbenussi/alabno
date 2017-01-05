@@ -18,6 +18,7 @@ def parse_training_file(file_path):
             parsed.append((category, text))
         except:
             continue 
+    training_file.close()
     return parsed
 
 # Produces list of integers, 
