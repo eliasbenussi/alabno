@@ -25,8 +25,8 @@ class Annotation:
 
 class Marker:
     
-    def __init__(self, training_f, category_map_f, sources):
-        self.category_converter = CategoryCoverter(category_map_f)
+    def __init__(self, training_f, sources):
+        self.category_converter = CategoryCoverter()
         self.classifier = Classifier(training_f)
         self.sources = sources
 
@@ -131,23 +131,4 @@ class Marker:
         
         self.output = generate_json(partial_outputs, error)
             
-
-# ============== Main Script =====================================
-
-args = sys.argv
-if len(args) < 5::
-    print '[Marker] Expecting at least three arguments:\
-            <training_file> <category_map_file> <output_file>[<source_file>]'
-
-training_f = args[1]
-cat_map_f = args[2]
-output_f = args[3
-sources = []
-
-for i in range(4, len(args)):
-    sources.append(args[i])
-
-marker = Marker(training_f, cat_map_f, sources)
-marker.mark()
-marker.write_output(output_f)
 
