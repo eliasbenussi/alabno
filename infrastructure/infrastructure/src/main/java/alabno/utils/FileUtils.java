@@ -42,6 +42,11 @@ public class FileUtils {
             return "";
         }
     }
+    
+    public static boolean isFile(String fileUrl) {
+        File f = new File(fileUrl);
+        return f.exists() && !f.isDirectory();
+    }
 
     /**
      * Split the file on new-line

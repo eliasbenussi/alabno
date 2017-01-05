@@ -70,6 +70,7 @@ CLIENT -> SERVER
         "id": "687ba687de5"
     }
     Student view requests to refresh the list of exercises
+    Response: <std_ex_list>
     
     {
         "type": "std_retrieve_result",
