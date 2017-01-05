@@ -88,12 +88,26 @@ call_and_check(cmd)
 
 # copy over pem and jks files
 if pem_file is not None:
+    # Remove existing destination files
+    #  alabno/frontend
+    frontend_directory = os.path.abspath(destination_directory + os.sep + 'frontend')
+    os.chdir(frontend_directory)
+    cmds = ['rm -rf *.key',
+            'rm -rf *.p12',
+            'rm -rf *.jks',
+            'rm -rf *.crt',
+            'rm -rf *.csr',
+            'rm -rf *.pem']
+    for cmd in cmds:
+        call_and_check(cmd)
+    
+    # Copy the file
     cmd = 'cp {} {}'.format(pem_file, destination_directory + '/frontend/server.pem')
     call_and_check(cmd)
     print('A script will now be run to generate the necessary key and certificate files used by the servers')
     #  alabno/frontend/pem_to_jks.sh
     jks_script_path = os.path.abspath(destination_directory + os.sep + 'frontend' + os.sep + 'pem_to_jks.sh')
-    #  alabno/frontend
-    frontend_directory = os.path.abspath(destination_directory + os.sep + 'frontend')
+
+    # Run the script
     os.chdir(frontend_directory)
     call_and_check(jks_script_path)
