@@ -30,10 +30,17 @@ def format_line(line):
         formatted.append(ord(char))
     return formatted
 
-def pad(line, block_size):
+# Pad strings
+def pad(line, size):
     _line = line
-    while len(_line) < block_size:
+    while len(_line) < size:
         _line += ' '
     return line
     
-
+# Pad lists of floats
+def pad_float(a_list, size):
+    ORD_OF_SPACE = 32.0
+    _list = a_list
+    while len(_list) < size:
+        _list.append(ORD_OF_SPACE)
+    return _list
