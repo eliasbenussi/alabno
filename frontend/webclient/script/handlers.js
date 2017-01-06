@@ -15,8 +15,6 @@ $handlers.handle_login_success = function(msgobj) {
       $globals.usertype = "p";
   } else {
       console.error("Unrecognized user type " + usertype);
-      // undefined behaviour atm
-      // window.location.hash = 'landing';
   }
   
   if ($globals.usertype == "s") {
@@ -132,19 +130,11 @@ $handlers.handle_job_list = function(msgobj) {
     a_job.glyphicon = glyphicon;
     a_job.displayed = false;
     a_job.display = function(title) {
+      // TODO : HIDING NOT WORKING PROPERLY
       a_job.displayed = !a_job.displayed;
       if (!a_job.displayed) {
-        console.log("Hide thing, stud length: " + a_job.students.length);
-        console.log("Object title is: " + a_job.title);
-        console.log("Passed title is: " + title);
         a_job.students = []
       } else {
-        console.log("Object title is: " + a_job.title);
-        console.log("Passed title is: " + title);
-
-        console.log("show thing, stud length: " + a_job.students);
-        // console.log("ALL JOBS ARE: " + $globals.professor_scope.all_jobs[0].title);
-
         var msgobj = {};
         msgobj.type = "get_job";
         msgobj.id = $globals.token;
@@ -155,9 +145,6 @@ $handlers.handle_job_list = function(msgobj) {
     a_job.students = [];
 
     $globals.professor_scope.all_jobs.push(a_job);
-    
-    
-    // console.log("ALL JOBS ARE: " + $globals.professor_scope.all_jobs[0]);
   }
 
   $globals.professor_scope.$apply();
