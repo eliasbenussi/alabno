@@ -2,7 +2,7 @@ theapp.controller('professorController', function($scope) {
   // register callback to globals
   $globals.professor_scope = $scope;
 
-  $scope.name = 'Y';
+  // $scope.username = '';
 
   $scope.new_exercise_clicked = function()
   {
@@ -38,6 +38,7 @@ theapp.controller('professorController', function($scope) {
     $scope[to_show] = true;
   };
 
+ 
   //Show multiple sections (same as above, without hiding everything else)
   $scope.show_sections = function() {
     for (var i = 0; i < $scope.show_hide_flags.length; i++) {
@@ -47,6 +48,12 @@ theapp.controller('professorController', function($scope) {
       $scope[arguments[j]] = true;
     }
   };
+  
+  // Show only default flags when redirecting to dashboard
+  $scope.$on('prof_show_default_flags_only', function(show_default_flags) {
+    // console.log("Trying to show only default flags");
+    $scope.show_section('show_professor_exercises');
+  });
 
   $scope.entries = [{}];
 
@@ -196,6 +203,11 @@ theapp.controller('professorController', function($scope) {
   // shows the mark editor
   $scope.edit_mark = function() {
     $scope.show_mark_editor = true;
+  };
+
+  // hides mark editor
+  $scope.cancel_edit_mark = function() {
+    $scope.show_mark_editor = false;
   };
   
   // sends a modified mark to the backend

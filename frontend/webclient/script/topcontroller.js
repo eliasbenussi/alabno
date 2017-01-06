@@ -12,6 +12,16 @@ theapp.controller('mycontroller', function($scope) {
         window.location.hash = 'student';
     };
 
+    $scope.go_to_dashboard = function()
+    {
+        console.log("Redirecting to the dashboard of a user type: " + $globals.usertype);
+        if ($globals.usertype == "s") {
+          $scope.$broadcast('stud_show_default_flags_only');
+        } else {
+          $scope.$broadcast('prof_show_default_flags_only');
+        }
+    };
+
     $scope.login_clicked = function()
     {
         var the_password = '';
@@ -47,7 +57,8 @@ theapp.controller('mycontroller', function($scope) {
         $localstore.save_username('');
         $localstore.save_token(undefined);
         
-        location.reload();
+        window.location.hash = 'landing';
+        // location.reload();
     }
     
     // #########################################################################
@@ -58,5 +69,4 @@ theapp.controller('mycontroller', function($scope) {
     $scope.dismiss_statusinformation = function(idx) {
         $scope.statusinformation.splice(idx, 1);
     }
-
 });

@@ -31,3 +31,30 @@ tr:hover {
     background-color: white;
     white-space: pre;
 }
+
+.img-size-regular {
+    width: 10%;
+}
+
+.page-header {
+    float: left;
+    margin-top: 0;
+}
+
+.logo {
+    margin-top: 10px;
+    margin-left: 10px;
+    float: left;
+}
+
+.clearfix {
+    clear:both
+}
+
+.annotated-file-btn {
+    margin-top: 15px;
+}
+
+.edit-mark-btn {
+    margin-top: 20px;
+}

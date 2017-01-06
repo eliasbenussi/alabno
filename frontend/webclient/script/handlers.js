@@ -110,12 +110,16 @@ $handlers.handle_job_list = function(msgobj) {
     var local = in_job.local;
     
     var color = "green";
+    var glyphicon = "ok";
     if (in_job_status == "pending") {
-      color = "orange";
+      color = "blue";
+      glyphicon = "time";
     } else if (in_job_status == "error") {
       color = "red";
+      glyphicon = "warning-sign";
     } else if (in_job_status == "processing") {
-      color = "yellow";
+      color = "orange";
+      glyphicon = "cog";
     }
 
     var a_job = {};
@@ -123,13 +127,14 @@ $handlers.handle_job_list = function(msgobj) {
     a_job.status = in_job_status;
     a_job.local = local;
     a_job.color = color;
+    a_job.glyphicon = glyphicon;
     a_job.displayed = false;
     a_job.display = function(title) {
+      // TODO : HIDING NOT WORKING PROPERLY
       a_job.displayed = !a_job.displayed;
       if (!a_job.displayed) {
         a_job.students = []
       } else {
-        console.log("Clicked display on job " + title);
         var msgobj = {};
         msgobj.type = "get_job";
         msgobj.id = $globals.token;
@@ -285,8 +290,25 @@ $handlers.handle_commits = function(msgobj) {
 };
 
 $handlers.handle_status_info = function(msgobj) {
+    color = msgobj.color;
+
+    // set msg alert type
+    if (color === 'black') {
+      msgobj.alert_type = 'info';
+    } else if (color === 'green') {
+      msgobj.alert_type ='success';
+    } else if (color === 'yellow') {
+      msgobj.alert_type = 'warning';
+    } else if (color === 'red') {
+      msgobj.alert_type = 'danger';
+    }
+
     var checker = msgobj;
+
     $globals.top_scope.statusinformation.unshift(msgobj);
+    // only keep latest 3 messages
+    $globals.top_scope.statusinformation = $globals.top_scope.statusinformation.slice(0,3);
+
     setTimeout(function(){
         for (var i = 0; i < $globals.top_scope.statusinformation.length; i++) {
             if (checker === $globals.top_scope.statusinformation[i]) {
@@ -295,5 +317,6 @@ $handlers.handle_status_info = function(msgobj) {
         }
         $globals.top_scope.$apply();
     }, msgobj.timeout*1000);
+
     $globals.top_scope.$apply();
 };
