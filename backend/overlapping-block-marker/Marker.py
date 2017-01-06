@@ -28,7 +28,7 @@ class Annotation:
 
 class Marker:
     
-    def __init__(self, training_f, sources, category_file = 'category_map.csv', sample_size = 100):
+    def __init__(self, training_f, sources, category_file = 'category_map.csv', sample_size = 200):
         self.category_converter = CategoryConverter(category_file)
         self.training_f = training_f
         self.sample_size = sample_size
@@ -110,7 +110,7 @@ class Marker:
             'annotations': annotations,
             'error': error
         }
-        return json.dumps(json_output)
+        return json_output
 
     def write_output(self, output_f):
         if self.output != None:
@@ -151,7 +151,7 @@ class Marker:
             for guess in guesses:
                 blocks[i] = self.update_category_and_annotation(blocks[i], guess)
                 i += 1
-          
+
             partial_outputs[source] = blocks
         
         self.output = self.generate_json(partial_outputs, error)
