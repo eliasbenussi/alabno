@@ -306,10 +306,8 @@ $handlers.handle_status_info = function(msgobj) {
     var checker = msgobj;
 
     $globals.top_scope.statusinformation.unshift(msgobj);
-    console.log("STATUS ARR BEFORE: " + $globals.top_scope.statusinformation);
     // only keep latest 3 messages
     $globals.top_scope.statusinformation = $globals.top_scope.statusinformation.slice(0,3);
-    console.log("STATUS ARR AFTER: " + $globals.top_scope.statusinformation);
 
     setTimeout(function(){
         for (var i = 0; i < $globals.top_scope.statusinformation.length; i++) {

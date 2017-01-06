@@ -15,9 +15,7 @@ theapp.config(['$routeProvider', function($routeProvider) {
     }).
 
     otherwise({
-      // redirectTo: '/professor'
       templateUrl: 'landing.htm'
-      // controller: 'professorController'
     });
 
 }]);
