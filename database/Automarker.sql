@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jan 01, 2017 at 07:41 PM
+-- Generation Time: Jan 06, 2017 at 08:22 PM
 -- Server version: 5.7.16-0ubuntu0.16.04.1
 -- PHP Version: 7.0.8-0ubuntu0.16.04.3
 
@@ -265,6 +265,12 @@ ALTER TABLE `user`
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `exercise_big_table`
+--
+ALTER TABLE `exercise_big_table`
+  ADD CONSTRAINT `fk_exname` FOREIGN KEY (`exname`) REFERENCES `exercise` (`exname`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `HaskellTraining`
