@@ -1,0 +1,11 @@
+The capabilities is a TSV file where the first column is the name of the capability, and the
+following columns list the short names of the user categories that have that capability.
+
+If user categories are:
+a   p   s
+
+login   a   p   s
+createexercise  p   a
+viewexercise    s   p   a
+addannotation   a   p
+changeusertype  a

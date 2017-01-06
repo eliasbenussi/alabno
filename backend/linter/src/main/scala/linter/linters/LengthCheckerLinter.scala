@@ -27,7 +27,7 @@ class LengthCheckerLinter(path: File, language: Language.Value) extends BaseLint
   private def scanFile(f: File): Unit = {
     for ((line, index) <- Source.fromFile(f).getLines().zipWithIndex) {
       if (line.length >= 80) {
-        OutputGenerator.addScore(0)
+        OutputGenerator.addScore(0.1d)
         mistakes += new Error("Line is over 80 characters", f.toString, index + 1, 0, "style")
       }
     }

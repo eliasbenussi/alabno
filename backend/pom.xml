@@ -15,6 +15,7 @@
     <module>comment-cleaner</module>
     <module>compile-checker</module>
     <module>complexity_analyser</module>
-    <module>java-marker</module>
+    <module>mark_marker</module>
+    <module>simple-haskell-marker</module>
   </modules>
 </project>

@@ -7,6 +7,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,10 +17,10 @@ import java.util.Scanner;
 
 import alabno.utils.FileUtils;
 
-public class MySqlDatabaseConnection {
+public class MySqlDatabaseConnection implements DatabaseConnection {
 
     // JDBC driver name and database URL
-    private String DB_URL = "jdbc:mysql://tc.jstudios.ovh:3306/Automarker";
+    private String DB_URL;
 
     // Database credentials
     static final String USER = "python";
@@ -28,6 +29,12 @@ public class MySqlDatabaseConnection {
     private Connection conn;
 
     public MySqlDatabaseConnection() {
+        if (System.getenv("ALABNOLOCAL").equals("1")) {
+            DB_URL = "jdbc:mysql://localhost:3306/Automarker";
+        } else {
+            DB_URL = "jdbc:mysql://tc.jstudios.ovh:3306/Automarker";
+        }
+        
         setupPassword();
         connect();
     }
@@ -59,12 +66,11 @@ public class MySqlDatabaseConnection {
         }
     }
 
-    /**
-     * @param sql
-     *            the SELECT query
-     * @return results of the query where columns content is all strings
+    /* (non-Javadoc)
+     * @see alabno.database.DatabaseConnection#retrieveQueryString(java.lang.String)
      */
-    public List<Map<String, String>> retrieveQueryString(String sql) {
+    @Override
+    public synchronized List<Map<String, String>> retrieveQueryString(String sql) {
         return retrieveQueryString(sql, true);
     }
 
@@ -104,16 +110,19 @@ public class MySqlDatabaseConnection {
         return result;
     }
 
-    /**
-     * @param query
-     *            the SELECT query
-     * @return results of the query
+    /* (non-Javadoc)
+     * @see alabno.database.DatabaseConnection#retrieveQuery(java.lang.String)
      */
-    public List<Map<String, Object>> retrieveQuery(String query) {
+    @Override
+    public synchronized List<Map<String, Object>> retrieveQuery(String query) {
         return retrieveQuery(query, new String[0], true);
     }
 
-    public List<Map<String, Object>> retrieveStatement(String query, String[] parameters) {
+    /* (non-Javadoc)
+     * @see alabno.database.DatabaseConnection#retrieveStatement(java.lang.String, java.lang.String[])
+     */
+    @Override
+    public synchronized List<Map<String, Object>> retrieveStatement(String query, String[] parameters) {
         return retrieveQuery(query, parameters, true);
     }
 
@@ -155,12 +164,11 @@ public class MySqlDatabaseConnection {
         return result;
     }
 
-    /**
-     * @param query
-     *            the INSERT, UPDATE, or DELETE query
-     * @return number of rows returned
+    /* (non-Javadoc)
+     * @see alabno.database.DatabaseConnection#executeQuery(java.lang.String)
      */
-    public int executeQuery(String query) {
+    @Override
+    public synchronized int executeQuery(String query) {
         return executeQuery(query, true);
     }
 
@@ -184,14 +192,11 @@ public class MySqlDatabaseConnection {
         return result;
     }
 
-    /**
-     * @param query
-     *            the INSERT, UPDATE, or DELETE query
-     * @param parameters
-     *            to interpolate in statement
-     * @return number of rows returned
+    /* (non-Javadoc)
+     * @see alabno.database.DatabaseConnection#executeStatement(java.lang.String, java.lang.String[])
      */
-    public int executeStatement(String query, String[] parameters) {
+    @Override
+    public synchronized int executeStatement(String query, String[] parameters) {
         return executeStatement(query, parameters, true);
     }
 
@@ -209,6 +214,42 @@ public class MySqlDatabaseConnection {
             if (retry) {
                 return executeStatement(query, parameters, false);
             } else {
+                e.printStackTrace();
+            }
+        }
+
+        return result;
+    }
+    
+    /* (non-Javadoc)
+     * @see alabno.database.DatabaseConnection#executeTransaction(alabno.database.TransactionBuilder)
+     */
+    @Override
+    public synchronized int executeTransaction(TransactionBuilder tb) {
+        int result = 0;
+        try {
+            conn.setAutoCommit(false);
+
+            for (TransactionElement element : tb.getElements()) {
+                String query = element.getSql();
+                String[] parameters = element.getArgs();
+                
+                PreparedStatement stmt = conn.prepareStatement(query);
+                for (int i = 0; i < parameters.length; i++) {
+                    stmt.setString(i + 1, parameters[i]);
+                }
+                result = stmt.executeUpdate();
+                stmt.close();
+            }
+
+            conn.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            connect();
+        } finally {
+            try {
+                conn.setAutoCommit(true);
+            } catch (SQLException e) {
                 e.printStackTrace();
             }
         }

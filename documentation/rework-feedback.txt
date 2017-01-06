@@ -1,0 +1,7 @@
+- feedback message will not contain source, but line number and file name
+
+- the server backend will generate the SourceFile object containing source lines and line numbers. This will be passed to each feedback updater together with the line number
+
+- The haskell microservice updater will only update the database once per request, while the rewriting of the training set will run on a clock every X minutes
+
+- The haskell microservice manifest generation script will have 1 chance in 100 of cleaning the training directory from files older than some amount of time

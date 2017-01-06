@@ -17,13 +17,15 @@ theapp.controller('professorController', function($scope) {
   $scope.show_final_result_tabs = false;
   $scope.show_student_result = false;
   $scope.show_annotated_file = false;
+  $scope.show_commits = false;
   $scope.show_hide_flags =
     [
     'show_professor_exercises',
     'show_professor_new_exercise',
     'show_final_result_tabs',
     'show_student_result',
-    'show_annotated_file'
+    'show_annotated_file',
+    'show_commits'
     ];
 
   // Show-hide-buttons
@@ -55,18 +57,21 @@ theapp.controller('professorController', function($scope) {
 
   // #########################################################################
   // New job
+  
+  // list of valid exercises types
+  $scope.valid_exercise_types = [];
+  
   $scope.submit_new_exercise = function()
   {
-    console.log("submit new exercise");
-    console.log($scope.exercise_title);
-    console.log($scope.exercise_type);
-    console.log($scope.exercise_model);
-    console.log($scope.entries);
-
     // get the array of strings of students gits
     var student_gits = [];
     for (var i = 0; i < $scope.entries.length; i++) {
-      student_gits.push($scope.entries[i].git);
+      if ($scope.entries[i].git && $scope.entries[i].git != '') {
+          var sobj = {};
+          sobj.git = $scope.entries[i].git + ".git";
+          sobj.uname = $scope.entries[i].uname;
+          student_gits.push(sobj);
+      }
     }
 
     // send message to server
@@ -75,7 +80,7 @@ theapp.controller('professorController', function($scope) {
       id: $globals.token,
       title: $scope.exercise_title,
       ex_type: $scope.exercise_type,
-      model_git: $scope.exercise_model,
+      model_git: $scope.exercise_model + ".git",
       students_git: student_gits
     };
 
@@ -101,38 +106,51 @@ theapp.controller('professorController', function($scope) {
   };
 
   // #########################################################################
-  // Display tabs with selection of view to show results in
-
-  $scope.final_result_select_group = function(job_title, student_id) {
-    console.log("Showing tabs for final results");
-    $scope.show_sections('show_final_result_tabs', 'show_professor_exercises');
-    $scope.current_job_title = job_title;
-    $scope.current_student_id = student_id;
-  };
-
-  // #########################################################################
   // List of jobs
 
   // all_jobs contains objects of the type {title: "title", display: function(title), students: []}
   $scope.all_jobs = [];
+  
+  // commits
+  $scope.commits = [];
 
   // get data for specific job and student
-  $scope.get_data = function(subtype) {
-    if (subtype == 'postprocessor') {
-      $scope.reset_result_postpro();
-    } else if (subtype == 'annotated') {
-      $scope.reset_annotated_result();
-    }
+  $scope.get_data = function(hash) {
+    $scope.reset_annotated_result();
 
-    console.log("Get data called with title [" + $scope.current_job_title + "], studentid [" + $scope.current_studentid + "]");
+    console.log("Get data called with title [" + $scope.current_job_title + "], studentid [" + $scope.current_studentid + " " + hash + "]");
     var msgobj = {};
-    msgobj.type = 'retrieve_result';
-    msgobj.subtype = subtype;
+    msgobj.type = 'std_retrieve_result';
+    msgobj.id = $globals.token;
+    msgobj.title = $scope.current_job_title;
+    msgobj.student = $scope.current_student_id;
+    msgobj.hash = hash;
+    $globals.send(JSON.stringify(msgobj));
+  };
+  
+  // get data for specific job and student
+  $scope.get_commits = function(job_title, student_id, student_uname) {
+    $scope.current_job_title = job_title;
+    $scope.current_student_id = student_id;
+    $scope.current_student_uname = student_uname;
+
+    console.log("Get commits called with title [" + $scope.current_job_title + "], studentid [" + $scope.current_studentid + "]");
+    var msgobj = {};
+    msgobj.type = 'retrieve_commits';
     msgobj.id = $globals.token;
     msgobj.title = $scope.current_job_title;
     msgobj.student = $scope.current_student_id;
     $globals.send(JSON.stringify(msgobj));
   };
+  
+  $scope.check_updated_commits = function() {
+    var msgobj = {};
+    msgobj.type = "refresh_commit";
+    msgobj.id = $globals.token;
+    msgobj.title = $scope.current_job_title;
+    msgobj.student = $scope.current_student_id;
+    $globals.send(JSON.stringify(msgobj));
+  }
 
   // Student results
   $scope.reset_result_postpro = function() {
@@ -144,10 +162,64 @@ theapp.controller('professorController', function($scope) {
     $scope.student_result.student = 'NA'
   };
 
+  // Refresh commits at intervals
+  setInterval(function(){
+    if ($scope.current_job_title && $scope.show_commits) {
+      $scope.get_commits($scope.current_job_title, $scope.current_student_id, $scope.current_student_uname);
+    }
+  }, 2000);
 
   // Annotated files
   $scope.reset_annotated_result = function() {
-    $scope.annotated_files = {};
+    $scope.annotated_files = [];
+  };
+  
+  $scope.delete_exercise = function(title) {
+    var msgobj = {};
+    msgobj.type = "prof_delete_exercise";
+    msgobj.id = $globals.token;
+    msgobj.title = title;
+    $globals.send(JSON.stringify(msgobj));
+  };
+  
+  // ###########################################################################
+  // marking feedback
+  
+  // false: show mark read only
+  // true: show mark editor
+  $scope.show_mark_editor = false;
+  // exercise type of the exercise being shown
+  $scope.student_exercise_type = "";
+  // ng-bound to the mark shown, and to the list selector in mark editor
+  $scope.student_exercise_mark = "";
+  
+  // shows the mark editor
+  $scope.edit_mark = function() {
+    $scope.show_mark_editor = true;
+  };
+  
+  // sends a modified mark to the backend
+  $scope.submit_mark = function() {
+    console.log("Now mark is " + $scope.student_exercise_mark);
+    
+    // Send all the available filenames of the exercise, because the mark
+    // concerns all files belonging to the exercise, and it's each updater's
+    // job to filter out unwanted files if necessary. Each updater receives
+    // source code and name of file, so it is easy for backend to identify
+    // which are the wanted files
+    for (var i = 0; i < $scope.annotated_files.length; i++) {
+        var the_annotated_file = $scope.annotated_files[i];
+        
+        var msgobj = {};
+        msgobj.type = 'markfeedback';
+        msgobj.id = $globals.token;
+        msgobj.filename = the_annotated_file.filename;
+        msgobj.exercise_type = $scope.student_exercise_type;
+        msgobj.mark = $scope.student_exercise_mark;
+        $globals.send(JSON.stringify(msgobj));
+    }
+
+    $scope.show_mark_editor = false;
   };
   
   // ###################################################################
@@ -164,32 +236,18 @@ theapp.controller('professorController', function($scope) {
   
   // The source code being used
   // each element has lineno and text
-  $scope.editing_source = [];
   $scope.editing_source_cache = "";
-  $scope.add_editing_source = function(lineno, text) {
-      // check if this line number already exists
-      for (var i = 0; i < $scope.editing_source.length; i++) {
-        if (lineno == $scope.editing_source[i].lineno) {
-          return;
-        }
+  
+  $scope.show_edit_buttons = function(value) {
+    var annotated_files = $scope.annotated_files;
+    for (var i = 0; i < annotated_files.length; i++) {
+      var file = annotated_files[i];
+      var filedata = file.data;
+      for (var j = 0; j < filedata.length; j++) {
+        var data_entry = filedata[j];
+        data_entry.show_icons_unlocked = value;
       }
-      
-      var source_obj = {};
-      source_obj.lineno = lineno;
-      source_obj.text = text;
-      $scope.editing_source.push(source_obj);
-      
-      // sort
-      $scope.editing_source.sort(function(a, b) {return a.lineno - b.lineno});
-      
-      var acc = '';
-      for (var i = 0; i < $scope.editing_source.length; i++) {
-          acc += $scope.editing_source[i].text;
-          if (i < $scope.editing_source.length - 1) {
-              acc += '\n';
-          }
-      }
-      $scope.editing_source_cache = acc;
+    }
   }
   
   $scope.add_feedback_annotation = function(filename, lineno, text, oldannotation, data_entry) {
@@ -199,33 +257,35 @@ theapp.controller('professorController', function($scope) {
           $scope.editing_data_entry.editing_annotation = oldannotation;
           $scope.editing_data_entry.editing_ann_type = "semantic";
           $scope.editing_lineno = lineno;
-          $scope.add_editing_source(lineno, text);
+          $scope.editing_source_cache = text;
           console.log('opening editor...')
           data_entry.show_editor = true;
+          // hide buttons from all other lines
+          $scope.show_edit_buttons(false);
       } else {
           // check that it's the same filename
           if (filename != $scope.editing_file) {
               alert('You cannot add a source line from a different file');
               return;
           }
-          
-          $scope.add_editing_source(lineno, text);
       }
   }
   
-  $scope.delete_feedback_annotation = function(filename, lineno, sourcetext, oldannotation, data_entry) {
+  $scope.delete_feedback_annotation = function(filename, lineno, oldannotation, data_entry) {
       var msgobj = {};
       msgobj.type = 'feedback';
       msgobj.id = $globals.token;
       msgobj.filename = filename;
-      msgobj.source = sourcetext;
       msgobj.ann_type = "ok";
       msgobj.annotation = "ok";
       msgobj.lineno = lineno;
       
       data_entry.annotation = "";
-      
+
       $globals.send(JSON.stringify(msgobj));
+      
+      // show buttons in all lines
+      $scope.show_edit_buttons(true);
   }
   
   $scope.submit_feedback_annotation = function() {
@@ -233,7 +293,6 @@ theapp.controller('professorController', function($scope) {
       msgobj.type = 'feedback';
       msgobj.id = $globals.token;
       msgobj.filename = $scope.editing_file;
-      msgobj.source = $scope.editing_source_cache;
       msgobj.ann_type = $scope.editing_data_entry.editing_ann_type;
       msgobj.annotation = $scope.editing_data_entry.editing_annotation;
       msgobj.lineno = $scope.editing_lineno;
@@ -241,7 +300,8 @@ theapp.controller('professorController', function($scope) {
       $scope.editing_data_entry.annotation = $scope.editing_data_entry.editing_annotation;
       
       $globals.send(JSON.stringify(msgobj));
-      
+
+      $scope.successful_feedback = true;
       $scope.feedback_sent = "Sent";
   }
   
@@ -251,10 +311,17 @@ theapp.controller('professorController', function($scope) {
       $scope.editing_data_entry.editing_annotation = "";
       $scope.editing_data_entry.editing_ann_type = "";
       $scope.editing_data_entry = null;
-      $scope.editing_source = [];
       $scope.editing_source_cache = "";
       $scope.editing_lineno = 0;
       $scope.feedback_sent = '';
+      $scope.successful_feedback = false;
+
+      // show buttons in all lines
+      $scope.show_edit_buttons(true);
   }
 
 });
+
+
+$localstore.ready += 1;
+$localstore.check_ready();

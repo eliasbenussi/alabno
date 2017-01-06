@@ -40,5 +40,7 @@ class Error(msg: String, file: String, lineNo: Int, colNo: Int, t: String) {
 }
 
 object Error {
-  def apply(msg: String, file: String, lineNo: Int, colNo: Int, t: String): Error = new Error(msg, file, lineNo, colNo, t)
+  def apply(msg: Option[String], file: Option[String], lineNo: Option[Int], colNo: Option[Int], t: Option[String]): Error = {
+    new Error(msg.getOrElse(""), file.getOrElse(""), lineNo.getOrElse(0), colNo.getOrElse(0), t.getOrElse(""))
+  }
 }

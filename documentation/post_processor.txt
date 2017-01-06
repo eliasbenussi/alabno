@@ -11,30 +11,31 @@ OUTPUT
 
     Final output of the postprocessor is in JSON format
 
+        
     {
-    "scores":
-    [
-        "number_grade": 78,
-        "letter_grade": "A"
-    ],
-    "annotations":
-    [
-        {
-        "syntax":
-        [
+        "number_score":46.25,
+        "annotations":[
             {
-            "filename": "quadratic.hs",
-            "fileno": 12,
-            "charno": 6,
-            "text": "Missing bracket around line 20"
+                "charno":1,
+                "errortype":"semantic",
+                "filename":"\/home\/gj\/git\/alabno\/tmp\/fa66351ed52cb1fcf608b0362a07b47e\/student0\/commitX\/Worst.hs",
+                "lineno":31,
+                "text":"Don't use magic numbers. Give the number a name, or generate it from an expression."
             },
             {
-            "filename": "quadratic.hs",
-            "fileno": 13,
-            "charno": 5,
-            "text": "Expected type B but got A"
+                "charno":1,
+                "errortype":"semantic",
+                "filename":"\/home\/gj\/git\/alabno\/tmp\/fa66351ed52cb1fcf608b0362a07b47e\/student0\/commitX\/Sequences.hs",
+                "lineno":31,
+                "text":"Don't use magic numbers. Give the number a name, or generate it from an expression."
+            },
+            {
+                "charno":1,
+                "errortype":"semantic",
+                "filename":"\/home\/gj\/git\/alabno\/tmp\/fa66351ed52cb1fcf608b0362a07b47e\/student0\/commitX\/Worst.hs",
+                "lineno":4,
+                "text":"Don't write rubbish in your code please"
             }
-        ]
-        }
-    ]
+        ],
+        "letter_score":"D"
     }

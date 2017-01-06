@@ -1,24 +1,24 @@
-all: frontend infrastructure backend simple-haskell-marker
+all: frontend infrastructure backend
 
-test: all backendtest infrastructuretest simple-haskell-marker-test
+test: all
+	make testall
 
-backend:
-	cd backend && mvn -T 1C package -q -Dmaven.test.skip=true
+testall: backendtest infrastructuretest
+
+backend: repo
+	cd backend && mvn -T 1C install -q -Dmaven.test.skip=true
 
 backendtest:
 	cd backend && mvn -T 1C test -q
 
-infrastructure:
+infrastructure: repo backend
 	cd infrastructure && make
 
 infrastructuretest:
 	cd infrastructure && make test
 
-simple-haskell-marker:
-	cd simple-haskell-marker && make
-
-simple-haskell-marker-test:
-	cd simple-haskell-marker && make test
+repo:
+	cd lib && make
 
 frontend:
 	cd frontend && make
@@ -26,7 +26,6 @@ frontend:
 clean:
 	- cd backend && mvn clean -q
 	- cd infrastructure/infrastructure && mvn clean -q
-	- cd simple-haskell-marker && make clean
 	- rm -rf tmp
 
-.PHONY: clean infrastructure backend simple-haskell-marker simple-haskell-marker-test frontend
+.PHONY: clean infrastructure backend frontend

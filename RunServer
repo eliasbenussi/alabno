@@ -5,6 +5,7 @@ import sys
 import subprocess
 import argparse
 import getpass
+import hashlib
 
 parser = argparse.ArgumentParser()
     
@@ -24,6 +25,12 @@ parser.add_argument('--dbpass',
                     default=None
                     )
 
+parser.add_argument('--local',
+                    help='Connect to a localhost database',
+                    action='store_true',
+                    default=False
+                    )
+
 args = parser.parse_args()
 
 # Starts all the necessary server components as a background process
@@ -36,7 +43,21 @@ screen_name = 'alabnodaemonservice'
 exec_dir = os.path.abspath(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(exec_dir)
 
+# import git authentication library
+sys.path.append(os.path.abspath(exec_dir + os.sep + 'infrastructure'))
+import gitauth
+
 def start_server(https):
+    global args
+    if args.local:
+        os.environ["ALABNOLOCAL"] = "1"
+    else:
+        os.environ["ALABNOLOCAL"] = "2"
+    
+    # Setup git authentication
+    gitauth.ask_authentication()
+    gitauth.set_auth_passphrase()
+    
     if https:
         print("Starting in secure mode")
         # check for presence of certificates
@@ -67,6 +88,16 @@ def exit_with_error():
     parser.print_help()
     sys.exit(1)
 
+def pass_correct(the_pass):
+    correct_password_hash = 'bec67085f3ce2ca2174b1d7d62d7e316'
+    m = hashlib.md5()
+    m.update(the_pass)
+    new_password_hash = m.hexdigest()
+    result = correct_password_hash == new_password_hash
+    if not result:
+        print('Password not correct. Retry')
+    return result
+
 https = args.https
 
 command = args.action
@@ -75,11 +106,14 @@ command = args.action
 if not os.path.isfile(exec_dir + os.sep + 'dbpass.txt'):
     the_pass = ''
     if args.dbpass is None:
-        print('Please enter the password for the database account "python"')
-        the_pass = getpass.getpass()
+        password_correct = False
+        while not password_correct:
+            print('Please enter the password for the database account "python"')
+            the_pass = getpass.getpass()
+            password_correct = pass_correct(the_pass)
     else:
         the_pass = args.dbpass
-        
+
     pass_path = exec_dir + os.sep + 'dbpass.txt'
     pass_file = open(pass_path, 'w')
     pass_file.write(the_pass)

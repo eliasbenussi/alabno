@@ -1,7 +1,9 @@
 package alabno.utils;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -41,6 +43,11 @@ public class FileUtils {
             e.printStackTrace();
             return "";
         }
+    }
+    
+    public static boolean isFile(String fileUrl) {
+        File f = new File(fileUrl);
+        return f.exists() && !f.isDirectory();
     }
 
     /**
@@ -89,5 +96,12 @@ public class FileUtils {
 
         out += fileName;
         return out;
+    }
+
+    public static boolean jobDirectoryExists(String jobname) {
+        // Directory to check is alabno/tmp/jobname
+        String checkDir = getWorkDir() + "/tmp/" + jobname;
+        System.out.println("jobDirectoryExists checking " + checkDir);
+        return Files.exists(Paths.get(checkDir));
     }
 }

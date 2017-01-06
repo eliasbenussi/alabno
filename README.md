@@ -41,7 +41,7 @@ to show the server's console
 to start the server in secure mode (both HTTPS and WSS)
 
 ```
-./RunServer start https
+./RunServer start --https
 ```
 For local testing, use 'albano' as passphrase. Before you can use WSS with a self-signed certificate, you need to browse to https://localhost:4444 and add it to the certificate exceptions of your browser.
 
@@ -75,3 +75,9 @@ http://tc.jstudios.ovh:8000/result/token
 replacing token with the token, and replacing https and ports with the correct combination.
 
 A token will be valid only for a limited amount of time. By default this is 20 minutes.
+
+# User accounts and authentication
+
+Imperial College LDAP authentication can be used to log in. This is enabled only when the server is started with `--https`.
+
+If no `--https` is used, the client will not send any password back, and the server will only simulate user accounts. Logging in with any username that starts with A will authenticate an Admin, any username that starts with P a Professor, anything else becomes a Student.

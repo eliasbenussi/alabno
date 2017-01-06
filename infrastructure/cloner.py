@@ -6,6 +6,8 @@ import binascii
 import json
 
 import microservices
+import gitauth
+import clonerutils
 
 # #########################################################################
 # CONFIGURATION
@@ -13,7 +15,7 @@ import microservices
 home_directory = os.path.abspath(os.getcwd());
 temporary_directory = home_directory + os.sep + 'tmp' + os.sep
 
-max_clone_depth = '50'
+max_clone_depth = '1'
 
 jobmanager_path = os.path.abspath(home_directory + os.sep + 'infrastructure' + os.sep + 'infrastructure' + os.sep + 'JobManager')
 
@@ -35,7 +37,9 @@ parser.add_argument('--model',
                     required=True
                     )
 
-parser.add_argument('--services')
+parser.add_argument('--exname',
+                    required=True
+                    )
 
 parser.add_argument('--students')
 
@@ -66,23 +70,20 @@ def get_student_config_directory(base, student_number):
 def get_student_commit_directory(base, student_number):
     return get_student_directory(base, student_number) + os.sep + 'commitX' + os.sep
 
-def get_student_out_directory(base, student_number):
-    return get_student_directory(base, student_number) + os.sep + 'commitX_out' + os.sep
+def makedirs(dirpath):
+    cmd = 'mkdir {}'.format(dirpath)
+    subprocess.call(cmd, shell=True)
+
+# create temporary directory
+makedirs(temporary_directory)
 
 # create temporary base directory
-base_directory = ''
-for i in range(500):
-    random_hash = get_random_hash()
-    candidate_directory = temporary_directory + os.sep + random_hash
-    if not directory_exists(candidate_directory):
-        base_directory = candidate_directory
-        break
-
+base_directory = temporary_directory + os.sep + args.exname
 if base_directory == '':
     print('could not create a temporary base directory')
     sys.exit(1)
+code = subprocess.call('mkdir {}'.format(base_directory), shell=True)
 
-os.makedirs(base_directory)
 
 # create temporary directory structure with:, all inside the base directory
 #model
@@ -91,40 +92,71 @@ os.makedirs(base_directory)
 #studentX/commitX_out
 
 for i in range(len(the_students_gits)):
-    os.makedirs(get_student_directory(base_directory, i))
-    os.makedirs(get_student_config_directory(base_directory, i))
-    #os.makedirs(get_student_commit_directory(base_directory, i))
-    os.makedirs(get_student_out_directory(base_directory, i))
+    makedirs(get_student_directory(base_directory, i))
+    makedirs(get_student_config_directory(base_directory, i))
 
 # clone the model answer
 if args.model and args.model != '':
     os.chdir(base_directory)
-    cmd = 'git clone {} {} --depth {}'.format(args.model, 'model', max_clone_depth)
-    code = subprocess.call(cmd, shell=True)
+    devnull = open('/dev/null', 'w')
+    cmd = 'timeout 60 git clone {} {} --depth {}'.format(gitauth.format_git_url(args.model), 'model', max_clone_depth)
+    code = subprocess.call(cmd, shell=True, stdout=devnull, stderr=devnull)
     if code != 0:
         print('Cloning of the model answer at {} failed. Aborting...'.format(args.model))
         sys.exit(1)
 
 os.chdir(home_directory)
 
+student_commit_directories = []
+
 # clone the student git repos
 for i in range(len(the_students_gits)):
-    os.chdir(get_student_directory(base_directory, i))
-    cmd = 'git clone {} {} --depth {}'.format(the_students_gits[i], 'commitX', max_clone_depth)
-    code = subprocess.call(cmd, shell=True)
+    student_base_directory = get_student_directory(base_directory, i)
+    
+    os.chdir(student_base_directory)
+    
+    # first, clone into a commitX directory
+    devnull = open('/dev/null', 'w')
+    cmd = 'timeout 60 git clone {} {} --depth {}'.format(gitauth.format_git_url(the_students_gits[i]), 'commitX', max_clone_depth)
+    code = subprocess.call(cmd, shell=True, stdout=devnull, stderr=devnull)
     if code != 0:
         print('Cloning of student repository at {} failed. Aborting...'.format(the_students_gits[i]))
         sys.exit(1)
+    
+    # Save the git url into title/studentX/url.txt
+    url_file_path = os.path.abspath(student_base_directory + os.sep + 'url.txt')
+    url_file = open(url_file_path, 'w')
+    url_file.write(the_students_gits[i])
+    url_file.close()
+
+    # now, enter the commitX directory to discover the commit hash
+    commithash = clonerutils.discover_commit_hash(get_student_commit_directory(base_directory, i))
+    
+    # Save the latest commit hash into title/studentX/last.txt
+    hash_file_path = os.path.abspath(student_base_directory + os.sep + 'last.txt')
+    hash_file = open(hash_file_path, 'w')
+    hash_file.write(commithash)
+    hash_file.close()
+    
+    # rename it with the hash
+    cmd = 'mv {} {}'.format(os.path.abspath(student_base_directory + os.sep + 'commitX'), os.path.abspath(student_base_directory + os.sep + 'commit' + commithash))
+    subprocess.call(cmd, shell=True)
+    
+    student_commit_dir = os.path.abspath(student_base_directory + os.sep + 'commit' + commithash)
+    os.makedirs(student_commit_dir + '_out')
+    student_commit_directories.append(os.path.abspath(student_commit_dir))
+    
     os.chdir(home_directory)
 
 postpro_all_outputs = []
 
 # create the configuration JSON file for the JobManager
 for i in range(len(the_students_gits)):
-    student_out_directory = get_student_out_directory(base_directory, i)
+    student_in_directory = student_commit_directories[i]
+    student_out_directory = student_in_directory + '_out'
     
     jsonobj = {
-        'input_directory': get_student_commit_directory(base_directory, i),
+        'input_directory': student_in_directory,
         'type': args.extype,
         'additional_config': '',
         'output_directory': student_out_directory,
@@ -148,7 +180,7 @@ for i in range(len(the_students_gits)):
     language = args.extype
     postpro_input_json_paths = []
     postpro_output_json_path = os.path.abspath(student_out_directory + os.sep + 'postpro.json')
-    postpro_all_outputs.append(postpro_output_json_path)
+    postpro_all_outputs.append(os.path.abspath(postpro_output_json_path))
     
     # Get the list of microservice output jsons
     for item in os.listdir(student_out_directory):
@@ -170,4 +202,4 @@ for i in range(len(the_students_gits)):
         print('cmd [{}] failed with code {}'.format(cmd, code))
 
 # Special stdout line that will be read by the caller process
-print('#FINALOUTPUTS={}'.format(os.path.abspath(' '.join(postpro_all_outputs))))
+print('#FINALOUTPUTS={}'.format(' '.join(postpro_all_outputs)))

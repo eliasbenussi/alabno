@@ -1,3 +1,3 @@
 all:
-	pip -q install flask
-	pip -q install PyMySQL
+	pip -q install --user flask
+	pip -q install --user PyMySQL

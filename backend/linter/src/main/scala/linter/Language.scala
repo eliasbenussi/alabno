@@ -37,10 +37,10 @@ object Language extends Enumeration {
     * @return A Language.Value representing the string
     */
   def matchString(str: String): Language.Value = str match {
-    case "haskell" => Haskell
-    case "ruby" => Ruby
-    case "java" => Java
-    case "go" => Go
+    case s if s.contains("haskell") => Haskell
+    case s if s.contains("ruby") => Ruby
+    case s if s.contains("java") => Java
+    case s if s.contains("go") => Go
     case _ => Other
   }
 }

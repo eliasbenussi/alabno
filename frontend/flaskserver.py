@@ -18,7 +18,7 @@ upload_path_dir = os.path.abspath(exec_dir + '/../uploads')
 subprocess.call('mkdir {}'.format(upload_path_dir), shell=True)
 
 # import mysqldb.py
-mysqldb_dir = exec_dir + os.sep + '..' + os.sep + 'simple-haskell-marker'
+mysqldb_dir = exec_dir + os.sep + '..' + os.sep + 'backend' + os.sep +'simple-haskell-marker'
 sys.path.append(mysqldb_dir)
 import mysqldb
 
@@ -80,9 +80,21 @@ if len(sys.argv) >= 2 and sys.argv[1] == 'https':
     secure = True
 
 # SSL context
-context = ('selfsigned.crt', 'decserver.key')
+context = (exec_dir+'/selfsigned.crt', exec_dir+'/decserver.key')
 
 # ROUTES ###############################################################
+
+@app.after_request
+def add_header(r):
+    """
+    Add headers to both force latest IE rendering engine or Chrome Frame,
+    and also to cache the rendered page for 10 minutes.
+    """
+    r.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    r.headers["Pragma"] = "no-cache"
+    r.headers["Expires"] = "0"
+    r.headers['Cache-Control'] = 'public, max-age=0'
+    return r
 
 @app.route("/upload/<token>", methods=['POST'])
 def upload_file(token):
@@ -120,6 +132,8 @@ def serve_file(filepath):
     try:
         if '..' in filepath:
             flask.abort(404)
+        if filepath[0] == '/':
+            flask.abort(404)
         buff = flask.send_file('webclient/' + filepath)
         return buff
     except:
@@ -127,7 +141,11 @@ def serve_file(filepath):
         return 'error'
 
 if __name__ == "__main__":
-    if secure:
-        app.run(host='0.0.0.0', port=4443, debug=False, ssl_context=context)
-    else:
-        app.run(host='0.0.0.0', port=8000, debug=False)
+    while True:
+        try:
+            if secure:
+                app.run(host='0.0.0.0', port=4443, debug=False, ssl_context=context)
+            else:
+                app.run(host='0.0.0.0', port=8000, debug=False)
+        except:
+            print(traceback.format_exc())
