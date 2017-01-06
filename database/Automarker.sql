@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jan 06, 2017 at 08:22 PM
+-- Generation Time: Jan 06, 2017 at 08:31 PM
 -- Server version: 5.7.16-0ubuntu0.16.04.1
 -- PHP Version: 7.0.8-0ubuntu0.16.04.3
 
@@ -200,7 +200,8 @@ ALTER TABLE `configuration`
 -- Indexes for table `exercise`
 --
 ALTER TABLE `exercise`
-  ADD PRIMARY KEY (`exname`);
+  ADD PRIMARY KEY (`exname`),
+  ADD KEY `fk_extype` (`extype`);
 
 --
 -- Indexes for table `ExerciseTypes`
@@ -265,6 +266,12 @@ ALTER TABLE `user`
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `exercise`
+--
+ALTER TABLE `exercise`
+  ADD CONSTRAINT `fk_extype` FOREIGN KEY (`extype`) REFERENCES `ExerciseTypes` (`type`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `exercise_big_table`
