@@ -24,14 +24,14 @@ class Block:
 # ensuring lines of same length
 class Script_Blocks_Container:
         
-    def __init__(self, source_p):
+    def __init__(self, source_p, BLOCK_SIZE, BLOCK_OFFSET = 50):
         self.source_p = source_p
+        self.BLOCK_SIZE = BLOCK_SIZE
+        self.BLOCK_OFFSET = BLOCK_OFFSET
         self.container = []
 
     def split(self):
-        BLOCK_SIZE = 80
-        BLOCK_OFFSET = 20
-
+        
         source_file = open(self.source_p, 'r')
         inverse_map = {}
         char_index = 0
@@ -53,15 +53,15 @@ class Script_Blocks_Container:
         while i < len(source_text):
             j = 0
             current_block = Block(inverse_map[i], i)
-            while j < BLOCK_SIZE and i < len(source_text):
+            while j < self.BLOCK_SIZE and i < len(source_text):
                 current_block.content += source_text[i]
                 i += 1
                 j += 1
-            current_block.content = MLUtils.pad(current_block.content, BLOCK_SIZE)
+            current_block.content = MLUtils.pad(current_block.content, self.BLOCK_SIZE)
             all_blocks.append(current_block)
             if i >= len(source_text):
                 break
-            i -= BLOCK_SIZE - BLOCK_OFFSET
+            i -= self.BLOCK_SIZE - self.BLOCK_OFFSET
 
         source_file.close()
         self.container = all_blocks

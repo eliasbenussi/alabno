@@ -14,23 +14,26 @@ class Annotation:
         self.line_n = line_n
         self.char_n = char_n
         self.error_t = error_t
-    
-    def get_map(self):
-        ann_map = {}
-        ann_map['errortype'] = self.error_t
-        ann_map['filename'] = self.file_name
-        ann_map['lineno'] = self.line_n
-        ann_map['charno'] = self.char_n
-        ann_map['text'] = self.ann_text
-        return ann_map
+   
+    # Return in form suitable for json
+    def get_json(self):
+        ann_json = {
+            'errortype': self.error_t,
+            'filename': self.file_name,
+            'lineno': self.line_n,
+            'charno': self.char_n,
+            'text': self.ann_text
+        }
+        return ann_json
 
 class Marker:
     
-    def __init__(self, training_f, sources, category_file = 'category_map.csv'):
+    def __init__(self, training_f, sources, category_file = 'category_map.csv', sample_size =550):
         self.category_converter = CategoryConverter(category_file)
         self.training_f = training_f
-        self.classifier = Classifier(self.format_training_file())
+        self.sample_size = sample_size
         self.sources = sources
+        self.classifier = Classifier(self.format_training_file())
 
     # Format parsed file.
     # Each pair (category, text) is replaced
@@ -42,7 +45,9 @@ class Marker:
     
         for (category, text) in parsed:
             cat_numb = self.category_converter.get_category_number(category)
-            formatted.append((cat_numb, MLUtils.format_line(text)))
+            unpadded = MLUtils.format_line(text)
+            padded = MLUtils.pad_float(unpadded, self.sample_size)
+            formatted.append((cat_numb, padded))
     
         return formatted           
 
@@ -81,7 +86,7 @@ class Marker:
         all_annotations = []
 
         # Generate Annotations
-        for source in self.source:
+        for source in self.sources:
             blocks = source_blocks_map[source]
             for block in blocks:
                 ann = block.annotation
@@ -92,18 +97,19 @@ class Marker:
                                     block.lineno, 
                                     block.charno,
                                     e_type)
-                    all_annotations.append(annotation.get_map())
+                    all_annotations.append(annotation.get_json())
         return all_annotations
 
     # Generates json output for the marker
     def generate_json(self, source_blocks_map, error):
         
-        json_output = {}
         annotations = generate_annotations_output(source_blocks_map)
         score = calculate_total_score(source_block_map)
-        json_output['score'] = score
-        json_output['annotations'] = annotations
-        json_output['error'] = error
+        json_output = {
+            'score': score,
+            'annotations': annotations,
+            'error': error
+        }
         return json.dumps(json_output)
 
     def write_output(self, output_f):
@@ -122,7 +128,7 @@ class Marker:
         for source in self.sources:
 
             # Get blocks
-            splitter = Script_Blocks_Container(source)
+            splitter = Script_Blocks_Container(source, self.sample_size)
             splitter.split()
             blocks = splitter.container
         
@@ -133,7 +139,7 @@ class Marker:
             
             # Classify
             try:
-                guesses = self.classifier.predict(to_classify)
+                guess = self.classifier.predict(to_classify)
             except Exception as exception:
                 error = str(exception)
                 break

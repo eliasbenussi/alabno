@@ -1,6 +1,5 @@
 import ast
 import sys
-import MLUtils
 from sklearn.neural_network import MLPClassifier
 
 class Classifier:
@@ -11,17 +10,13 @@ class Classifier:
         self.y = []
         self.formatted_training = formatted_training
         
-        max_length = -1
         unpadded_X = []
         for (cat_numb, formatted_text) in formatted_training:
+            # Ensure all values in X are float
             float_formatted = map(lambda n: float(n), formatted_text)
-            max_length = max(max_length, len(float_formatted))
-            unpadded_X.append(float_formatted)
+            self.X.append(float_formatted)
             self.y.append(cat_numb)
         
-        for data in unpadded_X:
-            padded_data = MLUtils.pad_float(data, max_length)
-            self.X.append(padded_data)
         
         # Initialize the classifier (stochastic gradient-descent)
         self.clf = MLPClassifier(solver='lbfgs', alpha=1e-5, 
