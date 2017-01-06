@@ -23,8 +23,11 @@
             <div class="col-xs-2">
               <h4>Exercise name:  <span style="color:{{job.color}};font-weight: bold;">{{job.title}}</span></h4>
             </div>
+            <div class="col-xs-3">
+              <button ng-click="job.display(job.title)" ng-show="job.status=='ok' && job.local" class="btn btn-info">Show students taking exercise <span class="caret"></span></button>
+            </div>
             <div class="col-xs-2">
-              <button ng-click="job.display(job.title)" ng-show="job.status=='ok'" class="btn btn-info">Show students taking exercise <span class="caret"></span></button>
+              <button ng-click="delete_exercise(job.title)" ng-hide="job.local" class="btn btn-danger">Delete</button>
             </div>
           </div>
           <table class="table" ng-show="job.students.length != 0">

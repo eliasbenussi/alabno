@@ -99,6 +99,13 @@ CLIENT -> SERVER
     Asks to check if there are new commits for a student exercise.
     Reply is <status_info>
     
+    {
+        "type": "prof_delete_exercise",
+        "id": "687ba687de5",
+        "title": "haskell23"
+    }
+    Asks to delete an exercise by title (because it's not present locally). There is no reply to this message.
+    
 SERVER -> CLIENT
 
     {
@@ -128,8 +135,8 @@ SERVER -> CLIENT
     {
         "type": "job_list",
         "jobs": [
-            {"title":"haskellquadratic","status":"ok"},
-            {"title":"pintos01","status":"pending"}
+            {"title":"haskellquadratic","status":"ok","local":true},
+            {"title":"pintos01","status":"pending","local":false}
             ]
     }
     Sends the list of existing jobs to the client
