@@ -69,5 +69,4 @@ theapp.controller('mycontroller', function($scope) {
     $scope.dismiss_statusinformation = function(idx) {
         $scope.statusinformation.splice(idx, 1);
     }
-
 });

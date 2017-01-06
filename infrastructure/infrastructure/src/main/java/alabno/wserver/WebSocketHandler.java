@@ -147,23 +147,16 @@ public class WebSocketHandler {
                 throw new RuntimeException("title is empty");
             }
             
-            // Check if it's deletable
-            boolean existsOnDisk = FileUtils.jobDirectoryExists(title);
-            if (existsOnDisk) {
-                ConnUtils.sendStatusInfo(conn, "You are not allowed to delete this exercise", Color.RED, 10);
-                throw new RuntimeException(title + " exists on disk");
-            }
-            
             // Get username
             UserSession session = sessionManager.getSession(parser);
             if (session == null) {
-                ConnUtils.sendStatusInfo(conn, "No user session error", Color.RED, 10);
+                ConnUtils.sendStatusInfo(conn, "No user session error", Color.RED, 5);
                 throw new RuntimeException("no user session???");
             }
             
             UserAccount account = session.getAccount();
             if (account == null) {
-                ConnUtils.sendStatusInfo(conn, "Error, no account found", Color.RED, 10);
+                ConnUtils.sendStatusInfo(conn, "Error, no account found", Color.RED, 5);
                 throw new RuntimeException("account is null");
             }
             
@@ -179,7 +172,7 @@ public class WebSocketHandler {
             return;
         }
         catch (Exception e) {
-            ConnUtils.sendStatusInfo(conn, e.getMessage(), Color.RED, 10);
+            ConnUtils.sendStatusInfo(conn, e.getMessage(), Color.RED, 5);
             e.printStackTrace();
             return;
         }
@@ -188,7 +181,7 @@ public class WebSocketHandler {
 
     private boolean checkStringNotEmpty(String value, String name, WebSocket conn) {
         if (value == null || value.isEmpty()) {
-            ConnUtils.sendStatusInfo(conn, "Error, " + name + " is empty", Color.RED, 10);
+            ConnUtils.sendStatusInfo(conn, "Error, " + name + " is empty", Color.RED, 5);
             return false;
         }
         return true;
@@ -234,11 +227,11 @@ public class WebSocketHandler {
         String[] params = {title, student};
         List<Map<String, Object>> results = db.retrieveStatement(sql, params);
         if (results == null || results.isEmpty()) {
-            ConnUtils.sendStatusInfo(conn, "Error: could not find linked student username in database for selected exercise", Color.RED, 10);
+            ConnUtils.sendStatusInfo(conn, "Error: could not find linked student username in database for selected exercise", Color.RED, 5);
             return;
         }
         if (results.size() > 1) {
-            ConnUtils.sendStatusInfo(conn, "Database constraint violation: found more than 1 username for specific exercise and user index", Color.RED, 10);
+            ConnUtils.sendStatusInfo(conn, "Database constraint violation: found more than 1 username for specific exercise and user index", Color.RED, 5);
             return;
         }
 
@@ -283,11 +276,11 @@ public class WebSocketHandler {
         
         StudentCommit studentCommit = allJobs.findJob(title, studentNumber, hash);
         if (studentCommit == null) {
-            ConnUtils.sendStatusInfo(conn, "Data not found on disk", Color.RED, 10);
+            ConnUtils.sendStatusInfo(conn, "Data not found on disk", Color.RED, 5);
             return;
         }
         if (!studentCommit.dataExists()) {
-            ConnUtils.sendStatusInfo(conn, "Data not found on disk", Color.RED, 10);
+            ConnUtils.sendStatusInfo(conn, "Data not found on disk", Color.RED, 5);
             return;
         }
         
@@ -332,19 +325,19 @@ public class WebSocketHandler {
         // get exercises of this student
         UserSession session = sessionManager.getSession(parser);
         if (session == null) {
-            ConnUtils.sendStatusInfo(conn, "Error, could not find user session", Color.RED, 10);
+            ConnUtils.sendStatusInfo(conn, "Error, could not find user session", Color.RED, 5);
             return;
         }
         
         UserAccount account = session.getAccount();
         if (account == null) {
-            ConnUtils.sendStatusInfo(conn, "Error, no account linked to session", Color.RED, 10);
+            ConnUtils.sendStatusInfo(conn, "Error, no account linked to session", Color.RED, 5);
             return;
         }
         
         List<StudentCommit> jobs = allJobs.getJobsOfStudent(account);
         if (jobs == null) {
-            ConnUtils.sendStatusInfo(conn, "Error, no jobs found", Color.RED, 10);
+            ConnUtils.sendStatusInfo(conn, "Error, no jobs found", Color.RED, 5);
         }
         
         System.out.println("handleStdRefreshList: found " + jobs.size() + " jobs");
@@ -432,19 +425,19 @@ public class WebSocketHandler {
             try {
                 mark = Mark.fromString(markString);
             } catch (Exception e) {
-                ConnUtils.sendStatusInfo(conn, "Mark Feedback Loop: Unrecognized desired mark: " + markString, Color.RED, 10);
+                ConnUtils.sendStatusInfo(conn, "Mark Feedback Loop: Unrecognized desired mark: " + markString, Color.RED, 5);
                 return;
             }
             
             SourceDocument source = amendMark(filename, token, mark);
             if (source == null) {
-                ConnUtils.sendStatusInfo(conn, "No source document found for this exercise on disk", Color.RED, 10);
+                ConnUtils.sendStatusInfo(conn, "No source document found for this exercise on disk", Color.RED, 5);
                 return;
             }
             
             updaters.updateMark(source, exerciseType, mark);
         } catch (Exception e) {
-            ConnUtils.sendStatusInfo(conn, e.getMessage(), Color.RED, 10);
+            ConnUtils.sendStatusInfo(conn, e.getMessage(), Color.RED, 5);
             e.printStackTrace();
         }
     }
@@ -482,7 +475,7 @@ public class WebSocketHandler {
                 lineno = parser.getInt("lineno");
             } catch (Exception e) {
                 e.printStackTrace();
-                ConnUtils.sendStatusInfo(conn, "Invalid line number", Color.RED, 10);
+                ConnUtils.sendStatusInfo(conn, "Invalid line number", Color.RED, 5);
                 return;
             }
             
@@ -498,14 +491,14 @@ public class WebSocketHandler {
             
             SourceDocument doc = amendFile(fileName, lineno, annType, annotation, token);
             if (doc == null) {
-                ConnUtils.sendStatusInfo(conn, "Source document not found, cannot amend the annotation", Color.RED, 10);
+                ConnUtils.sendStatusInfo(conn, "Source document not found, cannot amend the annotation", Color.RED, 5);
                 return;
             }
             
             updaters.update(doc, lineno, annType, annotation);
         } catch (Exception e) {
             e.printStackTrace();
-            ConnUtils.sendStatusInfo(conn, e.getMessage(), Color.RED, 10);
+            ConnUtils.sendStatusInfo(conn, e.getMessage(), Color.RED, 5);
         }
     }
 
@@ -562,7 +555,7 @@ public class WebSocketHandler {
 
         StudentCommit studentCommit = allJobs.findJobLatest(title, student);
         if (studentCommit == null || !studentCommit.dataExists()) {
-            ConnUtils.sendStatusInfo(conn, "Student commit exercise files not found", Color.RED, 10);
+            ConnUtils.sendStatusInfo(conn, "Student commit exercise files not found", Color.RED, 5);
             return;
         }
 
@@ -762,7 +755,7 @@ public class WebSocketHandler {
         
         List<StudentCommit> commits = allJobs.getStudentsByTitle(title);
         if (commits == null) {
-            ConnUtils.sendStatusInfo(conn, "Could not retrieve student jobs", Color.RED, 10);
+            ConnUtils.sendStatusInfo(conn, "Could not retrieve student jobs", Color.RED, 5);
             throw new RuntimeException("Could not retrieve student jobs for exercise " + title);
         }
 
@@ -808,18 +801,18 @@ public class WebSocketHandler {
             String title = parser.getString("title");
 
             if (title == null || title.isEmpty()) {
-                ConnUtils.sendStatusInfo(conn, "Title is required", Color.RED, 10);
+                ConnUtils.sendStatusInfo(conn, "Title is required", Color.RED, 5);
                 return;
             }
 
             UserSession session = sessionManager.getSession(parser);
             if (session == null) {
-                ConnUtils.sendStatusInfo(conn, "Could not find user session", Color.RED, 10);
+                ConnUtils.sendStatusInfo(conn, "Could not find user session", Color.RED, 5);
                 throw new RuntimeException("session is null");
             }
             UserAccount account = session.getAccount();
             if (account == null) {
-                ConnUtils.sendStatusInfo(conn, "Could not find user account", Color.RED, 10);
+                ConnUtils.sendStatusInfo(conn, "Could not find user account", Color.RED, 5);
                 throw new RuntimeException("account is null");
             }
             String username = account.getUsername();
@@ -834,14 +827,14 @@ public class WebSocketHandler {
                 throw new RuntimeException("Model Solution git is " + modelgit);
             }
             if (!modelgit.startsWith("https://")) {
-                ConnUtils.sendStatusInfo(conn, "Invalid git URL: " + modelgit, Color.RED, 10);
+                ConnUtils.sendStatusInfo(conn, "Invalid git URL: " + modelgit, Color.RED, 5);
                 throw new RuntimeException("invalid model solution git link");
             }
             
             // Check student gits and usernames
             JsonArrayParser studentsGitsArray = parser.getArrayParser("students_git");
             if (studentsGitsArray == null) {
-                ConnUtils.sendStatusInfo(conn, "Please provide student git links and student usernames", Color.RED, 10);
+                ConnUtils.sendStatusInfo(conn, "Please provide student git links and student usernames", Color.RED, 5);
                 throw new RuntimeException("no student gits array");
             }
             // Analyze each of the students links and usernames
@@ -859,11 +852,11 @@ public class WebSocketHandler {
                     continue;
                 }
                 if (!git.startsWith("https://")) {
-                    ConnUtils.sendStatusInfo(conn, "Invalid git https link: " + git, Color.RED, 10);
+                    ConnUtils.sendStatusInfo(conn, "Invalid git https link: " + git, Color.RED, 5);
                     throw new RuntimeException("invalid git " + git);
                 }
                 if (uname == null || uname.isEmpty()) {
-                    ConnUtils.sendStatusInfo(conn, "Username for link " + git + " is required", Color.RED, 10);
+                    ConnUtils.sendStatusInfo(conn, "Username for link " + git + " is required", Color.RED, 5);
                     throw new RuntimeException("no username" );
                 }
                 cleanedArray.add(studentdata.getObject());

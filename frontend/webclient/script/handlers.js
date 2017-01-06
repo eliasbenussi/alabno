@@ -303,8 +303,27 @@ $handlers.handle_commits = function(msgobj) {
 };
 
 $handlers.handle_status_info = function(msgobj) {
+    color = msgobj.color;
+
+    // set msg alert type
+    if (color === 'black') {
+      msgobj.alert_type = 'info';
+    } else if (color === 'green') {
+      msgobj.alert_type ='success';
+    } else if (color === 'yellow') {
+      msgobj.alert_type = 'warning';
+    } else if (color === 'red') {
+      msgobj.alert_type = 'danger';
+    }
+
     var checker = msgobj;
+
     $globals.top_scope.statusinformation.unshift(msgobj);
+    console.log("STATUS ARR BEFORE: " + $globals.top_scope.statusinformation);
+    // only keep latest 3 messages
+    $globals.top_scope.statusinformation = $globals.top_scope.statusinformation.slice(0,3);
+    console.log("STATUS ARR AFTER: " + $globals.top_scope.statusinformation);
+
     setTimeout(function(){
         for (var i = 0; i < $globals.top_scope.statusinformation.length; i++) {
             if (checker === $globals.top_scope.statusinformation[i]) {
@@ -313,5 +332,6 @@ $handlers.handle_status_info = function(msgobj) {
         }
         $globals.top_scope.$apply();
     }, msgobj.timeout*1000);
+
     $globals.top_scope.$apply();
 };
