@@ -65,7 +65,7 @@ class Script_Blocks_Container:
                 current_block.content += source_text[i]
                 i += 1
                 j += 1
-            current_block.content = MLUtils.pad(current_block.content, self.BLOCK_SIZE).replace('\n',' ')
+            current_block.content = MLUtils.pad(current_block.content, self.BLOCK_SIZE)
             all_blocks.append(current_block)
             if i >= len(source_text):
                 break
@@ -73,6 +73,14 @@ class Script_Blocks_Container:
 
         source_file.close()
         self.container = all_blocks
-
-
-
+    
+    # Get content of the block at (or including completely)
+    # the line specified by line_no 
+    def get_block_content_at_line(self, str_line_no):
+        line_no = int(str_line_no)
+        curr = None
+        for block in self.container:
+            if block.lineno > line_no:
+                return curr.content
+            curr = block
+        return curr.content
