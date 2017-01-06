@@ -28,7 +28,7 @@ class Annotation:
 
 class Marker:
     
-    def __init__(self, training_f, sources, category_file = 'category_map.csv', sample_size =550):
+    def __init__(self, training_f, sources, category_file = 'category_map.csv', sample_size = 500):
         self.category_converter = CategoryConverter(category_file)
         self.training_f = training_f
         self.sample_size = sample_size
@@ -68,7 +68,7 @@ class Marker:
         
         tot_blocks = 0
         tot_ok = 0
-
+        
         for source in self.sources:
             blocks = source_blocks_map[source]
             tot_blocks += len(blocks)
@@ -77,14 +77,14 @@ class Marker:
                 if (annotation != '' and
                     (annotation == 'ok' or annotation == 'comment')):
                     tot_ok += 1
-        if tot_block == 0:
+        if tot_blocks == 0:
             return 0
         return (float(tot_ok)/float(tot_blocks)) * 100
     
     def generate_annotations_output(self, source_blocks_map):
         
         all_annotations = []
-
+        
         # Generate Annotations
         for source in self.sources:
             blocks = source_blocks_map[source]
@@ -103,8 +103,8 @@ class Marker:
     # Generates json output for the marker
     def generate_json(self, source_blocks_map, error):
         
-        annotations = generate_annotations_output(source_blocks_map)
-        score = calculate_total_score(source_block_map)
+        annotations = self.generate_annotations_output(source_blocks_map)
+        score = self.calculate_total_score(source_blocks_map)
         json_output = {
             'score': score,
             'annotations': annotations,
@@ -118,15 +118,16 @@ class Marker:
             json.dump(self.output, _file)
             _file.close()
 
-    def mark():
+    def mark(self):
         
         # Holds mapping between source and file's blocks
         partial_outputs = {}
         error = None
+        
 
         # Iterate through files to classify
         for source in self.sources:
-
+    
             # Get blocks
             splitter = Script_Blocks_Container(source, self.sample_size)
             splitter.split()
@@ -137,21 +138,22 @@ class Marker:
                 block.format_content()
                 to_classify.append(block.formatted_content)
             
+            guesses = []
             # Classify
             try:
-                guess = self.classifier.predict(to_classify)
+                guesses = self.classifier.predict(to_classify)
             except Exception as exception:
-                error = str(exception)
+                print str(exception)
                 break
-
+            
             # Assign each category to appropriate block in order
             i = 0
             for guess in guesses:
-                blocks[i] = update_category_and_annotation(block[i], guess)
+                blocks[i] = self.update_category_and_annotation(blocks[i], guess)
                 i += 1
-            
+          
             partial_outputs[source] = blocks
         
-        self.output = generate_json(partial_outputs, error)
+        self.output = self.generate_json(partial_outputs, error)
             
 
