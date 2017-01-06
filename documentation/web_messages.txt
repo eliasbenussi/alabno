@@ -106,6 +106,16 @@ CLIENT -> SERVER
     }
     Asks to delete an exercise by title (because it's not present locally). There is no reply to this message.
     
+    // TODO CLIENT SERVER
+    {
+        "type": "download_file",
+        "id": "687ba687de5",
+        "path": "omg4/student12/commit07987a9876c98_out/index.htm"
+    }
+    Asks the server to download that file.
+    Reply is <start_download>
+    
+    
 SERVER -> CLIENT
 
     {
@@ -170,9 +180,14 @@ SERVER -> CLIENT
               {"no":1, "content": "import Data.Maybe\n", "annotation": "" }
             ]
           }
+        ],
+        "downloads": [
+          {"path":"omg4/student12/commit07987a9876c98_out/index.htm","name":"index.htm"} // TODO SERVER CLIENT
         ]
     }
-    Sends the exercise files with annotations per line to the client
+    Sends the exercise files with annotations per line to the client.
+    Downloads are relative paths starting from alabno/tmp/
+    Once the server sends this message, a record is kept for the user for which files it is allowed to download.
     
     {
         "type": "typelist",
@@ -217,3 +232,11 @@ SERVER -> CLIENT
         "timeout": 60
     }
     A generic status info message that is shown on top of the screen and that can be dismissed by the user.
+    
+    // TODO SERVER CLIENT
+    {
+        "type": "start_download",
+        "token": "0987vfac0"
+    }
+    Sends the client the download token that can be used to download the requested file.
+    
