@@ -112,12 +112,16 @@ $handlers.handle_job_list = function(msgobj) {
     var local = in_job.local;
     
     var color = "green";
+    var glyphicon = "ok";
     if (in_job_status == "pending") {
-      color = "orange";
+      color = "blue";
+      glyphicon = "time";
     } else if (in_job_status == "error") {
       color = "red";
+      glyphicon = "warning-sign";
     } else if (in_job_status == "processing") {
-      color = "yellow";
+      color = "orange";
+      glyphicon = "cog";
     }
 
     var a_job = {};
@@ -125,6 +129,7 @@ $handlers.handle_job_list = function(msgobj) {
     a_job.status = in_job_status;
     a_job.local = local;
     a_job.color = color;
+    a_job.glyphicon = glyphicon;
     a_job.displayed = false;
     a_job.display = function(title) {
       a_job.displayed = !a_job.displayed;

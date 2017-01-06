@@ -23,16 +23,18 @@
             <div class="col-xs-2">
               <h4>Exercise name:  <span style="color:{{job.color}};font-weight: bold;">{{job.title}}</span></h4>
             </div>
-            <div class="col-xs-3">
+            <div class="col-xs-2">
               <button ng-click="job.display(job.title)" ng-show="job.status=='ok' && job.local" class="btn btn-info">Show students taking exercise <span class="caret"></span></button>
             </div>
-            <div class="col-xs-2">
+            <div class="col-xs-offset-2 col-xs-2">
+              <h5>Job status: {{job.status}} <span class="glyphicon glyphicon-{{job.glyphicon}}" aria-hidden="true"></span></h5>
+            </div>
+            <div class="col-xs-1">
               <!-- <button ng-click="delete_exercise(job.title)" ng-hide="job.local" class="btn btn-danger">Delete</button> -->
               <button ng-click="delete_exercise(job.title)" class="btn btn-danger">Delete</button>
             </div>
           </div>
           <table class="table" ng-show="job.students.length != 0">
-          <!-- <table class="table" ng-show="job.displayed"> -->
             <thead>
               <tr>
                 <th>Student</th>
@@ -41,7 +43,7 @@
             </thead>
             <tbody>
               <tr ng-repeat="student in job.students">
-                <td>
+                <td width="550">
                   <p>Student <strong>{{student.uname}}</strong>
                 </td>
                 <td>
