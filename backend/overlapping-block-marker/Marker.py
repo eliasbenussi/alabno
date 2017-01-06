@@ -28,7 +28,7 @@ class Annotation:
 
 class Marker:
     
-    def __init__(self, training_f, sources, category_file = 'category_map.csv', sample_size = 500):
+    def __init__(self, training_f, sources, category_file = 'category_map.csv', sample_size = 100):
         self.category_converter = CategoryConverter(category_file)
         self.training_f = training_f
         self.sample_size = sample_size
