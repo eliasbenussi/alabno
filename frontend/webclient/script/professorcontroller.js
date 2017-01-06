@@ -189,6 +189,8 @@ theapp.controller('professorController', function($scope) {
     $globals.send(JSON.stringify(msgobj));
   };
   
+  $scope.downloads = [];
+  
   // ###########################################################################
   // marking feedback
   
@@ -330,6 +332,17 @@ theapp.controller('professorController', function($scope) {
 
       // show buttons in all lines
       $scope.show_edit_buttons(true);
+  }
+  
+  // ###########################################################################
+  // File downloads
+  
+  $scope.start_file_download = function(path) {
+    var msgobj = {};
+    msgobj.type = "download_file";
+    msgobj.id = $globals.token;
+    msgobj.path = path;
+    $globals.send(JSON.stringify(msgobj));
   }
 
 });

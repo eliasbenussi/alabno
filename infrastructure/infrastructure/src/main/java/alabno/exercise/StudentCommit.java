@@ -2,6 +2,10 @@ package alabno.exercise;
 
 import java.io.File;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -17,6 +21,14 @@ import alabno.wserver.JsonParser;
 import alabno.wserver.SourceDocument;
 
 public class StudentCommit {
+    
+    private static final Set<String> downloadableExtensions = new HashSet<String>();
+    
+    static {
+        downloadableExtensions.add("htm");
+        downloadableExtensions.add("html");
+        downloadableExtensions.add("pdf");
+    }
     
     private String hash;
     private String jsonLocation = null;
@@ -226,6 +238,101 @@ public class StudentCommit {
         String sql = "DELETE FROM `exercise_big_table` WHERE `exname` = ? AND `uname` = ? AND `hash` = ?";
         String[] params = {exname, username, hash};
         db.executeStatement(sql, params);
+    }
+
+    public List<String> getDownloadablePaths() {
+        String outputDirectory = getOutputDirectory();
+        System.out.println("Discovering downloadable files in " + outputDirectory);
+        String outputDirectoryRelativeToAlabno = getOutputDirectoryRelativeToAlabnoTmp();
+        
+        Set<String> results = new HashSet<>();
+        
+        findDownloadableInDirectory(outputDirectory, outputDirectoryRelativeToAlabno, results);
+        findDownloadableInDirectory(originalCommitDirectory(), originalCommitDirectoryRelative(), results);
+
+        List<String> finalOut = new ArrayList<String>();
+        finalOut.addAll(results);
+        return finalOut;
+    }
+
+    private String originalCommitDirectoryRelative() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(exname);
+        sb.append("/");
+        sb.append("student" + userid);
+        sb.append("/");
+        sb.append("commit" + hash);
+
+        return sb.toString();
+    }
+
+    private String originalCommitDirectory() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(FileUtils.getWorkDir());
+        sb.append("/");
+        sb.append("tmp");
+        sb.append("/");
+        sb.append(exname);
+        sb.append("/");
+        sb.append("student" + userid);
+        sb.append("/");
+        sb.append("commit" + hash);
+
+        return sb.toString();
+    }
+
+    private void findDownloadableInDirectory(String outputDirectory, String outputDirectoryRelativeToAlabno,
+            Set<String> results) {
+        // List directory content
+        File outputDirectoryFile = new File(outputDirectory);
+        String[] dirContent = outputDirectoryFile.list(); // get only file names, not full paths
+        for (String aFile : dirContent) {
+            System.out.print(aFile + "\t");
+            // get extension
+            String extension = "";
+            int i = aFile.lastIndexOf('.');
+            if (i > 0) {
+                extension = aFile.substring(i+1);
+            }
+            System.out.println(extension);
+            
+            // check in the allowed extensions
+            if (downloadableExtensions.contains(extension)) {
+                results.add(outputDirectoryRelativeToAlabno + "/" + aFile);
+            }
+        }
+        
+        System.out.println("Results are");
+        for (String r : results) {
+            System.out.println(r);
+        }
+    }
+    
+    
+    private String getOutputDirectoryRelativeToAlabnoTmp() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(exname);
+        sb.append("/");
+        sb.append("student" + userid);
+        sb.append("/");
+        sb.append("commit" + hash + "_out");
+
+        return sb.toString();
+    }
+
+    private String getOutputDirectory() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(FileUtils.getWorkDir());
+        sb.append("/");
+        sb.append("tmp");
+        sb.append("/");
+        sb.append(exname);
+        sb.append("/");
+        sb.append("student" + userid);
+        sb.append("/");
+        sb.append("commit" + hash + "_out");
+
+        return sb.toString();
     }
 
 }

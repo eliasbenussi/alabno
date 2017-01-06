@@ -1,11 +1,14 @@
 package alabno.wserver;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -135,11 +138,81 @@ public class WebSocketHandler {
         case "prof_delete_exercise":
             handleProfDeleteExercise(parser, conn);
             break;
+        case "download_file":
+            handleDownloadFile(parser, conn);
+            break;
         default:
             System.out.println("Unrecognized client message type " + type);
         }
     }
     
+    @SuppressWarnings("unchecked")
+    private void handleDownloadFile(JsonParser parser, WebSocket conn) {
+        try {
+            String path = parser.getString("path");
+            if (!checkStringNotEmpty(path, "path", conn)) {
+                throw new RuntimeException("path empty");
+            }
+            
+            // Get the user state
+            UserSession session = sessionManager.getSession(parser);
+            UserState state = session.getState();
+            if (state == null) {
+                ConnUtils.sendStatusInfo(conn, "Error, no user state found", Color.RED, 10);
+                throw new RuntimeException("state is null for token " + parser.getString("id"));
+            }
+            
+            // Check if user can download the file
+            if (!state.canDownload(path)) {
+                ConnUtils.sendStatusInfo(conn, "You are not allowed to download this file", Color.RED, 10);
+                throw new RuntimeException("User is not allowed to download file " + path);
+            }
+            
+            // Call the CreateDownloadToken script
+            String scriptPath = FileUtils.getWorkDir() + "/frontend/CreateDownloadToken";
+            List<String> command = new ArrayList<>();
+            command.addAll(Arrays.asList(
+                    scriptPath, 
+                    FileUtils.getWorkDir() + "/tmp/" + path
+                    ));
+
+            ProcessBuilder pb = new ProcessBuilder(command);
+            pb.redirectErrorStream(true);
+
+            Process process = pb.start();
+
+            BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line = null;
+            String firstLine = null;
+            while ((line = input.readLine()) != null) {
+                System.out.println(line);
+                if (firstLine == null) {
+                    firstLine = line;
+                }
+            }
+            int code = process.waitFor();
+            
+            if (code != 0) {
+                ConnUtils.sendStatusInfo(conn, "CreateDownloadToken returned code " + code, Color.RED, 10);
+                throw new RuntimeException("CreateDownloadToken returned code " + code);
+            }
+            
+            String downloadToken = firstLine;
+            
+            JSONObject msgobj = new JSONObject();
+            msgobj.put("type", "start_download");
+            msgobj.put("token", downloadToken);
+            conn.send(msgobj.toJSONString());
+
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            return;
+        } catch (Exception e) {
+            ConnUtils.sendStatusInfo(conn, e.getMessage(), Color.RED, 10);
+            return;
+        }
+    }
+
     private void handleProfDeleteExercise(JsonParser parser, WebSocket conn) {
         try {
             String title = parser.getString("title");
@@ -310,8 +383,13 @@ public class WebSocketHandler {
             String filePath = a.getString("filename");
             uniqueFiles.add(filePath);
         }
+        
+        // Discover the downloadable files in the output directory
+        List<String> downloadablePaths = studentCommit.getDownloadablePaths();
+        // Add these downloadable paths to this user's allowed downloads
+        userState.addDownloadable(downloadablePaths);
 
-        sendAnnotatedMsg(uniqueFiles, submissionFeedbackMap, conn, exerciseType, mark);
+        sendAnnotatedMsg(uniqueFiles, submissionFeedbackMap, conn, exerciseType, mark, downloadablePaths);
 
     }
 
@@ -577,13 +655,18 @@ public class WebSocketHandler {
             String filePath = a.getString("filename");
             uniqueFiles.add(filePath);
         }
+        
+        // Discover the downloadable files in the output directory
+        List<String> downloadablePaths = studentCommit.getDownloadablePaths();
+        // Add these downloadable paths to this user's allowed downloads
+        userState.addDownloadable(downloadablePaths);
 
         switch (subtype) {
           case "postprocessor":
             sendPostprocessorMsg(title, student, fileContent, conn, exerciseType);
             break;
           case "annotated":
-            sendAnnotatedMsg(uniqueFiles, submissionFeedbackMap, conn, exerciseType, mark);
+            sendAnnotatedMsg(uniqueFiles, submissionFeedbackMap, conn, exerciseType, mark, downloadablePaths);
             break;
           default:
             System.out.println("Unrecognized result message subtype");
@@ -603,7 +686,7 @@ public class WebSocketHandler {
     }
 
     @SuppressWarnings("unchecked")
-    private void sendAnnotatedMsg(Set<String> uniqueFiles, Map<String, List<AnnotationWrapper>> submissionFeedbackMap, WebSocket conn, String exerciseType, String mark) {
+    private void sendAnnotatedMsg(Set<String> uniqueFiles, Map<String, List<AnnotationWrapper>> submissionFeedbackMap, WebSocket conn, String exerciseType, String mark, List<String> downloadablePaths) {
         // Generate a JSON message with an array containing JSON objects - each is made of the file name,
         // its contents and if a line has an annotation, its corresponding error.
         JSONObject annotatedFilesMsg = new JSONObject();
@@ -612,6 +695,16 @@ public class WebSocketHandler {
         annotatedFilesMsg.put("files", files);
         annotatedFilesMsg.put("exercise_type", exerciseType);
         annotatedFilesMsg.put("mark", mark);
+        
+        JSONArray downloads = new JSONArray();
+        for (String path : downloadablePaths) {
+            JSONObject pathobj = new JSONObject();
+            pathobj.put("path", path);
+            pathobj.put("name", FileUtils.filenameOf(path));
+            downloads.add(pathobj);
+        }
+        annotatedFilesMsg.put("downloads", downloads);
+        
         conn.send(annotatedFilesMsg.toJSONString());
     }
 

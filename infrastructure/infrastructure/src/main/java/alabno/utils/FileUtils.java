@@ -104,4 +104,22 @@ public class FileUtils {
         System.out.println("jobDirectoryExists checking " + checkDir);
         return Files.exists(Paths.get(checkDir));
     }
+
+    /**
+     * @param path
+     * @return the final part of the path, namely only the name of the file
+     */
+    public static String filenameOf(String path) {
+        String[] split = path.split("/");
+        if (split == null) {
+            throw new RuntimeException("Error, path split returned null");
+        }
+        if (split.length == 0) {
+            return path;
+        }
+        if (split.length == 1) {
+            return path;
+        }
+        return split[split.length - 1];
+    }
 }

@@ -27,7 +27,7 @@ exec_dir = os.path.abspath(os.path.dirname(os.path.abspath(__file__)))
 alabno_dir = os.path.abspath(exec_dir + os.sep + '..')
 
 # import database
-mysqldb_dir = exec_dir + os.sep + '..' + os.sep + 'simple-haskell-marker'
+mysqldb_dir = os.path.abspath(alabno_dir + os.sep + 'backend' + os.sep + 'simple-haskell-marker')
 sys.path.append(mysqldb_dir)
 import mysqldb
 db = mysqldb.MysqlConn()

@@ -249,6 +249,8 @@ $handlers.handle_annotated_file = function(msgobj) {
         file.data = data_list;
         $globals.professor_scope.annotated_files.push(file);
         }
+        
+        $globals.professor_scope.downloads = msgobj.downloads;
 
         // change view
         $globals.professor_scope.show_section('show_annotated_file');
@@ -319,4 +321,15 @@ $handlers.handle_status_info = function(msgobj) {
     }, msgobj.timeout*1000);
 
     $globals.top_scope.$apply();
+};
+
+function openInNewTab(url) {
+    var win = window.open(url);
+    win.focus();
+};
+
+$handlers.handle_start_download = function(msgobj) {
+    var token = msgobj.token;
+    var downUrl = 'result/' + token;
+    openInNewTab(downUrl);
 };
