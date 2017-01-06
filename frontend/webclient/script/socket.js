@@ -82,7 +82,9 @@ $globals.onmessage_internal = function(message) {
         $handlers.handle_std_ex_list(msgobj);
     } else if (msgobj.type == 'commits') {
         $handlers.handle_commits(msgobj);
-    } 
+    } else if (msgobj.type == 'start_download') {
+        $handlers.handle_start_download(msgobj);
+    }
     else {
         console.log("message type not recognized: " + msgobj.type);
     }

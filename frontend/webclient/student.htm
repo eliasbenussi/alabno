@@ -61,20 +61,44 @@
           <h2>{{file.filename}}</h2>
           <hr>
         </div>
-      </div>
 
-      <div class="row" ng-repeat="data in file.data">
-        <div class="col-xs-1">
-          <code class="customcode">{{data.no}}</code>
+        <!--File downloads-->
+        <h3>Downloadable files</h3>
+        <div class="row" ng-repeat="dwn in annotated_files.downloads">
+          <button type="button" class="btn btn-link" ng-click="start_file_download(dwn.path)">{{dwn.name}}</button>
         </div>
-        <div class="col-xs-6">
-          <code class="customcode">{{data.content}}</code>
+
+        <div class="row-fluid" ng-repeat="file in annotated_files.files">
+          <div class="row">
+            <h2>{{file.filename}}</h2>
+          </div>
+
+          <div class="row" ng-repeat="data in file.data">
+            <div class="col-xs-1">
+              <code class="customcode">{{data.no}}</code>
+            </div>
+            <div class="col-xs-6">
+              <code class="customcode">{{data.content}}</code>
+            </div>
+            <div class="col-xs-5">
+              <code class="customcode">{{data.annotation}}</code>
+            </div>
+          </div>
         </div>
-        <div class="col-xs-5">
-          <code class="customcode">{{data.annotation}}</code>
+
+        <div class="row" ng-repeat="data in file.data">
+          <div class="col-xs-1">
+            <code class="customcode">{{data.no}}</code>
+          </div>
+          <div class="col-xs-6">
+            <code class="customcode">{{data.content}}</code>
+          </div>
+          <div class="col-xs-5">
+            <code class="customcode">{{data.annotation}}</code>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
+  </div>
 </div>

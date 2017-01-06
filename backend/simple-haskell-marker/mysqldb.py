@@ -7,11 +7,11 @@ import pymysql.cursors
 import subprocess
 
 def get_pass():
-    # alabno/simple-haskell-marker
+    # alabno/backend/simple-haskell-marker
     exec_dir = os.path.abspath(os.path.dirname(os.path.abspath(__file__)))
     
     # alabno/
-    alabno_dir = os.path.abspath(exec_dir + os.sep + '..')
+    alabno_dir = os.path.abspath(exec_dir + os.sep + '..' + os.sep + '..')
     
     # alabno/dbpass.txt
     pass_path = os.path.abspath(alabno_dir + os.sep + 'dbpass.txt')

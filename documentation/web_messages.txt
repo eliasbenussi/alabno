@@ -106,7 +106,6 @@ CLIENT -> SERVER
     }
     Asks to delete an exercise by title (because it's not present locally). There is no reply to this message.
     
-    // TODO CLIENT SERVER
     {
         "type": "download_file",
         "id": "687ba687de5",
@@ -182,7 +181,7 @@ SERVER -> CLIENT
           }
         ],
         "downloads": [
-          {"path":"omg4/student12/commit07987a9876c98_out/index.htm","name":"index.htm"} // TODO SERVER CLIENT
+          {"path":"omg4/student12/commit07987a9876c98_out/index.htm","name":"index.htm"}
         ]
     }
     Sends the exercise files with annotations per line to the client.
@@ -233,7 +232,7 @@ SERVER -> CLIENT
     }
     A generic status info message that is shown on top of the screen and that can be dismissed by the user.
     
-    // TODO SERVER CLIENT
+    // TODO CLIENT
     {
         "type": "start_download",
         "token": "0987vfac0"

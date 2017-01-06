@@ -2,6 +2,7 @@ package alabno.exercise;
 
 import java.io.File;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -244,16 +245,29 @@ public class StudentCommit {
         System.out.println("Discovering downloadable files in " + outputDirectory);
         String outputDirectoryRelativeToAlabno = getOutputDirectoryRelativeToAlabnoTmp();
         
+        List<String> results = new ArrayList<>();
+        
         // List directory content
         File outputDirectoryFile = new File(outputDirectory);
         String[] dirContent = outputDirectoryFile.list(); // get only file names, not full paths
         for (String aFile : dirContent) {
+            // get extension
+            String extension = "";
+            int i = aFile.lastIndexOf('.');
+            if (i > 0) {
+                extension = aFile.substring(i+1);
+            }
             
+            // check in the allowed extensions
+            if (downloadableExtensions.contains(extension)) {
+                results.add(outputDirectoryRelativeToAlabno + "/" + aFile);
+            }
         }
+        
+        return results;
     }
     
     
-
     private String getOutputDirectoryRelativeToAlabnoTmp() {
         StringBuilder sb = new StringBuilder();
         sb.append(exname);

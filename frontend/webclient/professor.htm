@@ -206,6 +206,12 @@
         </div>
       </div>
       
+      <!--File downloads-->
+      <h3>Downloadable files</h3>
+      <div class="row" ng-repeat="dwn in downloads">
+        <button type="button" class="btn btn-link" ng-click="start_file_download(dwn.path)">{{dwn.name}}</button>
+      </div>
+      
       <div ng-show="show_mark_editor" class="panel-body">
         <form>
           <select name="newmark" ng-model="student_exercise_mark">

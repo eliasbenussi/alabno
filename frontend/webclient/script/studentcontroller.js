@@ -79,7 +79,16 @@ theapp.controller('studentController', function($scope) {
     
     $scope.annotated_files = {};
 
-
+    // ###########################################################################
+    // File downloads
+    
+    $scope.start_file_download = function(path) {
+        var msgobj = {};
+        msgobj.type = "download_file";
+        msgobj.id = $globals.token;
+        msgobj.path = path;
+        $globals.send(JSON.stringify(msgobj));
+    }
   
 });
 
