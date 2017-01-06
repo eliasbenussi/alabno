@@ -4,9 +4,10 @@ import MLUtils
 
 class Block:
     
-    def __init__(self, lineno, charno):
+    def __init__(self, lineno, charno, size):
         self.lineno = lineno
         self.charno = charno
+        self.size = size
 
         # Default values
         self.content = ''
@@ -15,7 +16,14 @@ class Block:
         self.annotation = ''
 
     def format_content(self):
-        self.formatted_content = MLUtils.format_line(self.content)
+        # Format to int
+        unpadded_formatted = MLUtils.format_line(self.content)
+
+        # Translate to float
+        float_unpadded = map(lambda n: float(n), unpadded_formatted)
+
+        # Pad
+        self.formatted_content = MLUtils.pad_float(float_unpadded, self.size)
 
     def __str__(self):
         return '[{}, {}]'.format(self.lineno, self.content)
@@ -52,7 +60,7 @@ class Script_Blocks_Container:
         i = 0
         while i < len(source_text):
             j = 0
-            current_block = Block(inverse_map[i], i)
+            current_block = Block(inverse_map[i], i, self.BLOCK_SIZE)
             while j < self.BLOCK_SIZE and i < len(source_text):
                 current_block.content += source_text[i]
                 i += 1
@@ -65,16 +73,6 @@ class Script_Blocks_Container:
 
         source_file.close()
         self.container = all_blocks
-
-
-# Main ====================================================
-
-#block_container = Script_Blocks_Container("testFiles/split_test.txt")
-#block_container.split()
-#_container = block_container.container
-#
-#for b in container:
-#    print b.__str__()
 
 
 

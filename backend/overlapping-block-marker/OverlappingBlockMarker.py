@@ -57,7 +57,7 @@ except:
     exit_with_error('Could not parse input JSON', output_json_path)
 
 try:
-    input_directory = input_json_obj['input_directory']
+    input_directory = os.path.abspath(input_json_obj['input_directory'])
 except:
     exit_with_error('Invalid JSON: could not find key input_directory', output_json_path)
 
@@ -76,7 +76,8 @@ for root, dirs, files in os.walk(input_directory, topdown=False):
         filename = os.path.relpath(os.path.join(root,name))
         stem, ext = os.path.splitext(filename)
         if ext == '.hs':
-            haskell_file_paths.append(os.path.abspath(filename))
+            _path = os.path.abspath(filename)
+            haskell_file_paths.append(_path)
 
 # read the manifest file and get the training file
 
@@ -86,7 +87,7 @@ try:
     manifest_path = exec_dir + os.sep + 'training' + os.sep + 'manifest.txt'
     manifest_file = open(manifest_path, 'r')
     for line in manifest_file:
-        training_path = line
+        training_path = line.replace('\n', '')
         break
     manifest_file.close()
 except:
