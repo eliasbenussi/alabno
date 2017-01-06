@@ -50,3 +50,11 @@ tr:hover {
 .clearfix {
     clear:both
 }
+
+.annotated-file-btn {
+    margin-top: 15px;
+}
+
+.edit-mark-btn {
+    margin-top: 20px;
+}

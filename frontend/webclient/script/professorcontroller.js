@@ -204,6 +204,11 @@ theapp.controller('professorController', function($scope) {
   $scope.edit_mark = function() {
     $scope.show_mark_editor = true;
   };
+
+  // hides mark editor
+  $scope.cancel_edit_mark = function() {
+    $scope.show_mark_editor = false;
+  };
   
   // sends a modified mark to the backend
   $scope.submit_mark = function() {
