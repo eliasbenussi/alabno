@@ -14,6 +14,7 @@ class Classifier:
         for (cat_numb, formatted_text) in formatted_training:
             # Ensure all values in X are float
             float_formatted = map(lambda n: float(n), formatted_text)
+            print len(float_formatted)
             self.X.append(float_formatted)
             self.y.append(cat_numb)
         
@@ -22,6 +23,8 @@ class Classifier:
         self.clf = MLPClassifier(solver='adam', alpha=1e-5, 
                                    hidden_layer_sizes=(5, 2), random_state=1)
         
+        #print self.X
+        print self.y
         try: 
             self.clf.fit(self.X, self.y)
         except Exception as e:
@@ -30,6 +33,7 @@ class Classifier:
 
     def predict(self, new_data):
         prediction = self.clf.predict(new_data)
+        print prediction
         if len(prediction) != len(new_data):
             raise Exception('[Classifier] Classification failed. Aborting.')
         return prediction

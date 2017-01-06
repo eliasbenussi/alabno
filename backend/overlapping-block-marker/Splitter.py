@@ -65,7 +65,7 @@ class Script_Blocks_Container:
                 current_block.content += source_text[i]
                 i += 1
                 j += 1
-            current_block.content = MLUtils.pad(current_block.content, self.BLOCK_SIZE)
+            current_block.content = MLUtils.pad(current_block.content, self.BLOCK_SIZE).replace('\n',' ')
             all_blocks.append(current_block)
             if i >= len(source_text):
                 break
