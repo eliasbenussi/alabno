@@ -59,6 +59,11 @@ def start_server(https):
     gitauth.set_auth_passphrase()
     
     if https:
+        # Ask the keystore password
+        print('Please enter the java keystore password')
+        keystorepass = getpass.getpass()
+        os.environ["ALABNOJKSPASS"] = keystorepass
+        
         print("Starting in secure mode")
         # check for presence of certificates
         if not os.path.isfile('frontend/mykeystore.jks'):
