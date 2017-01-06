@@ -129,9 +129,17 @@ $handlers.handle_job_list = function(msgobj) {
     a_job.display = function(title) {
       a_job.displayed = !a_job.displayed;
       if (!a_job.displayed) {
+        console.log("Hide thing, stud length: " + a_job.students.length);
+        console.log("Object title is: " + a_job.title);
+        console.log("Passed title is: " + title);
         a_job.students = []
       } else {
-        console.log("Clicked display on job " + title);
+        console.log("Object title is: " + a_job.title);
+        console.log("Passed title is: " + title);
+
+        console.log("show thing, stud length: " + a_job.students);
+        // console.log("ALL JOBS ARE: " + $globals.professor_scope.all_jobs[0].title);
+
         var msgobj = {};
         msgobj.type = "get_job";
         msgobj.id = $globals.token;
@@ -142,6 +150,9 @@ $handlers.handle_job_list = function(msgobj) {
     a_job.students = [];
 
     $globals.professor_scope.all_jobs.push(a_job);
+    
+    
+    // console.log("ALL JOBS ARE: " + $globals.professor_scope.all_jobs[0]);
   }
 
   $globals.professor_scope.$apply();
