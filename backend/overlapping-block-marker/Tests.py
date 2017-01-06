@@ -41,7 +41,7 @@ class BlockDeepMarkerTest(unittest.TestCase):
     
     # Splitter =======================================
     def test_splitter(self):
-        splitter = Script_Blocks_Container('testFiles/split_test.txt')
+        splitter = Script_Blocks_Container('testFiles/split_test.txt', 80, 20)
         splitter.split()
         splitted = splitter.container
         self.assertIs(len(splitted), 5)
@@ -55,7 +55,8 @@ class BlockDeepMarkerTest(unittest.TestCase):
         marker = Marker('testFiles/training.txt', None, 'testFiles/category_map_test.csv')
         formatted = marker.format_training_file()
         form_line = MLUtils.format_line((' &#124; otherwise = y\n\n').replace('\n',''))
-        self.assertTrue((0, form_line) in formatted)
+        padded = MLUtils.pad_float(form_line, 550)
+        self.assertTrue((0, padded) in formatted)
         
 
 if __name__ == '__main__':
