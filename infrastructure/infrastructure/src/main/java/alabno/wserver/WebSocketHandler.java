@@ -577,13 +577,16 @@ public class WebSocketHandler {
             String filePath = a.getString("filename");
             uniqueFiles.add(filePath);
         }
+        
+        // Discover the downloadable files in the output directory
+        List<String> downloadablePaths = studentCommit.getDownloadablePaths();
 
         switch (subtype) {
           case "postprocessor":
             sendPostprocessorMsg(title, student, fileContent, conn, exerciseType);
             break;
           case "annotated":
-            sendAnnotatedMsg(uniqueFiles, submissionFeedbackMap, conn, exerciseType, mark);
+            sendAnnotatedMsg(uniqueFiles, submissionFeedbackMap, conn, exerciseType, mark, downloadablePaths);
             break;
           default:
             System.out.println("Unrecognized result message subtype");
@@ -603,7 +606,7 @@ public class WebSocketHandler {
     }
 
     @SuppressWarnings("unchecked")
-    private void sendAnnotatedMsg(Set<String> uniqueFiles, Map<String, List<AnnotationWrapper>> submissionFeedbackMap, WebSocket conn, String exerciseType, String mark) {
+    private void sendAnnotatedMsg(Set<String> uniqueFiles, Map<String, List<AnnotationWrapper>> submissionFeedbackMap, WebSocket conn, String exerciseType, String mark, List<String> downloadablePaths) {
         // Generate a JSON message with an array containing JSON objects - each is made of the file name,
         // its contents and if a line has an annotation, its corresponding error.
         JSONObject annotatedFilesMsg = new JSONObject();
@@ -612,6 +615,16 @@ public class WebSocketHandler {
         annotatedFilesMsg.put("files", files);
         annotatedFilesMsg.put("exercise_type", exerciseType);
         annotatedFilesMsg.put("mark", mark);
+        
+        JSONArray downloads = new JSONArray();
+        for (String path : downloadablePaths) {
+            JSONObject pathobj = new JSONObject();
+            pathobj.put("path", path);
+            pathobj.put("name", FileUtils.filenameOf(path));
+            downloads.add(pathobj);
+        }
+        annotatedFilesMsg.put("downloads", downloads);
+        
         conn.send(annotatedFilesMsg.toJSONString());
     }
 

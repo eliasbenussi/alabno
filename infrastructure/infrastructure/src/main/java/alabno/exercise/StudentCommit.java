@@ -2,6 +2,9 @@ package alabno.exercise;
 
 import java.io.File;
 import java.io.PrintWriter;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -17,6 +20,14 @@ import alabno.wserver.JsonParser;
 import alabno.wserver.SourceDocument;
 
 public class StudentCommit {
+    
+    private static final Set<String> downloadableExtensions = new HashSet<String>();
+    
+    static {
+        downloadableExtensions.add(".htm");
+        downloadableExtensions.add(".html");
+        downloadableExtensions.add(".pdf");
+    }
     
     private String hash;
     private String jsonLocation = null;
@@ -226,6 +237,47 @@ public class StudentCommit {
         String sql = "DELETE FROM `exercise_big_table` WHERE `exname` = ? AND `uname` = ? AND `hash` = ?";
         String[] params = {exname, username, hash};
         db.executeStatement(sql, params);
+    }
+
+    public List<String> getDownloadablePaths() {
+        String outputDirectory = getOutputDirectory();
+        System.out.println("Discovering downloadable files in " + outputDirectory);
+        String outputDirectoryRelativeToAlabno = getOutputDirectoryRelativeToAlabnoTmp();
+        
+        // List directory content
+        File outputDirectoryFile = new File(outputDirectory);
+        String[] dirContent = outputDirectoryFile.list(); // get only file names, not full paths
+        for (String aFile : dirContent) {
+            
+        }
+    }
+    
+    
+
+    private String getOutputDirectoryRelativeToAlabnoTmp() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(exname);
+        sb.append("/");
+        sb.append("student" + userid);
+        sb.append("/");
+        sb.append("commit" + hash + "_out");
+
+        return sb.toString();
+    }
+
+    private String getOutputDirectory() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(FileUtils.getWorkDir());
+        sb.append("/");
+        sb.append("tmp");
+        sb.append("/");
+        sb.append(exname);
+        sb.append("/");
+        sb.append("student" + userid);
+        sb.append("/");
+        sb.append("commit" + hash + "_out");
+
+        return sb.toString();
     }
 
 }
