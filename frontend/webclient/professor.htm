@@ -207,9 +207,11 @@
       </div>
       
       <!--File downloads-->
-      <h3>Downloadable files</h3>
-      <div class="row" ng-repeat="dwn in downloads">
-        <button type="button" class="btn btn-link" ng-click="start_file_download(dwn.path)">{{dwn.name}}</button>
+      <div class="col-xs-6 offset-xs-3" ng-show="downloads && downloads.length > 0">
+        <h3>Downloadable files</h3>
+        <div class="row" ng-repeat="dwn in downloads">
+          <button type="button" class="btn btn-link" ng-click="start_file_download(dwn.path)">{{dwn.name}}</button>
+        </div>
       </div>
       
       <div ng-show="show_mark_editor" class="panel-body">

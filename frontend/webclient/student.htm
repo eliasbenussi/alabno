@@ -63,9 +63,11 @@
         </div>
 
         <!--File downloads-->
-        <h3>Downloadable files</h3>
-        <div class="row" ng-repeat="dwn in annotated_files.downloads">
-          <button type="button" class="btn btn-link" ng-click="start_file_download(dwn.path)">{{dwn.name}}</button>
+        <div class="row-fluid" ng-show="annotated_files.downloads && annotated_files.downloads.length > 0">
+            <h3>Downloadable files</h3>
+            <div class="row" ng-repeat="dwn in annotated_files.downloads">
+                <button type="button" class="btn btn-link" ng-click="start_file_download(dwn.path)">{{dwn.name}}</button>
+            </div>
         </div>
 
         <div class="row-fluid" ng-repeat="file in annotated_files.files">

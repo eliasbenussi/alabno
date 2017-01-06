@@ -25,9 +25,9 @@ public class StudentCommit {
     private static final Set<String> downloadableExtensions = new HashSet<String>();
     
     static {
-        downloadableExtensions.add(".htm");
-        downloadableExtensions.add(".html");
-        downloadableExtensions.add(".pdf");
+        downloadableExtensions.add("htm");
+        downloadableExtensions.add("html");
+        downloadableExtensions.add("pdf");
     }
     
     private String hash;
@@ -251,17 +251,24 @@ public class StudentCommit {
         File outputDirectoryFile = new File(outputDirectory);
         String[] dirContent = outputDirectoryFile.list(); // get only file names, not full paths
         for (String aFile : dirContent) {
+            System.out.print(aFile + "\t");
             // get extension
             String extension = "";
             int i = aFile.lastIndexOf('.');
             if (i > 0) {
                 extension = aFile.substring(i+1);
             }
+            System.out.println(extension);
             
             // check in the allowed extensions
             if (downloadableExtensions.contains(extension)) {
                 results.add(outputDirectoryRelativeToAlabno + "/" + aFile);
             }
+        }
+        
+        System.out.println("Results are");
+        for (String r : results) {
+            System.out.println(r);
         }
         
         return results;

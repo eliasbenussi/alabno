@@ -232,7 +232,6 @@ SERVER -> CLIENT
     }
     A generic status info message that is shown on top of the screen and that can be dismissed by the user.
     
-    // TODO CLIENT
     {
         "type": "start_download",
         "token": "0987vfac0"

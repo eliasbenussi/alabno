@@ -324,7 +324,7 @@ $handlers.handle_status_info = function(msgobj) {
 };
 
 function openInNewTab(url) {
-    var win = window.open(url, '_blank');
+    var win = window.open(url);
     win.focus();
 };
 
