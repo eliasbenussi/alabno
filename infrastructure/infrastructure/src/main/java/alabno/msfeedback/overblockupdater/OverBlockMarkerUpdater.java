@@ -1,27 +1,30 @@
-package alabno.msfeedback;
+package alabno.msfeedback.overblockupdater;
 
-import alabno.database.MySqlDatabaseConnection;
+import alabno.database.DatabaseConnection;
+import alabno.msfeedback.Mark;
+import alabno.msfeedback.MicroServiceUpdater;
+import alabno.msfeedback.Runner;
 import alabno.utils.FileUtils;
 import alabno.utils.StringUtils;
 import alabno.utils.SubprocessUtils;
+import alabno.wserver.SourceDocument;
 
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 
 public class OverBlockMarkerUpdater implements MicroServiceUpdater {
 
-    private static final String TRAINING_FILE_BASENAME = "overlapping-block-marker/training/train";
+    private static final String TRAINING_FILE_BASENAME = "backend/overlapping-block-marker/training/train";
 
-    private MySqlDatabaseConnection conn;
+    private DatabaseConnection conn;
+    private static final String OBMPath = FileUtils.getWorkDir() + "/backend/overlapping-block-marker/";
+
     private int currentNumbering = 0;
 
     // Holds a map from annotation to identifiers, which allows to re-use some identifiers for similar annotations
     private Map<String, String> existingAnnotationsToIdentifiers = new HashMap<>();
 
-    public OverBlockMarkerUpdater(MySqlDatabaseConnection conn) {
+    public OverBlockMarkerUpdater(DatabaseConnection conn) {
         this.conn = conn;
     }
 
@@ -30,36 +33,81 @@ public class OverBlockMarkerUpdater implements MicroServiceUpdater {
         System.out.println("OverBlockMarkerUpdater:init()");
 
         // create the directory
-        SubprocessUtils.call("mkdir " + FileUtils.getWorkDir() + "/overlapping-block-marker/training");
+        SubprocessUtils.call("rm -rf " + OBMPath + "training");
+        SubprocessUtils.call("mkdir " + OBMPath + "training");
 
-        updateTraining();
+        // Start updater thread
+        Thread updaterThread = new Thread(new Runner(this, "OverlappingBlockMarker"));
+        updaterThread.start();
     }
 
+
     @Override
-    public void update(String source, String type, String annotation) {
-        System.out.println("OverBlockMarkerUpdater:update(" + source + "," + type + "," + annotation + ")");
-        OverBlockMarkerUpdater.CategoryName newName = createNewName(annotation);
+    public void update(SourceDocument document, int lineNumber, String type, String annotation) {
+        String source = getLineContent(document.getPath(), lineNumber);
+        if (source == null || source.isEmpty()) {
+            return;
+        }
+        System.out.println("OverBlockMarkerUpdater:update(" + type + "," + annotation + ")");
+        CategoryName newName = createNewName(annotation);
         // add it to the map
         existingAnnotationsToIdentifiers.put(annotation, newName.name);
 
         // format source, type and annotation
         source = source.replace("\n", "\\n").replace("\t", "\\t");
+        source = source.trim();
+        if (source.isEmpty()) {
+            return;
+        }
         type = type.replace("\n", "\\n").replace("\t", "\\t");
         annotation = annotation.replace("\n", "\\n").replace("\t", "\\t");
+        annotation = annotation.trim();
+        if (annotation.isEmpty()) {
+            return;
+        }
 
         String queryCategories = "INSERT INTO OverBlockCategories (name, type, annotation) VALUES (?, ?, ?)";
         String[] parametersCategories = {newName.name, type, annotation};
 
         String queryTraining = "INSERT INTO OverBlockTraining (name, text) VALUES (?, ?)";
-        String[] parametersTraining = {newName.name, source};
+        String[] parametersTraining = {newName.name, source.};
 
         if (newName.insert) {
             conn.executeStatement(queryCategories, parametersCategories);
         }
         conn.executeStatement(queryTraining, parametersTraining);
 
-        // update Training set
-        updateTraining();
+        // update Training set done by the runner
+    }
+
+    private String getLineContent(String path, int lineNumber) {
+        String python_script_path = "backend/overlapping-block-marker/split_for_updater.py";
+        List<String> command = new ArrayList<>();
+        command.addAll(Arrays.asList(
+                "python",
+                python_script_path,
+                path,
+                String.valueOf(lineNumber)
+        ));
+        try {
+            ProcessBuilder pb = new ProcessBuilder(command);
+            pb.redirectErrorStream(true);
+
+            Process process = pb.start();
+
+            BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            StringBuilder builder = new StringBuilder();
+            String line = null;
+            while ((line = input.readLine()) != null) {
+                builder.append(line);
+            }
+            input.close();
+            return builder.toString();
+        } catch (IOException e) {
+            System.out.print("Error executing " + python_script_path + ".");
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public void updateTraining() {
@@ -75,6 +123,10 @@ public class OverBlockMarkerUpdater implements MicroServiceUpdater {
         currentNumbering++;
         String trainingName = getCurrentTrainingName();
 
+        // Clear directory from very old entires
+        String cmd = "python " + OBMPath + "IncrementSerializedClassifier.py --clean";
+        SubprocessUtils.call(cmd);
+
         PrintWriter outfile = null;
         try {
             outfile = new PrintWriter(trainingName);
@@ -87,6 +139,9 @@ public class OverBlockMarkerUpdater implements MicroServiceUpdater {
         for (Map<String, String> tuple : tuples) {
             String name = tuple.get("name");
             String text = tuple.get("text");
+            if (name == null || text == null || name.trim().isEmpty() || text.trim().isEmpty()) {
+                continue;
+            }
             outfile.println(name + "\t" + text);
         }
 
@@ -110,24 +165,27 @@ public class OverBlockMarkerUpdater implements MicroServiceUpdater {
             String name = cat.get("name");
             String type = cat.get("type");
             String annotation = cat.get("annotation");
+            if (name == null || type == null || annotation == null || name.trim().isEmpty() || type.trim().isEmpty()
+                    || annotation.trim().isEmpty()) {
+                continue;
+            }
             catFile.println(name + "\t" + type + "\t" + annotation);
             existingAnnotationsToIdentifiers.put(annotation, name);
         }
 
         catFile.close();
 
-        // after writing the serialized file, call alabno/overlapping-block-marker/IncrementSerializedClassifier.py
+        // after writing the serialized file, call alabno/backend/overlapping-block-marker/IncrementSerializedClassifier.py
         // Which will take care of creating/updating the manifest.txt file for the microservice
-        String alabnoDirectory = FileUtils.getWorkDir();
-        String cmd = "python " + alabnoDirectory + "/overlapping-block-marker/IncrementSerializedClassifier.py";
+        cmd = "python " + OBMPath + "IncrementSerializedClassifier.py";
         SubprocessUtils.call(cmd);
 
-        // documentation/feedback_haskell_marker.txt has more details about the formats. PLEASE refer to that
     }
 
     private class CategoryName {
         boolean insert; // True if a database insertion is required
         String name;
+
         CategoryName(boolean insert, String name) {
             this.insert = insert;
             this.name = name;
@@ -138,7 +196,7 @@ public class OverBlockMarkerUpdater implements MicroServiceUpdater {
      * @param desiredAnnotation the desired annotation string to be used
      * @return the new name for the annotation, or the existing one if an annotation with very similar text was already available.
      */
-    private OverBlockMarkerUpdater.CategoryName createNewName(String desiredAnnotation) {
+    private CategoryName createNewName(String desiredAnnotation) {
         int maxAllowedDistance =
                 (int) Math.floor(0.1d * desiredAnnotation.length());
 
@@ -192,5 +250,10 @@ public class OverBlockMarkerUpdater implements MicroServiceUpdater {
 
     private String getCurrentCategoriesName() {
         return getCurrentFilename(".csv");
+    }
+
+    @Override
+    public void updateMark(SourceDocument source, String exerciseType, Mark mark) {
+        // Not handling marking changes for the moment
     }
 }

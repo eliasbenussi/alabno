@@ -8,6 +8,8 @@ import sys
 import pymysql.cursors
 import subprocess
 
+to_shm = os.path.abspath(os.path.dirname(os.path.abspath(__file__ + os.sep + '..')))
+sys.path.append(to_shm)
 import mysqldb
 
 db = mysqldb.MysqlConn()
