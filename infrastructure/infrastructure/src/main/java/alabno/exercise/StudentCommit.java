@@ -245,8 +245,44 @@ public class StudentCommit {
         System.out.println("Discovering downloadable files in " + outputDirectory);
         String outputDirectoryRelativeToAlabno = getOutputDirectoryRelativeToAlabnoTmp();
         
-        List<String> results = new ArrayList<>();
+        Set<String> results = new HashSet<>();
         
+        findDownloadableInDirectory(outputDirectory, outputDirectoryRelativeToAlabno, results);
+        findDownloadableInDirectory(originalCommitDirectory(), originalCommitDirectoryRelative(), results);
+
+        List<String> finalOut = new ArrayList<String>();
+        finalOut.addAll(results);
+        return finalOut;
+    }
+
+    private String originalCommitDirectoryRelative() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(exname);
+        sb.append("/");
+        sb.append("student" + userid);
+        sb.append("/");
+        sb.append("commit" + hash);
+
+        return sb.toString();
+    }
+
+    private String originalCommitDirectory() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(FileUtils.getWorkDir());
+        sb.append("/");
+        sb.append("tmp");
+        sb.append("/");
+        sb.append(exname);
+        sb.append("/");
+        sb.append("student" + userid);
+        sb.append("/");
+        sb.append("commit" + hash);
+
+        return sb.toString();
+    }
+
+    private void findDownloadableInDirectory(String outputDirectory, String outputDirectoryRelativeToAlabno,
+            Set<String> results) {
         // List directory content
         File outputDirectoryFile = new File(outputDirectory);
         String[] dirContent = outputDirectoryFile.list(); // get only file names, not full paths
@@ -270,8 +306,6 @@ public class StudentCommit {
         for (String r : results) {
             System.out.println(r);
         }
-        
-        return results;
     }
     
     
