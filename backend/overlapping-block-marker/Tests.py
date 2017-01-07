@@ -52,7 +52,7 @@ class BlockDeepMarkerTest(unittest.TestCase):
 
     # Marker =========================================
     def test_format_training(self):
-        marker = Marker('testFiles/training.txt', None, 'testFiles/category_map_test.csv')
+        marker = Marker('testFiles/training.txt', None, 'testFiles/category_map_test.csv', 550)
         formatted = marker.format_training_file()
         form_line = MLUtils.format_line((' &#124; otherwise = y\n\n').replace('\n',''))
         padded = MLUtils.pad_float(form_line, 550)

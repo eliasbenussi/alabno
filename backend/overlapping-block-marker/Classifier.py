@@ -21,7 +21,7 @@ class Classifier:
         # Initialize the classifier (stochastic gradient-descent)
         self.clf = MLPClassifier(solver='adam', alpha=1e-5, 
                                    hidden_layer_sizes=(5, 2), random_state=1)
-        
+                
         try: 
             self.clf.fit(self.X, self.y)
         except Exception as e:
