@@ -70,7 +70,7 @@ public class OverBlockMarkerUpdater implements MicroServiceUpdater {
         String[] parametersCategories = {newName.name, type, annotation};
 
         String queryTraining = "INSERT INTO OverBlockTraining (name, text) VALUES (?, ?)";
-        String[] parametersTraining = {newName.name, source.};
+        String[] parametersTraining = {newName.name, source};
 
         if (newName.insert) {
             conn.executeStatement(queryCategories, parametersCategories);
