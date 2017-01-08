@@ -6,6 +6,7 @@ import alabno.localjobstatus.LocalJobStatusAll;
 import alabno.msfeedback.FeedbackUpdaters;
 import alabno.msfeedback.haskellupdater.HaskellMarkerUpdater;
 import alabno.msfeedback.markmarker.MarkMarkerUpdater;
+import alabno.msfeedback.overblockmarker.OverBlockMarkerUpdater;
 import alabno.useraccount.AccountManager;
 import alabno.useraccount.DatabaseAccountManager;
 import alabno.useraccount.LocalAccountManager;
@@ -50,6 +51,7 @@ public class Main {
         FeedbackUpdaters updaters = new FeedbackUpdaters();
         updaters.register(new HaskellMarkerUpdater(dbconn));
         updaters.register(new MarkMarkerUpdater(dbconn));
+        updaters.register(new OverBlockMarkerUpdater(dbconn));
 
         // Setup account manager
         AccountManager accountManager = null;
