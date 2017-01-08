@@ -47,7 +47,8 @@ def call_and_check(cmd):
         sys.exit(1)
     return
 
-pem_file = os.path.abspath(args.pem)
+if args.pem:
+    pem_file = os.path.abspath(args.pem)
 
 # stop any running servers
 cmd = 'screen -X -S {} quit'.format(screen_name)
