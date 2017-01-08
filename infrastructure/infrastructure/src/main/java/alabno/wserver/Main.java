@@ -6,7 +6,7 @@ import alabno.localjobstatus.LocalJobStatusAll;
 import alabno.msfeedback.FeedbackUpdaters;
 import alabno.msfeedback.haskellupdater.HaskellMarkerUpdater;
 import alabno.msfeedback.markmarker.MarkMarkerUpdater;
-import alabno.msfeedback.overblockmarker.OverBlockMarkerUpdater;
+import alabno.msfeedback.overblockupdater.OverBlockMarkerUpdater;
 import alabno.useraccount.AccountManager;
 import alabno.useraccount.DatabaseAccountManager;
 import alabno.useraccount.LocalAccountManager;
