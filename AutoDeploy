@@ -47,6 +47,7 @@ def call_and_check(cmd):
         sys.exit(1)
     return
 
+pem_file = None
 if args.pem:
     pem_file = os.path.abspath(args.pem)
 
