@@ -62,7 +62,7 @@ public class ExecutionUnitCreate implements Runnable {
 
     private boolean execute() {
         try {
-
+        	System.out.println(">>> Starting ExecutionUnitCreate");
             String clonerScriptPath = "infrastructure/cloner.py";
             StringBuilder studentGitArguments = new StringBuilder();
 
@@ -74,6 +74,7 @@ public class ExecutionUnitCreate implements Runnable {
                 JSONObject gitobj = (JSONObject) o;
                 String gitlink = (String) gitobj.get("git");
                 String uname = (String) gitobj.get("uname");
+                System.out.println("git >> " + gitlink);
                 gitList.add(gitlink);
                 unameList.add(uname);
             }
