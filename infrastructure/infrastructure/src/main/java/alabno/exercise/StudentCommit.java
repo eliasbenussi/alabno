@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.json.simple.JSONArray;
@@ -198,19 +199,28 @@ public class StudentCommit {
         String uname = username;
         String userindex = userid;
         
-        String sql = "REPLACE INTO `exercise`(`exname`, `extype`) VALUES (?,?)";
-        String[] params = {title, exerciseType};
-        tb.add(sql, params);
+        if (!databaseHasExercise(title)) {
+	        String sql = "INSERT INTO `exercise`(`exname`, `extype`) VALUES (?,?)";
+	        String[] params = {title, exerciseType};
+	        tb.add(sql, params);
+        }
         
         // insert entries in the bigtable
-        sql = "REPLACE INTO `exercise_big_table`(`exname`, `uname`, `userindex`, `hash`, `status`) VALUES (?,?,?,?,?)";
-        params = new String[] {title, uname, userindex, hash, status};
+        String sql = "INSERT INTO `exercise_big_table`(`exname`, `uname`, `userindex`, `hash`, `status`) VALUES (?,?,?,?,?)";
+        String[] params = new String[] {title, uname, userindex, hash, status};
         tb.add(sql, params);
         
         db.executeTransaction(tb);
     }
 
-    public String getExerciseName() {
+    private boolean databaseHasExercise(String title) {
+		String sql = "SELECT exname FROM `exercise` WHERE `exname` = ?";
+		String[] params = {title};
+		List<Map<String, Object>> results = db.retrieveStatement(sql, params);
+		return results != null && results.size() >= 1;
+	}
+
+	public String getExerciseName() {
         return exname;
     }
 

@@ -36,6 +36,7 @@ public class JobsCollection {
     }
 
     public void update(String exname, String extype, String uname, String userindex, String hash, String status) {
+    	System.out.println("Updating JOB: " + exname + " " + uname + " " + userindex);
         StudentCommit studentCommit = new StudentCommit(exname, extype, uname, userindex, hash, status, db);
         studentCommit.updateDatabase();
     }
