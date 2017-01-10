@@ -324,12 +324,12 @@ $handlers.handle_status_info = function(msgobj) {
 };
 
 function openInNewTab(url) {
-    var win = window.open(url);
-    win.focus();
+    location.href = url;
 };
 
 $handlers.handle_start_download = function(msgobj) {
     var token = msgobj.token;
-    var downUrl = 'result/' + token;
+    var downUrl = location.protocol + '//' + location.host + '/result/' + token;
+    console.log("Downloading... " + downUrl);
     openInNewTab(downUrl);
 };
