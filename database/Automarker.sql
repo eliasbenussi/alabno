@@ -1,9 +1,9 @@
 -- phpMyAdmin SQL Dump
--- version 4.6.5.2
+-- version 4.6.4
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jan 06, 2017 at 08:31 PM
+-- Generation Time: Jan 10, 2017 at 02:07 PM
 -- Server version: 5.7.16-0ubuntu0.16.04.1
 -- PHP Version: 7.0.8-0ubuntu0.16.04.3
 
@@ -71,7 +71,7 @@ CREATE TABLE `ExerciseTypes` (
 CREATE TABLE `exercise_big_table` (
   `exname` varchar(200) NOT NULL,
   `uname` varchar(100) NOT NULL,
-  `userindex` text NOT NULL,
+  `userindex` varchar(10) NOT NULL,
   `hash` varchar(200) NOT NULL,
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `status` varchar(20) NOT NULL
@@ -121,6 +121,29 @@ CREATE TABLE `MarkMarkerTraining` (
   `exercise_name` varchar(50) NOT NULL,
   `training_set` longtext NOT NULL,
   `serialized` longblob NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `OverBlockCategories`
+--
+
+CREATE TABLE `OverBlockCategories` (
+  `name` varchar(100) NOT NULL,
+  `type` text NOT NULL,
+  `annotation` text NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `OverBlockTraining`
+--
+
+CREATE TABLE `OverBlockTraining` (
+  `name` varchar(100) NOT NULL,
+  `text` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -213,7 +236,7 @@ ALTER TABLE `ExerciseTypes`
 -- Indexes for table `exercise_big_table`
 --
 ALTER TABLE `exercise_big_table`
-  ADD PRIMARY KEY (`exname`,`uname`,`hash`);
+  ADD PRIMARY KEY (`exname`,`uname`,`userindex`,`hash`);
 
 --
 -- Indexes for table `HaskellCategories`
@@ -232,6 +255,18 @@ ALTER TABLE `HaskellTraining`
 --
 ALTER TABLE `MarkMarkerTraining`
   ADD PRIMARY KEY (`exercise_name`);
+
+--
+-- Indexes for table `OverBlockCategories`
+--
+ALTER TABLE `OverBlockCategories`
+  ADD PRIMARY KEY (`name`);
+
+--
+-- Indexes for table `OverBlockTraining`
+--
+ALTER TABLE `OverBlockTraining`
+  ADD KEY `name` (`name`);
 
 --
 -- Indexes for table `PdfPaths`
