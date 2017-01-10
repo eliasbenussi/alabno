@@ -116,7 +116,7 @@ theapp.controller('professorController', function($scope) {
   // List of jobs
 
   // all_jobs contains objects of the type {title: "title", display: function(title), students: []}
-  // $scope.all_jobs = [];
+  $scope.all_jobs = $globals.all_jobs;
   
   // commits
   $scope.commits = [];

@@ -101,7 +101,8 @@ $handlers.handle_job_list = function(msgobj) {
   }
 
   // Write to model
-  $globals.professor_scope.all_jobs = [];
+  var all_jobs = [];
+  all_jobs = [];
 
   for (var i = 0; i < jobs.length; i++) {
     var in_job = jobs[i];
@@ -144,10 +145,14 @@ $handlers.handle_job_list = function(msgobj) {
     };
     a_job.students = [];
 
-    $globals.professor_scope.all_jobs.push(a_job);
+    all_jobs.push(a_job);
   }
 
+  $globals.professor_scope.all_jobs = all_jobs;
   $globals.professor_scope.$apply();
+  
+
+  $globals.all_jobs = all_jobs;
 };
 
 $handlers.handle_job_group = function(msgobj) {
