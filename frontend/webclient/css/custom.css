@@ -16,6 +16,7 @@ tr:hover {
     font-family: monospace;
     border: 0;
     background-color: transparent;
+    padding: 0;
 }
 
 #sidebar-wrapper p {
