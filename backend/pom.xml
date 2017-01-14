@@ -17,6 +17,6 @@
     <module>complexity_analyser</module>
     <module>mark_marker</module>
     <module>simple-haskell-marker</module>
-    <module>java-marker</module>
+    <module>overlapping-block-marker</module>
   </modules>
 </project>
