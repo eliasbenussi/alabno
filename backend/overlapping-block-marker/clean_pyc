@@ -1,0 +1,4 @@
+#!/bin/bash
+
+rm .*.swp 2> /dev/null
+rm *.pyc

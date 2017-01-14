@@ -1,0 +1,250 @@
+ok	 &#124; otherwise = y\n\n
+ok	maxOf3 :: Int -&gt; Int -&gt; Int -&gt; Int\n-- Returns the largest of three Ints\nmaxOf3 x y z\n  = maxOf2 x (maxOf2 y z)\n\n
+comment	-- Alternative version of maxOf3 using &gt;= and &amp;&amp;\nmaxof3' x y z\n  = if x &gt;= y &amp;&amp; x &gt;= z\n    then x\n    else if y &gt;= x &amp;&amp; y &gt;= z\n
+ok	         then y\n         else z\n\n
+comment	-- Another version of maxOf3 using just &gt;=\nmaxof3'' x y z\n  = if x &gt;= y\n    then if x &gt;= z\n         then x\n
+ok	         else z\n    else if y &gt;= z\n         then y\n         else z\n\n
+ok	isADigit :: Char -&gt; Bool\n-- Returns True if the character represents a digit '0'..'9';\n-- False otherwise\nisADigit c\n  = c &gt;= '0' &amp;&amp; c &lt;= '9'\n\n
+comment	-- False otherwise\n
+ok	isAlpha :: Char -&gt; Bool\n-- Returns True if the character represents an alphabetic\n-- character either in the range 'a'..'z' or in the range 'A'..'Z';\nisAlpha c\n  = (c &gt;= 'a' &amp;&amp; c &lt;= 'z') &#124;&#124; (c &gt;= 'A' &amp;&amp; c &lt;= 'Z')\n\n
+ok	digitToInt :: Char -&gt; Int\n-- Pre: the character is one of '0'..'9'\n-- Returns the integer [0..9] corresponding to the given character.\n-- Note: this is a simpler version of digitToInt in module Data.Char,\n-- which does not assume the precondition.\n
+ok	digitToInt c\n  = ord c - ord '0'\n\n
+ok	toUpper :: Char -&gt; Char\n-- Returns the upper case character corresponding to the input.\n-- Uses guards by way of variety.\ntoUpper c\n  &#124; c &gt;= 'A' &amp;&amp; c &lt;= 'Z' = c\n
+ok	  &#124; c &gt;= 'a' &amp;&amp; c &lt;= 'z' = chr (ord 'A' + ord c - ord 'a')\n\n
+comment	--\n-- Sequences and series\n--\n\n
+comment	-- Arithmetic sequence\n
+ok	arithmeticSeq :: Double -&gt; Double -&gt; Int -&gt; Double\narithmeticSeq a d n\n  = a + fromIntegral n * d\n\n
+comment	-- Geometric sequence\n
+ok	geometricSeq :: Double -&gt; Double -&gt; Int -&gt; Double\ngeometricSeq a r n\n  = a * r ^ n\n\n
+comment	-- Arithmetic series\n
+ok	arithmeticSeries :: Double -&gt; Double -&gt; Int -&gt; Double\narithmeticSeries a d n\n  = (n' + 1) * (a + d * n' / 2)\n  where\n    n' = fromIntegral n\n\n
+comment	-- Geometric series\n
+ok	geometricSeries :: Double -&gt; Double -&gt; Int -&gt; Double\ngeometricSeries a r n\n  &#124; r == 1    = (fromIntegral n + 1) * a\n  &#124; otherwise = a * (1 - r ^ (n + 1)) / (1 - r)\n
+ok	module MP where\n\n
+ok	import System.Environment\n\n
+ok	type FileContents = String\n\n
+ok	type Keyword      = String\ntype KeywordValue = String\ntype KeywordDefs  = [(Keyword, KeywordValue)]\n\n
+ok	separators :: String\nseparators\n  = &quot; \n\t.,:;!\&quot;\'()&lt;&gt;/\\&quot;\n\n\n
+unimplemented	lookUp :: String -&gt; [(String, a)] -&gt; [a]\nlookUp = error &quot;TODO: implement lookUp&quot;\n\n
+indentation	split :: [Char] -&gt; String -&gt; (String, [String])\nsplit chs []\n    = (&quot;&quot;, [&quot;&quot;])\nsplit chs (c : cs)\n        &#124; elem c chs = (c : terms, &quot;&quot; : words)\n        &#124; otherwise = (terms, (c:w) : ws)\n        where\n                (terms, words) = split chs cs\n                (w : ws) = words\n\n
+unimplemented	combine :: String -&gt; [String] -&gt; [String]\ncombine = error &quot;TODO: implement combine&quot;\n\n
+unimplemented	getKeywordDefs :: [String] -&gt; KeywordDefs\ngetKeywordDefs = error &quot;TODO: implement getKeywordDefs&quot;\n\n
+unimplemented	expand :: FileContents -&gt; FileContents -&gt; FileContents\nexpand = error &quot;TODO: implement expand&quot;\n\n
+ok	-- You may wish to uncomment and implement this helper function\n-- when implementing expand\n
+ok	-- replaceWord :: String -&gt; KeywordDefs -&gt; String\n\n\n\n
+ok	main :: IO ()\n-- The provided main program which uses your functions to merge a\n-- template and source file.\nmain = do\n  args &lt;- getArgs\n  main' args\n\n
+ok	  where\n
+ok	    main' :: [String] -&gt; IO ()\n    main' [template, source, output] = do\n      t &lt;- readFile template\n      i &lt;- readFile source\n      writeFile output (expand t i)\n    main' _ = putStrLn (&quot;Usage: runghc MP &lt;template&gt; &lt;info&gt; &lt;output&gt;&quot;)\n\n
+ok	maxOf2 :: Int -&gt; Int -&gt; Int\n-- Returns first argument if it is larger than the second,\n-- the second argument otherwise\nmaxOf2 x y\n  &#124; x &gt; y     = x\n  &#124; otherwise = y\n  \n
+whitespace	maxOf2 :: Int -&gt; Int -&gt; Int\n-- Returns first argument if it is larger than the second,\n-- the second argument otherwise\nmaxOf2 x y\n  &#124; x&gt;y = x\n  &#124; otherwise = y\n  \n
+whitespace	maxOf2 :: Int -&gt; Int -&gt; Int\n-- Returns first argument if it is larger than the second,\n-- the second argument otherwise\nmaxOf2 x y\n  &#124; x&gt;y = x\n  &#124; otherwise= y\n\n
+ok	maxOf3 :: Int -&gt; Int -&gt; Int -&gt; Int\n-- Returns the largest of three Ints\nmaxOf3 x y z\n  = maxOf2 x (maxOf2 y z)\n  \n
+reuse	maxOf3 :: Int -&gt; Int -&gt; Int -&gt; Int\n-- Returns the largest of three Ints\nmaxOf3 x y z = if maxOf2 x y == x &amp;&amp; maxOf2 x z == x then x else maxOf2 y z\n\n
+reuse	maxOf3 :: Int -&gt; Int -&gt; Int -&gt; Int\n-- Returns the largest of three Ints\nmaxOf3 x y z \n  = if maxOf2 x y == x &amp;&amp; maxOf2 x z == x then x else maxOf2 y z\n\n
+ok	isADigit :: Char -&gt; Bool\n-- Returns True if the character represents a digit '0'..'9';\n-- False otherwise\nisADigit c\n  = c &gt;= '0' &amp;&amp; c &lt;= '9'\n  \n
+minustenk	isADigit :: Char -&gt; Bool\n-- Returns True if the character represents a digit '0'..'9';\n-- False otherwise\nisADigit c\n  &#124; c &gt;= '0' &amp;&amp; c &lt;= '9' = True\n  &#124; otherwise            = False\n  \n
+conversion	isADigit :: Char -&gt; Bool\n-- Returns True if the character represents a digit '0'..'9';\n-- False otherwise\nisADigit c\n  = ord c &gt;= ord '0' &amp;&amp; ord c &lt;= ord '9'\n  \n
+minustenk	isADigit :: Char -&gt; Bool\n-- Returns True if the character represents a digit '0'..'9';\n-- False otherwise\nisADigit c\n  &#124; ord c &gt;= ord '0' &amp;&amp; ord c &lt;= ord '9' = True\n  &#124; otherwise = False\n\n
+comment	-- False otherwise\n
+ok	isAlpha :: Char -&gt; Bool\n-- Returns True if the character represents an alphabetic\n-- character either in the range 'a'..'z' or in the range 'A'..'Z';\nisAlpha c\n  = (c &gt;= 'a' &amp;&amp; c &lt;= 'z') &#124;&#124; (c &gt;= 'A' &amp;&amp; c &lt;= 'Z')\n  \n
+comment	-- False otherwise\n
+minustenk	isAlpha :: Char -&gt; Bool\n-- Returns True if the character represents an alphabetic\n-- character either in the range 'a'..'z' or in the range 'A'..'Z';\nisAlpha c\n  &#124; (c &gt;= 'a' &amp;&amp; c &lt;= 'z') &#124;&#124; (c &gt;= 'A' &amp;&amp; c &lt;= 'Z') = True\n  &#124; otherwise = False\n  \n
+comment	-- False otherwise\n
+conversion	isAlpha :: Char -&gt; Bool\n-- Returns True if the character represents an alphabetic\n-- character either in the range 'a'..'z' or in the range 'A'..'Z';\nisAlpha c\n  = (ord c &gt;= ord 'a' &amp;&amp; ord c &lt;= ord 'z') &#124;&#124; (ord c &gt;= ord 'A' &amp;&amp; ord c &lt;= ord 'Z')\n  \n
+comment	-- False otherwise\n
+minustenk	isAlpha :: Char -&gt; Bool\n-- Returns True if the character represents an alphabetic\n-- character either in the range 'a'..'z' or in the range 'A'..'Z';\nisAlpha c\n  &#124; (ord c &gt;= ord 'a' &amp;&amp; ord c &lt;= ord 'z') &#124;&#124; (ord c &gt;= ord 'A' &amp;&amp; ord c &lt;= ord 'Z') = True\n  &#124; otherwise = False\n\n
+ok	digitToInt :: Char -&gt; Int\n-- Pre: the character is one of '0'..'9'\n-- Returns the integer [0..9] corresponding to the given character.\n-- Note: this is a simpler version of digitToInt in module Data.Char,\n-- which does not assume the precondition.\ndigitToInt c\n  = ord c - ord '0'\n  \n
+magic	digitToInt :: Char -&gt; Int\n-- Pre: the character is one of '0'..'9'\n-- Returns the integer [0..9] corresponding to the given character.\n-- Note: this is a simpler version of digitToInt in module Data.Char,\n-- which does not assume the precondition.\ndigitToInt c\n  = ord c - 48\n\n
+ok	toUpper :: Char -&gt; Char\n-- Returns the upper case character corresponding to the input.\n-- Uses guards by way of variety.\ntoUpper c\n  &#124; c &gt;= 'A' &amp;&amp; c &lt;= 'Z' = c\n  &#124; c &gt;= 'a' &amp;&amp; c &lt;= 'z' = chr (ord 'A' + ord c - ord 'a')\n\n
+ok	--\n-- Sequences and series\n--\n\n
+comment	-- Arithmetic sequence\n
+ok	arithmeticSeq :: Double -&gt; Double -&gt; Int -&gt; Double\narithmeticSeq a d n\n  = a + fromIntegral n * d\n\n
+comment	-- Geometric sequence\n
+ok	geometricSeq :: Double -&gt; Double -&gt; Int -&gt; Double\ngeometricSeq a r n\n  = a * r ^ n\n\n
+comment	-- Arithmetic series\n
+ok	arithmeticSeries :: Double -&gt; Double -&gt; Int -&gt; Double\narithmeticSeries a d n\n  = (n' + 1) * (a + d * n' / 2)\n  where\n    n' = fromIntegral n\n\n
+comment	-- Geometric series\n
+ok	geometricSeries :: Double -&gt; Double -&gt; Int -&gt; Double\ngeometricSeries a r n\n  &#124; r == 1    = (fromIntegral n + 1) * a\n  &#124; otherwise = a * (1 - r ^ (n + 1)) / (1 - r)\n
+ok	foo :: int -&gt; int -&gt; int\nfoo a _\n= 2 * a\n\n
+ok	foo :: int -&gt; int\nfoo a\n= 2 * a\n\n
+ok	lookupChar :: Char -&gt; Rules -&gt; String\nlookupChar c rules\n  = head [s &#124; (ch, s) &lt;- rules, ch == c]\n\n
+ok	expandOne :: Rules -&gt; String -&gt; String\nexpandOne r s\n  = concat (map (flip lookupChar r) s)\n\n
+ok	expand :: Rules -&gt; String -&gt; Int -&gt; String\nexpand r s n\n  = s\n\n
+ok	expand :: Rules -&gt; String -&gt; Int -&gt; String\nexpand r s n\n  = iterate (expandOne r) s !! n\n\n
+ok	move :: Char -&gt; TurtleState -&gt; Float -&gt; TurtleState\nmove ’L’ (position, angle) turn\n  = (position, angle + turn)\nmove ’R’ (position, angle) turn\n  = (position, angle - turn)\nmove ’F’ ((x, y), angle) turn\n  = ((x + cos (degreesToRadians angle),\n  y + sin (degreesToRadians angle)), angle)\n\n
+ok	degreesToRadians :: Float -&gt; Float\ndegreesToRadians x\n  = (x / 180) * pi\n\n
+ok	trace1 :: String -&gt; Float -&gt; Colour -&gt; [ColouredLine]\ntrace1 cs angle colour\n  = lines\n  where\n    (lines, nullString) = trace’ cs ((0,0), 90)\n\n
+ok	trace’ :: [int] -&gt; [int]\ntrace’ [] t\n  = ([], [])\n\n
+ok	trace' :: [int] -&gt; [int]\ntrace’ (c : cs) t\n  &#124; c == ’F’ = ((p, p’, colour) : lines’, cs’)\n  &#124; c == ’[’ = (lines’’ ++ lines’’’, cs’’’)\n  &#124; c == ’]’ = ([], cs)\n  &#124; otherwise = (lines’, cs’)\n  where\n    (p’, a’) = move c t angle\n    (lines’, cs’) = trace’ cs (p’, a’)\n    (lines’’, cs’’) = trace’ cs t\n    (lines’’’, cs’’’) = trace’ cs’’ t\n
+ok	    (p, a) = t\n\n
+ok	trace2 :: String -&gt; Float -&gt; Colour -&gt; [ColouredLine]\ntrace2 cs turn colour\n  = trace’ cs ((0, 0), 90) []\n\n
+ok	trace’ :: String -&gt; TurtleState -&gt; Stack -&gt; [ColouredLine]\ntrace’ [] _ _\n  = []\ntrace’ (’F’ : cs) ts@(position, angle) stack\n  = (position, newPosition, colour) :\n      trace’ cs (newPosition, newAngle) stack\n    where\n      (newPosition, newAngle) = move ’F’ ts turn\n\n
+ok	trace’ :: String -&gt; TurtleState -&gt; Stack -&gt; [ColouredLine]\ntrace’ (’[’ : cs) ts stack\n  = trace’ cs ts (ts : stack)\ntrace’ (’]’ : cs) _ (ts : stack)\n  = trace’ cs ts stack\ntrace’ (c : cs) ts stack\n  = trace’ cs (move c ts turn) stack\n\n
+signature	foo :: int -&gt; int -&gt; int\nfoo a\n= 2 * a\n\n
+signature	bar :: (int, int) -&gt; int\nbar a\n= a\n\n
+signature	lookupChar :: Char -&gt; Rules -&gt; String\nlookupChar c\n  = head [s &#124; (ch, s) &lt;- rules, ch == c]\n\n
+signature	lookupChar :: Char -&gt; Rules -&gt; String\nlookupChar c rules\n  = rules\n\n
+signature	lookupChar :: Char -&gt; Rules -&gt; String\nlookupChar c rules\n  = c\n\n
+signature	lookupChar :: Char -&gt; String\nlookupChar c rules\n  = head [s &#124; (ch, s) &lt;- rules, ch == c]\n\n
+signature	expandOne :: Rules -&gt; String -&gt; String\nexpandOne r s\n  = concat (map (flip lookupChar r) s)\n\n
+signature	expand :: Rules -&gt; Int -&gt; String\nexpand r s n\n  = iterate (expandOne r) s !! n\n\n
+signature	expand :: Rules -&gt; String -&gt; Int -&gt; String\nexpand r s\n  = iterate (expandOne r) s !! n\n\n
+signature	expand :: Rules -&gt; String -&gt; Int -&gt; String\nexpand r s n\n  = n\n\n
+signature	expand :: Rules -&gt; String -&gt; Int -&gt; String\nexpand r s n\n  = r\n\n
+signature	move :: Char -&gt; TurtleState -&gt; Float -&gt; TurtleState\nmove ’L’ turn\n  = (position, angle + turn)\nmove ’R’ (position, angle) turn\n  = (position, angle - turn)\nmove ’F’ ((x, y), angle) turn\n  = ((x + cos (degreesToRadians angle),\n  y + sin (degreesToRadians angle)), angle)\n\n
+signature	move :: Char -&gt; TurtleState -&gt; Float -&gt; TurtleState\nmove ’L’ (position, angle) turn\n  = (position, angle + turn)\nmove (position, angle) turn\n  = (position, angle - turn)\nmove ’F’ ((x, y), angle) turn\n  = ((x + cos (degreesToRadians angle),\n  y + sin (degreesToRadians angle)), angle)\n\n
+signature	move :: Char -&gt; TurtleState -&gt; Float -&gt; TurtleState\nmove ’L’ (position, angle) turn\n  = (position, angle + turn)\nmove ’R’ (position, angle) turn\n  = (position, angle - turn)\nmove ’F’ ((x, y), angle)\n  = ((x + cos (degreesToRadians angle),\n  y + sin (degreesToRadians angle)), angle)\n\n
+signature	move :: Char -&gt; Float -&gt; TurtleState\nmove ’L’ (position, angle) turn\n  = (position, angle + turn)\nmove ’R’ (position, angle) turn\n  = (position, angle - turn)\nmove ’F’ ((x, y), angle) turn\n  = ((x + cos (degreesToRadians angle),\n  y + sin (degreesToRadians angle)), angle)\n\n
+signature	move :: Char -&gt; TurtleState -&gt; TurtleState\nmove ’L’ (position, angle) turn\n  = (position, angle + turn)\nmove ’R’ (position, angle) turn\n  = (position, angle - turn)\nmove ’F’ ((x, y), angle) turn\n  = ((x + cos (degreesToRadians angle),\n  y + sin (degreesToRadians angle)), angle)\n\n
+signature	degreesToRadians :: Float -&gt; Float\ndegreesToRadians\n  = (x / 180) * pi\n\n
+signature	degreesToRadians :: Float\ndegreesToRadians x\n  = (x / 180) * pi\n\n
+signature	degreesToRadians :: Float -&gt; Float\ndegreesToRadians x u\n  = (x / 180) * pi\n\n
+signature	trace1 :: Float -&gt; Colour -&gt; [ColouredLine]\ntrace1 cs angle colour\n  = lines\n  where\n    (lines, nullString) = trace’ cs ((0,0), 90)\n\n
+signature	trace1 :: String -&gt; Float -&gt; [ColouredLine]\ntrace1 cs angle colour\n  = lines\n  where\n    (lines, nullString) = trace’ cs ((0,0), 90)\n\n
+signature	trace1 :: String -&gt; Float -&gt; Colour -&gt; [ColouredLine]\ntrace1 cs angle\n  = lines\n  where\n    (lines, nullString) = trace’ cs ((0,0), 90)\n\n
+signature	trace1 :: String -&gt; Float -&gt; Colour -&gt; [ColouredLine]\ntrace1 cs colour\n  = lines\n  where\n    (lines, nullString) = trace’ cs ((0,0), 90)\n\n
+signature	trace1 :: String -&gt; Float -&gt; Colour -&gt; [ColouredLine]\ntrace1 angle colour\n  = lines\n  where\n    (lines, nullString) = trace’ cs ((0,0), 90)\n\n
+signature	trace’ :: [int]\ntrace’ [] t\n  = ([], [])\n\n
+signature	;\n
+signature	trace’ :: [int] -&gt; [int]\ntrace’ []\n  = ([], [])\n\n
+signature	;\n
+signature	trace’ :: [int] -&gt; [int]\ntrace’ t\n  = ([], [])\n\n
+signature	trace' :: [int]\ntrace’ (c : cs) t\n  &#124; c == ’F’ = ((p, p’, colour) : lines’, cs’)\n  &#124; c == ’[’ = (lines’’ ++ lines’’’, cs’’’)\n  &#124; c == ’]’ = ([], cs)\n  &#124; otherwise = (lines’, cs’)\n  where\n    (p’, a’) = move c t angle\n    (lines’, cs’) = trace’ cs (p’, a’)\n    (lines’’, cs’’) = trace’ cs t\n    (lines’’’, cs’’’) = trace’ cs’’ t\n
+signature	    (p, a) = t\n\n
+signature	trace' :: [int] -&gt; [int]\ntrace’ t\n  &#124; c == ’F’ = ((p, p’, colour) : lines’, cs’)\n  &#124; c == ’[’ = (lines’’ ++ lines’’’, cs’’’)\n  &#124; c == ’]’ = ([], cs)\n  &#124; otherwise = (lines’, cs’)\n  where\n    (p’, a’) = move c t angle\n    (lines’, cs’) = trace’ cs (p’, a’)\n    (lines’’, cs’’) = trace’ cs t\n    (lines’’’, cs’’’) = trace’ cs’’ t\n
+signature	    (p, a) = t\n\n
+signature	trace' :: [int] -&gt; [int]\ntrace’ (c : cs)\n  &#124; c == ’F’ = ((p, p’, colour) : lines’, cs’)\n  &#124; c == ’[’ = (lines’’ ++ lines’’’, cs’’’)\n  &#124; c == ’]’ = ([], cs)\n  &#124; otherwise = (lines’, cs’)\n  where\n    (p’, a’) = move c t angle\n    (lines’, cs’) = trace’ cs (p’, a’)\n    (lines’’, cs’’) = trace’ cs t\n    (lines’’’, cs’’’) = trace’ cs’’ t\n
+signature	    (p, a) = t\n\n
+signature	trace2 :: String -&gt; Float -&gt; [ColouredLine]\ntrace2 cs turn colour\n  = trace’ cs ((0, 0), 90) []\n\n\n
+signature	trace2 :: String -&gt; Colour -&gt; [ColouredLine]\ntrace2 cs turn colour\n  = trace’ cs ((0, 0), 90) []\n\n\n
+signature	trace2 :: Float -&gt; Colour -&gt; [ColouredLine]\ntrace2 cs turn colour\n  = trace’ cs ((0, 0), 90) []\n\n\n
+signature	trace2 :: String -&gt; Float -&gt; Colour\ntrace2 cs turn colour\n  = trace’ cs ((0, 0), 90) []\n\n
+signature	trace2 :: String -&gt; Float -&gt; Colour -&gt; [ColouredLine]\ntrace2 turn colour\n  = trace’ cs ((0, 0), 90) []\n\n
+signature	trace2 :: String -&gt; Float -&gt; Colour -&gt; [ColouredLine]\ntrace2 cs colour\n  = trace’ cs ((0, 0), 90) []\n\n
+signature	trace2 :: String -&gt; Float -&gt; Colour -&gt; [ColouredLine]\ntrace2 cs turn\n  = trace’ cs ((0, 0), 90) []\n\n
+signature	trace’ :: TurtleState -&gt; Stack -&gt; [ColouredLine]\ntrace’ [] _ _\n  = []\ntrace’ (’F’ : cs) ts@(position, angle) stack\n  = (position, newPosition, colour) :\n      trace’ cs (newPosition, newAngle) stack\n    where\n      (newPosition, newAngle) = move ’F’ ts turn\n\n
+signature	trace’ :: String -&gt; Stack -&gt; [ColouredLine]\ntrace’ [] _ _\n  = []\ntrace’ (’F’ : cs) ts@(position, angle) stack\n  = (position, newPosition, colour) :\n      trace’ cs (newPosition, newAngle) stack\n    where\n      (newPosition, newAngle) = move ’F’ ts turn\n\n
+signature	trace’ :: String -&gt; TurtleState -&gt; [ColouredLine]\ntrace’ [] _ _\n  = []\ntrace’ (’F’ : cs) ts@(position, angle) stack\n  = (position, newPosition, colour) :\n      trace’ cs (newPosition, newAngle) stack\n    where\n      (newPosition, newAngle) = move ’F’ ts turn\n\n
+signature	trace’ :: String -&gt; Stack\ntrace’ [] _ _\n  = []\ntrace’ (’F’ : cs) ts@(position, angle) stack\n  = (position, newPosition, colour) :\n      trace’ cs (newPosition, newAngle) stack\n    where\n      (newPosition, newAngle) = move ’F’ ts turn\n\n
+signature	trace’ :: String -&gt; TurtleState -&gt; Stack -&gt; [ColouredLine]\ntrace’ []\n  = []\ntrace’ (’F’ : cs) ts@(position, angle) stack\n  = (position, newPosition, colour) :\n      trace’ cs (newPosition, newAngle) stack\n    where\n      (newPosition, newAngle) = move ’F’ ts turn\n\n
+signature	trace’ :: String -&gt; TurtleState -&gt; Stack -&gt; [ColouredLine]\ntrace’ [] _ _\n  = []\ntrace’ (’F’ : cs) stack\n  = (position, newPosition, colour) :\n      trace’ cs (newPosition, newAngle) stack\n    where\n      (newPosition, newAngle) = move ’F’ ts turn\n\n
+signature	trace’ :: String -&gt; TurtleState -&gt; Stack -&gt; [ColouredLine]\ntrace’ [] _ _\n  = []\ntrace’ stack\n  = (position, newPosition, colour) :\n      trace’ cs (newPosition, newAngle) stack\n    where\n      (newPosition, newAngle) = move ’F’ ts turn\n\n
+signature	trace’ :: String -&gt; TurtleState -&gt; Stack -&gt; [ColouredLine]\ntrace’ [] _ _\n  = []\ntrace’\n  = (position, newPosition, colour) :\n      trace’ cs (newPosition, newAngle) stack\n    where\n      (newPosition, newAngle) = move ’F’ ts turn\n\n
+signature	trace’ :: String -&gt; TurtleState -&gt; Stack -&gt; [ColouredLine]\ntrace’ (’[’ : cs) stack\n  = trace’ cs ts (ts : stack)\ntrace’ (’]’ : cs) _ (ts : stack)\n  = trace’ ts stack\ntrace’ (c : cs) ts stack\n  = trace’ cs (move c ts turn) stack\n\n
+signature	trace’ :: String -&gt; TurtleState -&gt; Stack -&gt; [ColouredLine]\ntrace’ (’[’ : cs) ts stack\n  = trace’ cs ts\ntrace’ (’]’ : cs) (ts : stack)\n  = trace’ cs ts stack\ntrace’ (c : cs)\n  = trace’ cs (move c ts turn) stack\n\n\n
+signature	trace’ :: String -&gt; TurtleState -&gt; Stack -&gt; [ColouredLine]\ntrace’ (’[’ : cs) ts stack\n  = trace’ cs ts (ts : stack)\ntrace’ (’]’ : cs) _ (ts : stack)\n  = trace’ cs ts stack\ntrace’ (c : cs) ts\n  = trace’ cs (move c ts turn) stack\n\n
+signature	trace’ :: String -&gt; TurtleState -&gt; Stack -&gt; [ColouredLine]\ntrace’ (’[’ : cs) ts stack\n  = trace’ cs ts (ts : stack)\ntrace’ (’]’ : cs) _ (ts : stack)\n  = trace’ cs ts stack\ntrace’ (c : cs)\n  = trace’ cs (move c ts turn) stack\n\n
+signature	trace’ :: String -&gt; TurtleState -&gt; Stack -&gt; [ColouredLine]\ntrace’ (’[’ : cs) ts stack\n  = trace’ cs ts (ts : stack)\ntrace’ (’]’ : cs) (ts : stack)\n  = trace’ cs ts stack\ntrace’ (c : cs) ts stack\n  = trace’ cs (move c ts turn) stack\n\n
+signature	trace’ :: String -&gt; TurtleState -&gt; Stack -&gt; [ColouredLine]\ntrace’ ts stack\n  = trace’ cs ts (ts : stack)\ntrace’ (’]’ : cs) _ (ts : stack)\n  = trace’ cs ts stack\ntrace’ (c : cs) ts stack\n  = trace’ cs (move c ts turn) stack\n\n\n
+signature	trace’ :: TurtleState -&gt; Stack -&gt; [ColouredLine]\ntrace’ (’[’ : cs) ts stack\n  = trace’ cs ts (ts : stack)\ntrace’ (’]’ : cs) _ (ts : stack)\n  = trace’ cs ts stack\ntrace’ (c : cs) ts stack\n  = trace’ cs (move c ts turn) stack\n\n
+signature	trace’ :: String -&gt; Stack\ntrace’ (’[’ : cs) ts stack\n  = trace’ cs ts (ts : stack)\ntrace’ (’]’ : cs) _ (ts : stack)\n  = trace’ cs ts stack\ntrace’ (c : cs) ts stack\n  = trace’ cs (move c ts turn) stack\n\n
+signature	trace’ :: Stack -&gt; [ColouredLine]\ntrace’ (’[’ : cs) ts stack\n  = trace’ cs ts (ts : stack)\ntrace’ (’]’ : cs) _ (ts : stack)\n  = trace’ cs ts stack\ntrace’ (c : cs) ts stack\n  = trace’ cs (move c ts turn) stack\n\n
+signature	trace’ :: String -&gt; TurtleState\ntrace’ (’[’ : cs) ts stack\n  = trace’ cs ts (ts : stack)\ntrace’ (’]’ : cs) _ (ts : stack)\n  = trace’ cs ts stack\ntrace’ (c : cs) ts stack\n  = trace’ cs (move c ts turn) stack\n
+ok	base :: System -&gt; String\nbase (_, b, _)\n= b\n\n
+ok	foo :: System -&gt; String\nfoo (_, beta, _)\n= beta\n\n
+ok	rules :: System -&gt; Rules\nrules (_, _, rs)\n= rs\n\n
+ok	foo :: int -&gt; int -&gt; int\nfoo a _\n= 2 * a\n\n
+ok	lookupChar :: Char -&gt; Rules -&gt; String\nlookupChar _ rules\n  = head [rules]\n\n
+ok	expandOne :: Rules -&gt; String -&gt; String\nexpandOne _ s\n  = concat s\n\n
+ok	expand :: Rules -&gt; String -&gt; Int -&gt; String\nexpand _ s _\n  = s\n\n
+ok	move :: Char -&gt; TurtleState -&gt; Float -&gt; TurtleState\nmove ’L’ (position, angle) turn\n  = (position, angle + turn)\nmove ’R’ (position, angle) turn\n  = (position, angle - turn)\nmove ’F’ ((x, y), angle) turn\n  = ((x + cos (degreesToRadians angle),\n  y + sin (degreesToRadians angle)), angle)\nmove _ _ _\n  = (-1, -1)\n\n\n
+ok	degreesToRadians :: Float -&gt; Float\ndegreesToRadians x _\n  = (x / 180) * 3.141\n\n
+ok	trace1 :: String -&gt; Float -&gt; Colour -&gt; [ColouredLine]\ntrace1 cs _ _\n  = lines\n  where\n    (lines, nullString) = trace’ cs ((0,0), 90)\n\n
+ok	trace’ :: [int] -&gt; [int]\ntrace’ [] _\n  = ([], [])\n\n
+ok	trace2 :: String -&gt; Float -&gt; Colour -&gt; [ColouredLine]\ntrace2 cs _ _\n  = trace’ cs ((0, 0), 90) []\n\n
+verbose	foo :: int -&gt; int -&gt; int\nfoo a b\n= 2 * a\n\n
+verbose	lookupChar :: Char -&gt; Rules -&gt; String\nlookupChar c rules\n  = head [rules]\n\n
+verbose	expandOne :: Rules -&gt; String -&gt; String\nexpandOne r s\n  = concat s\n\n
+verbose	expand :: Rules -&gt; String -&gt; Int -&gt; String\nexpand r s n\n  = s\n\n
+verbose	move :: Char -&gt; TurtleState -&gt; Float -&gt; TurtleState\nmove ’L’ (position, angle) turn\n  = (position, angle + turn)\nmove ’R’ (position, angle) turn\n  = (position, angle - turn)\nmove ’F’ ((x, y), angle) turn\n  = ((x + cos (degreesToRadians angle),\n  y + sin (degreesToRadians angle)), angle)\nmove letter (position, angle) turn\n  = (-1, -1)\n\n
+verbose	  move :: Char -&gt; TurtleState -&gt; Float -&gt; TurtleState\n  move ’L’ (position, angle) turn\n    = (position, angle + turn)\n  move ’R’ (position, angle) turn\n    = (position, angle - turn)\n  move ’F’ ((x, y), angle) turn\n    = ((x + cos (degreesToRadians angle),\n    y + sin (degreesToRadians angle)), angle)\n  move _ (position, angle) turn\n    = (-1, -1)\n\n
+verbose	move :: Char -&gt; TurtleState -&gt; Float -&gt; TurtleState\nmove ’L’ (position, angle) turn\n  = (position, angle + turn)\nmove ’R’ (position, angle) turn\n  = (position, angle - turn)\nmove ’F’ ((x, y), angle) turn\n  = ((x + cos (degreesToRadians angle),\n  y + sin (degreesToRadians angle)), angle)\nmove letter _ _\n  = (-1, -1)\n\n
+verbose	move :: Char -&gt; TurtleState -&gt; Float -&gt; TurtleState\nmove ’L’ (position, angle) turn\n  = (position, angle + turn)\nmove ’R’ (position, angle) turn\n  = (position, angle - turn)\nmove ’F’ ((x, y), angle) turn\n  = ((x + cos (degreesToRadians angle),\n  y + sin (degreesToRadians angle)), angle)\nmove letter _ turn\n  = (-1, -1)\n\n
+verbose	degreesToRadians :: Float -&gt; Float\ndegreesToRadians x pi\n  = (x / 180) * 3.141\n\n
+verbose	trace1 :: String -&gt; Float -&gt; Colour -&gt; [ColouredLine]\ntrace1 cs angle colour\n  = lines\n  where\n    (lines, nullString) = trace’ cs ((0,0), 90)\n\n
+verbose	trace’ :: [int] -&gt; [int]\ntrace’ [] t\n  = ([], [])\n\n
+verbose	trace2 :: String -&gt; Float -&gt; Colour -&gt; [ColouredLine]\ntrace2 cs turn colour\n  = trace’ cs ((0, 0), 90) []\n
+verbose	base :: System -&gt; String\nbase (a, b, c)\n= b\n\n
+verbose	foo :: System -&gt; String\nfoo (alpha, beta, gamma)\n= beta\n\n
+verbose	rules :: System -&gt; Rules\nrules (var, iable, rs)\n= rs\n\n
+ok	maxOf3 :: Int -&gt; Int -&gt; Int -&gt; Int
+ok	maxOf3 :: Int -&gt; Int -&gt; Int -&gt; Int
+ok	maxOf3 :: Int -&gt; Int -&gt; Int -&gt; Int
+ok	-- False otherwise
+ok	-- False otherwise
+ok	-- character either in the range 'a'..'z' or in the range 'A'..'Z';
+ok	  = if maxOf2 x y == x &amp;&amp; maxOf2 x z == x then x else maxOf2 y z
+ok	maxOf3 :: Int -&gt; Int -&gt; Int -&gt; Int\n-- Returns the largest of three Ints\nmaxOf3 x y z\n  = if maxOf2 x y == x &amp;&amp; maxOf2 x z == x then x else maxOf2 y z\n\n
+ok	maxOf3 :: Int -&gt; Int -&gt; Int -&gt; Int\n-- Returns the largest of three Ints\nmaxOf3 x y z\n  = if maxOf2 x y == x &amp;&amp; maxOf2 x z == x then x else maxOf2 y z\n\n
+ok	maxOf2 :: Int -&gt; Int -&gt; Int\n-- Returns first argument if it is larger than the second,\n-- the second argument otherwise\nmaxOf2 x y\n  &#124; x &gt; y     = x\n  &#124; otherwise = y\n\n
+ok	maxOf2 :: Int -&gt; Int -&gt; Int\n-- Returns first argument if it is larger than the second,\n-- the second argument otherwise\nmaxOf2 x y\n  &#124; x &gt; y     = x\n  &#124; otherwise = y\n\n
+ok	-- False otherwise\n
+ok	-- False otherwise\n
+ok	-- False otherwise\n
+ok	-- False otherwise\n
+hs6030751954	import Data.Char (ord, chr)\nfaserawgawserwsaerser\n
+ok	-- False otherwise\n
+ok	-- False otherwise\n
+hs8261583955	import Data.Char (ord, chr)
+ok	module Sequences where
+ok	module Sequences where
+ok	module Sequences where
+ok	module Sequences where
+ok	module Sequences where
+ok	import Data.Char (ord, chr)
+ok	import Data.Char (ord, chr)
+ok	import Data.Char (ord, chr)
+ok	import Data.Char (ord, chr)
+ok	-- the second argument otherwise
+ok	-- Returns first argument if it is larger than the second,
+ok	-- Returns first argument if it is larger than the second,
+ok	-- Returns first argument if it is larger than the second,
+ok	maxOf2 :: Int -&gt; Int -&gt; Int
+ok	maxOf2 :: Int -&gt; Int -&gt; Int
+ok	maxOf2 :: Int -&gt; Int -&gt; Int
+ok	maxOf2 :: Int -&gt; Int -&gt; Int
+ok	  &#124; x &gt; y     = x
+ok	-- False otherwise
+ok	  &#124; c &gt;= '0' &amp;&amp; c &lt;= '9' = True
+hs5436078165	-- Returns first argument if it is larger than the second,
+hs6892607470	faserawgawserwsaerser
+ok	faserawgawserwsaerser
+ok	faserawgawserwsaerser
+ok	import Data.Char (ord, chr)
+ok	import Data.Char (ord, chr)
+ok	import Data.Char (ord, chr)
+ok	import Data.Char (ord, chr)
+ok	import Data.Char (ord, chr)
+ok	import Data.Char (ord, chr)
+ok	isADigit :: Char -&gt; Bool\n-- Returns True if the character represents a digit '0'..'9';\n-- False otherwise\nisADigit c\n  &#124; c &gt;= '0' &amp;&amp; c &lt;= '9' = True\n  &#124; otherwise = False\n\n
+hs9265489529	digitToInt :: Char -&gt; Int\n-- Pre: the character is one of '0'..'9'\n-- Returns the integer [0..9] corresponding to the given character.\n-- Note: this is a simpler version of digitToInt in module Data.Char,\n-- which does not assume the precondition.\ndigitToInt c\n  = ord c - 48\n\n
+hs8224689412	import Data.Char (ord, chr)\nfaserawgawserwsaerser\n
+ok	import Data.Char (ord, chr)\nfaserawgawserwsaerser\n
+ok	import Data.Char (ord, chr)\nfaserawgawserwsaerser\n
+hs3255845659	import Data.Char (ord, chr)\nfaserawgawserwsaerser\n
+ok	maxOf2 :: Int -&gt; Int -&gt; Int\n-- Returns first argument if it is larger than the second,\n-- the second argument otherwise\nmaxOf2 x y\n  &#124; x &gt; y     = x\n  &#124; otherwise = y\n\n
+ok	maxOf2 :: Int -&gt; Int -&gt; Int\n-- Returns first argument if it is larger than the second,\n-- the second argument otherwise\nmaxOf2 x y\n  &#124; x &gt; y     = x\n  &#124; otherwise = y\n\n
+ok	maxOf2 :: Int -&gt; Int -&gt; Int\n-- Returns first argument if it is larger than the second,\n-- the second argument otherwise\nmaxOf2 x y\n  &#124; x &gt; y     = x\n  &#124; otherwise = y\n\n
+hs7077426295	module Sequences where\n\n
+hs1804366790	import Data.Char (ord, chr)\nfaserawgawserwsaerser\n
+hs8175670588	toUpper :: Char -&gt; Char\n-- Returns the upper case character corresponding to the input.\n-- Uses guards by way of variety.\ntoUpper c\n  &#124; c &gt;= 'A' &amp;&amp; c &lt;= 'Z' = c\n  &#124; c &gt;= 'a' &amp;&amp; c &lt;= 'z' = chr (ord 'A' + ord c - ord 'a')\n
+hs7019784100	module Sequences where\n\n
+hs4884133535	isADigit :: Char -&gt; Bool\n-- Returns True if the character represents a digit '0'..'9';\n-- False otherwise\nisADigit c\n  &#124; c &gt;= '0' &amp;&amp; c &lt;= '9' = True\n  &#124; otherwise = False\n\n
+ok	isADigit :: Char -&gt; Bool\n-- Returns True if the character represents a digit '0'..'9';\n-- False otherwise\nisADigit c\n  &#124; c &gt;= '0' &amp;&amp; c &lt;= '9' = True\n  &#124; otherwise = False\n\n
+ok	isADigit :: Char -&gt; Bool\n-- Returns True if the character represents a digit '0'..'9';\n-- False otherwise\nisADigit c\n  &#124; c &gt;= '0' &amp;&amp; c &lt;= '9' = True\n  &#124; otherwise = False\n\n
+ok	maxOf2 :: Int -&gt; Int -&gt; Int\n-- Returns first argument if it is larger than the second,\n-- the second argument otherwise\nmaxOf2 x y\n  &#124; x &gt; y     = x\n  &#124; otherwise = y\n\n
+hs8654881815	maxOf2 :: Int -&gt; Int -&gt; Int\n-- Returns first argument if it is larger than the second,\n-- the second argument otherwise\nmaxOf2 x y\n  &#124; x &gt; y     = x\n  &#124; otherwise = y\n\n
+hs8224689412	isADigit :: Char -&gt; Bool\n-- Returns True if the character represents a digit '0'..'9';\n-- False otherwise\nisADigit c\n  &#124; c &gt;= '0' &amp;&amp; c &lt;= '9' = True\n  &#124; otherwise = False\n\n
+hs4149228296	maxOf2 :: Int -&gt; Int -&gt; Int\n-- Returns first argument if it is larger than the second,\n-- the second argument otherwise\nmaxOf2 x y\n  &#124; x &gt; y     = x\n  &#124; otherwise = y\n\n
+hs6208905414	module Sequences where\n\n
+ok	maxOf2 :: Int -&gt; Int -&gt; Int\n-- Returns first argument if it is larger than the second,\n-- the second argument otherwise\nmaxOf2 x y\n  &#124; x &gt; y     = x\n  &#124; otherwise = y\n\n
+ok	maxOf2 :: Int -&gt; Int -&gt; Int\n-- Returns first argument if it is larger than the second,\n-- the second argument otherwise\nmaxOf2 x y\n  &#124; x &gt; y     = x\n  &#124; otherwise = y\n\n
+ok	digitToInt :: Char -&gt; Int\n-- Pre: the character is one of '0'..'9'\n-- Returns the integer [0..9] corresponding to the given character.\n-- Note: this is a simpler version of digitToInt in module Data.Char,\n-- which does not assume the precondition.\ndigitToInt c\n  = ord c - 48\n\n
+ok	isAlpha :: Char -&gt; Bool\n-- Returns True if the character represents an alphabetic\n-- character either in the range 'a'..'z' or in the range 'A'..'Z';\nisAlpha c\n  = (c &gt;= 'a' &amp;&amp; c &lt;= 'z') &#124;&#124; (c &gt;= 'A' &amp;&amp; c &lt;= 'Z')\n\n
+ok	isAlpha :: Char -&gt; Bool\n-- Returns True if the character represents an alphabetic\n-- character either in the range 'a'..'z' or in the range 'A'..'Z';\nisAlpha c\n  = (c &gt;= 'a' &amp;&amp; c &lt;= 'z') &#124;&#124; (c &gt;= 'A' &amp;&amp; c &lt;= 'Z')\n\n
+ok	isAlpha :: Char -&gt; Bool\n-- Returns True if the character represents an alphabetic\n-- character either in the range 'a'..'z' or in the range 'A'..'Z';\nisAlpha c\n  = (c &gt;= 'a' &amp;&amp; c &lt;= 'z') &#124;&#124; (c &gt;= 'A' &amp;&amp; c &lt;= 'Z')\n\n
+ok	digitToInt :: Char -&gt; Int\n-- Pre: the character is one of '0'..'9'\n-- Returns the integer [0..9] corresponding to the given character.\n-- Note: this is a simpler version of digitToInt in module Data.Char,\n-- which does not assume the precondition.\ndigitToInt c\n  = ord c - 48\n\n
+hs6452734935	digitToInt :: Char -&gt; Int\n-- Pre: the character is one of '0'..'9'\n-- Returns the integer [0..9] corresponding to the given character.\n-- Note: this is a simpler version of digitToInt in module Data.Char,\n-- which does not assume the precondition.\ndigitToInt c\n  = ord c - 48\n\n
+hs1434839314	digitToInt :: Char -&gt; Int\n-- Pre: the character is one of '0'..'9'\n-- Returns the integer [0..9] corresponding to the given character.\n-- Note: this is a simpler version of digitToInt in module Data.Char,\n-- which does not assume the precondition.\ndigitToInt c\n  = ord c - 48\n\n
+hs8908876381	digitToInt :: Char -&gt; Int\n-- Pre: the character is one of '0'..'9'\n-- Returns the integer [0..9] corresponding to the given character.\n-- Note: this is a simpler version of digitToInt in module Data.Char,\n-- which does not assume the precondition.\ndigitToInt c\n  = ord c - 48\n\n
+hs9527549314	import Data.Char (ord, chr)\nfaserawgawserwsaerser\n

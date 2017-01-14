@@ -42,6 +42,7 @@ public class SingleJob {
 	}
 
 	public void execute() {
+		System.out.println("JobManager executing: " + the_service.getName());
 		// get the json string
 		String jsonString = makeJsonFile();
 		System.out.println(jsonString);
