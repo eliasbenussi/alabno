@@ -22,6 +22,10 @@ theapp.controller('studentController', function($scope) {
         $scope.showhide[viewname] = true;
     }
     
+    $scope.$on('stud_show_default_flags_only', function(show_default_flags) {
+        $scope.showhide_view('exercise_list');
+    });
+    
     // #########################################################################
     // Exercises list
     
@@ -75,7 +79,16 @@ theapp.controller('studentController', function($scope) {
     
     $scope.annotated_files = {};
 
-
+    // ###########################################################################
+    // File downloads
+    
+    $scope.start_file_download = function(path) {
+        var msgobj = {};
+        msgobj.type = "download_file";
+        msgobj.id = $globals.token;
+        msgobj.path = path;
+        $globals.send(JSON.stringify(msgobj));
+    }
   
 });
 

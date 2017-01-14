@@ -16,6 +16,7 @@ tr:hover {
     font-family: monospace;
     border: 0;
     background-color: transparent;
+    padding: 0;
 }
 
 #sidebar-wrapper p {
@@ -30,4 +31,37 @@ tr:hover {
     color: black;
     background-color: white;
     white-space: pre;
+    word-break: break-all;
+    white-space: pre-wrap;       /* css-3 */
+    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+    white-space: -pre-wrap;      /* Opera 4-6 */
+    white-space: -o-pre-wrap;    /* Opera 7 */
+    word-wrap: break-word;       /* Internet Explorer 5.5+ */
+}
+
+.img-size-regular {
+    width: 10%;
+}
+
+.page-header {
+    float: left;
+    margin-top: 0;
+}
+
+.logo {
+    margin-top: 10px;
+    margin-left: 10px;
+    float: left;
+}
+
+.clearfix {
+    clear:both
+}
+
+.annotated-file-btn {
+    margin-top: 15px;
+}
+
+.edit-mark-btn {
+    margin-top: 20px;
 }

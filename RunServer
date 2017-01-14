@@ -59,6 +59,11 @@ def start_server(https):
     gitauth.set_auth_passphrase()
     
     if https:
+        # Ask the keystore password
+        print('Please enter the java keystore password')
+        keystorepass = getpass.getpass()
+        os.environ["ALABNOJKSPASS"] = keystorepass
+        
         print("Starting in secure mode")
         # check for presence of certificates
         if not os.path.isfile('frontend/mykeystore.jks'):
@@ -88,16 +93,6 @@ def exit_with_error():
     parser.print_help()
     sys.exit(1)
 
-def pass_correct(the_pass):
-    correct_password_hash = 'bec67085f3ce2ca2174b1d7d62d7e316'
-    m = hashlib.md5()
-    m.update(the_pass)
-    new_password_hash = m.hexdigest()
-    result = correct_password_hash == new_password_hash
-    if not result:
-        print('Password not correct. Retry')
-    return result
-
 https = args.https
 
 command = args.action
@@ -106,11 +101,8 @@ command = args.action
 if not os.path.isfile(exec_dir + os.sep + 'dbpass.txt'):
     the_pass = ''
     if args.dbpass is None:
-        password_correct = False
-        while not password_correct:
-            print('Please enter the password for the database account "python"')
-            the_pass = getpass.getpass()
-            password_correct = pass_correct(the_pass)
+        print('Please enter the password for the database account "python"')
+        the_pass = getpass.getpass()
     else:
         the_pass = args.dbpass
 

@@ -13,7 +13,7 @@ import scala.io.Source
 
 class HaskellProcessor(modelAnswer: File, studentAnswer: File, executorService: ExecutorService) {
 
-  private final lazy val TIME_THRESHOLD = 25000
+  private final lazy val TIME_THRESHOLD = 35000
   /*
    * Regexes
    */
@@ -177,13 +177,13 @@ class HaskellProcessor(modelAnswer: File, studentAnswer: File, executorService: 
     var eff = ""
     for ((n, diff) <- deltas) {
       if (Math.abs(diff) > TIME_THRESHOLD) {
-        score -= (diff / 20000).toInt
+        score -= (diff / 50000).toInt
         val (line, file) = FunctionMap.getOrElse(n, (0, studentAnswer.getName))
-        if (diff > 0) {
-          eff = s"Function $n is inefficient -> $diff ns diff!"
+        if (diff < 0) {
+          eff = s"Function $n is inefficient -> ${diff.formatted("%.2f")} ns diff!"
         } else {
           eff = s"Function $n is more efficient than " +
-            s"the model solution -> $diff ns diff!"
+            s"the model solution -> ${diff.formatted("%.2f")} ns diff!"
         }
         annotations.append(new Error(eff, file, line, 0, "complexity"))
       }

@@ -38,9 +38,10 @@ def get_pdf_path(db, token):
         return None
     try:
         final_path = results[0]['path']
+        print('Final path found {}'.format(final_path))
         final_timestamp = results[0]['created']
         seconds_past = datetime_past_seconds(final_timestamp)
-        if seconds_past > (60 * 20): # expiration is after 20 minutes
+        if seconds_past > (60 * 1): # expiration is after 1 minutes
             sql = 'DELETE FROM `PdfPaths` WHERE `token`=%s'
             db.execute(sql, [token])
             return None

@@ -7,25 +7,24 @@ import argparse
 
 parser = argparse.ArgumentParser()
     
-parser.add_argument('destination'
+parser.add_argument('destination',
+                    help='the destination directory where to deploy'
                     )
 
-parser.add_argument('domain'
+parser.add_argument('domain',
+                    help='the domain that users will use to connect to the server, such as example.com'
                     )
 
 parser.add_argument('pem',
                     nargs='?',
-                    default=None
-                    )
-
-parser.add_argument('jks',
-                    nargs='?',
-                    default=None
+                    default=None,
+                    help='server.pem file containing private key and ssl certificate'
                     )
 
 parser.add_argument('--simulate',
                     action='store_true',
-                    default=False
+                    default=False,
+                    help='with simulate set, the current state of the repository will be deployed. Otherwise, a fresh repository will be cloned from the master git branch'
                     )
 
 args = parser.parse_args()
@@ -48,8 +47,9 @@ def call_and_check(cmd):
         sys.exit(1)
     return
 
-pem_file = args.pem
-jks_file = args.jks
+pem_file = None
+if args.pem:
+    pem_file = os.path.abspath(args.pem)
 
 # stop any running servers
 cmd = 'screen -X -S {} quit'.format(screen_name)
@@ -90,8 +90,29 @@ call_and_check(cmd)
 
 # copy over pem and jks files
 if pem_file is not None:
+
+    # Remove existing destination files
+    #  alabno/frontend
+    previous_directory = os.path.abspath(os.getcwd())
+    frontend_directory = os.path.abspath(destination_directory + os.sep + 'frontend')
+    os.chdir(frontend_directory)
+    cmds = ['rm -rf *.key',
+            'rm -rf *.p12',
+            'rm -rf *.jks',
+            'rm -rf *.crt',
+            'rm -rf *.csr',
+            'rm -rf *.pem']
+    for cmd in cmds:
+        call_and_check(cmd)
+
+    # Copy the file
     cmd = 'cp {} {}'.format(pem_file, destination_directory + '/frontend/server.pem')
     call_and_check(cmd)
-if jks_file is not None:
-    cmd = 'cp {} {}'.format(jks_file, destination_directory + '/frontend/mykeystore.jks')
-    call_and_check(cmd)
+
+    print('A script will now be run to generate the necessary key and certificate files used by the servers')
+    #  alabno/frontend/pem_to_jks.sh
+    jks_script_path = os.path.abspath(destination_directory + os.sep + 'frontend' + os.sep + 'pem_to_jks.sh')
+
+    # Run the script
+    os.chdir(frontend_directory)
+    call_and_check(jks_script_path)

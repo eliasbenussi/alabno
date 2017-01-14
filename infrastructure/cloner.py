@@ -82,6 +82,10 @@ base_directory = temporary_directory + os.sep + args.exname
 if base_directory == '':
     print('could not create a temporary base directory')
     sys.exit(1)
+if ".." in base_directory:
+    print('fatal error: illegal directory name')
+    sys.exit(1)
+subprocess.call('rm -rf {}'.format(base_directory), shell=True)
 code = subprocess.call('mkdir {}'.format(base_directory), shell=True)
 
 

@@ -1,6 +1,6 @@
 <div class="row">
   <div class="col-xs-12">
-    <h2>Welcome Professor {{name}}</h2>
+    <h2>Welcome Professor {{username}}</h2>
   </div>
 </div>
 
@@ -10,7 +10,7 @@
   <div class="panel panel-default">
     <div class="panel-heading">
       <div class="btn-group pull-right">
-        <button class="btn btn-primary" ng-click="new_exercise_clicked()"><h5>Create new exercise</h5></button>
+        <button class="btn btn-primary" ng-click="new_exercise_clicked()"><h5><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create new exercise</h5></button>
       </div>
       <h3>Exercises: {{all_jobs.length}}</h3>
     </div>
@@ -23,11 +23,15 @@
             <div class="col-xs-2">
               <h4>Exercise name:  <span style="color:{{job.color}};font-weight: bold;">{{job.title}}</span></h4>
             </div>
-            <div class="col-xs-3">
+            <div class="col-xs-2">
               <button ng-click="job.display(job.title)" ng-show="job.status=='ok' && job.local" class="btn btn-info">Show students taking exercise <span class="caret"></span></button>
             </div>
-            <div class="col-xs-2">
-              <button ng-click="delete_exercise(job.title)" ng-hide="job.local" class="btn btn-danger">Delete</button>
+            <div class="col-xs-offset-2 col-xs-2">
+              <h5>Job status: {{job.status}} <span class="glyphicon glyphicon-{{job.glyphicon}}" aria-hidden="true"></span></h5>
+            </div>
+            <div class="col-xs-1">
+              <!-- <button ng-click="delete_exercise(job.title)" ng-hide="job.local" class="btn btn-danger">Delete</button> -->
+              <button ng-click="delete_exercise(job.title)" class="btn btn-danger">Delete</button>
             </div>
           </div>
           <table class="table" ng-show="job.students.length != 0">
@@ -39,7 +43,7 @@
             </thead>
             <tbody>
               <tr ng-repeat="student in job.students">
-                <td>
+                <td width="550">
                   <p>Student <strong>{{student.uname}}</strong>
                 </td>
                 <td>
@@ -59,33 +63,49 @@
 <!--STUDENT COMMITS SECTION-->
 <div ng-show="show_commits">
   <div class="row"> <!--Back button-->
-    <button class="btn btn-default" ng-click="show_section('show_professor_exercises')">Back</button>
-  </div>
-  
-  <div class="row"> <!--Title-->
-    <div class="col-xs-6">
-      <h3>{{current_job_title}}</h3>
-    </div>
-    <div class="col-xs-6">
-      <h3>{{current_student_uname}}</h3>
-    </div>
-  </div>
-  
-  <div class="row">
     <div class="col-xs-12">
-        <button class="btn btn-success" ng-click="check_updated_commits()">Check for updates</button>
+      <br>
+      <button class="btn btn-primary" ng-click="show_section('show_professor_exercises')"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span> Back</button>
     </div>
   </div>
-  
-  <div class="row" ng-repeat="commit in commits">
-    <div class="col-xs-6">
-      <p>{{commit}}</p>
-    </div>
-    <div class="col-xs-6">
-      <button class="btn btn-success" ng-click="get_data(commit)">Show</button>
+
+  <div class="row"> <!--Title-->
+    <!-- <div class="col-xs-12"> -->
+    <!--   <h3>Exercise name: {{current_job_title}}</h3> -->
+    <!-- </div> -->
+    <div class="col-xs-12">
+      <h3>Student id: {{current_student_uname}}</h3>
     </div>
   </div>
-</div>
+
+  <div class="row">
+    <div class="col-xs-3">
+      <button class="btn btn-primary" ng-click="check_updated_commits()"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Check for updates</button>
+    </div>
+  </div>
+
+  <div class="row">
+    <br>
+    <div class="col-xs-9">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Exercise name: {{current_job_title}}</h3>
+        </div>
+        <div class="panel-body">
+          <div class="row" ng-repeat="commit in commits">
+            <div class="col-xs-5">
+              <p>{{commit}}</p>
+            </div>
+            <div class="col-xs-offset-5 col-xs-1">
+              <button class="btn btn-success" ng-click="get_data(commit)">Show</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  </div>
 
 <!--NEW EXERCISE SECTION-->
 <div ng-show="show_professor_new_exercise">
@@ -118,7 +138,14 @@
 
 
         <div class="form-group">
-          <label>Student git repository</label>
+          <div class="row">
+            <div class="col-xs-8">
+              <label>Student git repository</label>
+            </div>
+            <div class="col-xs-4">
+              <label>Student username</label>
+            </div>
+          </div>
           <div class="row" data-ng-repeat="entry in entries">
             <div class="col-xs-8">
               <div class="input-group">
@@ -160,42 +187,50 @@
 
 <!-- DISPLAY ANNOTATED FILE SECTION (NEW)-->
 <div ng-show="show_annotated_file">
+  <br>
+  <button class="btn btn-primary" ng-click="show_section('show_professor_exercises')"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span> Back</button>
 
   <div class="panel panel-default">
     <div class="panel-heading">
       <h3>Annotated Results</h3>
-      <button class="btn btn-default" ng-click="show_section('show_professor_exercises')">Back</button>
     </div><!-- /panel-heading -->
-    
+
     <!--Student final mark, and editor-->
     <div class="panel panel-default">
       <div ng-hide="show_mark_editor" class="panel-body">
-        <div class="col-xs-6">
-          <h1>{{student_exercise_mark}}</h1>
-        </div>
-        <div class="col-xs-6">
-          <button type="button" class="btn btn-secondary" ng-click="edit_mark()">Edit Mark</button>
+        <div class="row">
+          <div class="col-xs-3">
+            <h1>Student Mark:   {{student_exercise_mark}}</h1>
+          </div>
+          <div class="col-xs-1">
+            <button type="button" class="btn btn-warning edit-mark-btn" ng-click="edit_mark()">Edit Mark</button>
+          </div>
         </div>
       </div>
-      
+            
       <div ng-show="show_mark_editor" class="panel-body">
-        <div class="col-xs-6">
-          <form>
-            <select name="newmark" ng-model="student_exercise_mark">
-              <option value="A*">A*</option>
-              <option value="A+">A+</option>
-              <option value="A">A</option>
-              <option value="B">B</option>
-              <option value="C">C</option>
-              <option value="D">D</option>
-              <option value="E">E</option>
-              <option value="F">F</option>
-            </select>
-          </form>
-        </div>
-        <div class="col-xs-6">
-          <button type="button" class="btn btn-primary" ng-click="submit_mark()">Submit</button>
-        </div>
+        <form>
+          <select name="newmark" ng-model="student_exercise_mark">
+            <option value="A*">A*</option>
+            <option value="A+">A+</option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+            <option value="D">D</option>
+            <option value="E">E</option>
+            <option value="F">F</option>
+          </select>
+        </form>
+        <button type="button" class="btn btn-danger" ng-click="cancel_edit_mark()">Cancel Editing</button>
+        <button type="button" class="btn btn-primary" ng-click="submit_mark()">Submit</button>
+      </div>
+    </div>
+
+    <!--File downloads-->
+    <div class="col-xs-6 offset-xs-3" ng-show="downloads && downloads.length > 0">
+      <h3>Downloadable files</h3>
+      <div class="row" ng-repeat="dwn in downloads">
+        <button type="button" class="btn btn-link" ng-click="start_file_download(dwn.path)">{{dwn.name}}</button>
       </div>
     </div>
 
@@ -209,20 +244,20 @@
               <!--Table of annotations-->
               <div ng-repeat="file in annotated_files">
 
-                <hr>
+                <!-- <hr> -->
                 <div class="row">
-                  <div class="col-xs-2">
+                  <div class="col-xs-3">
                     <h2>{{file.filename}}</h2>
                   </div>
                   <div class="col-xs-4">
-                    <button ng-click="file.display(file)" class="btn btn-info">
+                    <button ng-click="file.display(file)" class="btn btn-info annotated-file-btn">
                       Show file annotations <span class="caret"></span>
                     </button>
                   </div>
                 </div>
                 <br>
 
-                <table class="table table-sm borderless" ng-show="file.displayed">
+                <table class="table table-sm borderless" style="height:1px;" ng-show="file.displayed">
                   <thead>
                     <tr>
                       <th>Line Number</th>
@@ -231,7 +266,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr class="noBorder" ng-class="(data_entry.annotation === '') ? '' : 'danger'" ng-repeat="data_entry in file.data" ng-mouseenter="data_entry.show_icons=true" ng-mouseleave="data_entry.show_icons=false" height="75">
+                    <tr class="noBorder" ng-class="(data_entry.annotation === '') ? '' : 'danger'" ng-repeat="data_entry in file.data" ng-mouseenter="data_entry.show_icons=true" ng-mouseleave="data_entry.show_icons=false" style="line-height:14px;">
                       <td>
                         <p>{{data_entry.no}}</p>
                       </td>
@@ -322,10 +357,9 @@
           </div>
         </div>
       </div>
-
     </div><!-- /panel-body -->
 
   </div><!-- /panel -->
-
+  <button class="btn btn-primary" ng-click="show_section('show_professor_exercises')"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span> Back</button>
 
 </div>

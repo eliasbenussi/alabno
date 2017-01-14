@@ -1,11 +1,14 @@
 package alabno.wserver;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -135,11 +138,81 @@ public class WebSocketHandler {
         case "prof_delete_exercise":
             handleProfDeleteExercise(parser, conn);
             break;
+        case "download_file":
+            handleDownloadFile(parser, conn);
+            break;
         default:
             System.out.println("Unrecognized client message type " + type);
         }
     }
     
+    @SuppressWarnings("unchecked")
+    private void handleDownloadFile(JsonParser parser, WebSocket conn) {
+        try {
+            String path = parser.getString("path");
+            if (!checkStringNotEmpty(path, "path", conn)) {
+                throw new RuntimeException("path empty");
+            }
+            
+            // Get the user state
+            UserSession session = sessionManager.getSession(parser);
+            UserState state = session.getState();
+            if (state == null) {
+                ConnUtils.sendStatusInfo(conn, "Error, no user state found", Color.RED, 10);
+                throw new RuntimeException("state is null for token " + parser.getString("id"));
+            }
+            
+            // Check if user can download the file
+            if (!state.canDownload(path)) {
+                ConnUtils.sendStatusInfo(conn, "You are not allowed to download this file", Color.RED, 10);
+                throw new RuntimeException("User is not allowed to download file " + path);
+            }
+            
+            // Call the CreateDownloadToken script
+            String scriptPath = FileUtils.getWorkDir() + "/frontend/CreateDownloadToken";
+            List<String> command = new ArrayList<>();
+            command.addAll(Arrays.asList(
+                    scriptPath, 
+                    FileUtils.getWorkDir() + "/tmp/" + path
+                    ));
+
+            ProcessBuilder pb = new ProcessBuilder(command);
+            pb.redirectErrorStream(true);
+
+            Process process = pb.start();
+
+            BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line = null;
+            String firstLine = null;
+            while ((line = input.readLine()) != null) {
+                System.out.println(line);
+                if (firstLine == null) {
+                    firstLine = line;
+                }
+            }
+            int code = process.waitFor();
+            
+            if (code != 0) {
+                ConnUtils.sendStatusInfo(conn, "CreateDownloadToken returned code " + code, Color.RED, 10);
+                throw new RuntimeException("CreateDownloadToken returned code " + code);
+            }
+            
+            String downloadToken = firstLine;
+            
+            JSONObject msgobj = new JSONObject();
+            msgobj.put("type", "start_download");
+            msgobj.put("token", downloadToken);
+            conn.send(msgobj.toJSONString());
+
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            return;
+        } catch (Exception e) {
+            ConnUtils.sendStatusInfo(conn, e.getMessage(), Color.RED, 10);
+            return;
+        }
+    }
+
     private void handleProfDeleteExercise(JsonParser parser, WebSocket conn) {
         try {
             String title = parser.getString("title");
@@ -147,23 +220,16 @@ public class WebSocketHandler {
                 throw new RuntimeException("title is empty");
             }
             
-            // Check if it's deletable
-            boolean existsOnDisk = FileUtils.jobDirectoryExists(title);
-            if (existsOnDisk) {
-                ConnUtils.sendStatusInfo(conn, "You are not allowed to delete this exercise", Color.RED, 10);
-                throw new RuntimeException(title + " exists on disk");
-            }
-            
             // Get username
             UserSession session = sessionManager.getSession(parser);
             if (session == null) {
-                ConnUtils.sendStatusInfo(conn, "No user session error", Color.RED, 10);
+                ConnUtils.sendStatusInfo(conn, "No user session error", Color.RED, 5);
                 throw new RuntimeException("no user session???");
             }
             
             UserAccount account = session.getAccount();
             if (account == null) {
-                ConnUtils.sendStatusInfo(conn, "Error, no account found", Color.RED, 10);
+                ConnUtils.sendStatusInfo(conn, "Error, no account found", Color.RED, 5);
                 throw new RuntimeException("account is null");
             }
             
@@ -179,7 +245,7 @@ public class WebSocketHandler {
             return;
         }
         catch (Exception e) {
-            ConnUtils.sendStatusInfo(conn, e.getMessage(), Color.RED, 10);
+            ConnUtils.sendStatusInfo(conn, e.getMessage(), Color.RED, 5);
             e.printStackTrace();
             return;
         }
@@ -188,7 +254,7 @@ public class WebSocketHandler {
 
     private boolean checkStringNotEmpty(String value, String name, WebSocket conn) {
         if (value == null || value.isEmpty()) {
-            ConnUtils.sendStatusInfo(conn, "Error, " + name + " is empty", Color.RED, 10);
+            ConnUtils.sendStatusInfo(conn, "Error, " + name + " is empty", Color.RED, 5);
             return false;
         }
         return true;
@@ -234,11 +300,11 @@ public class WebSocketHandler {
         String[] params = {title, student};
         List<Map<String, Object>> results = db.retrieveStatement(sql, params);
         if (results == null || results.isEmpty()) {
-            ConnUtils.sendStatusInfo(conn, "Error: could not find linked student username in database for selected exercise", Color.RED, 10);
+            ConnUtils.sendStatusInfo(conn, "Error: could not find linked student username in database for selected exercise", Color.RED, 5);
             return;
         }
         if (results.size() > 1) {
-            ConnUtils.sendStatusInfo(conn, "Database constraint violation: found more than 1 username for specific exercise and user index", Color.RED, 10);
+            ConnUtils.sendStatusInfo(conn, "Database constraint violation: found more than 1 username for specific exercise and user index", Color.RED, 5);
             return;
         }
 
@@ -283,11 +349,11 @@ public class WebSocketHandler {
         
         StudentCommit studentCommit = allJobs.findJob(title, studentNumber, hash);
         if (studentCommit == null) {
-            ConnUtils.sendStatusInfo(conn, "Data not found on disk", Color.RED, 10);
+            ConnUtils.sendStatusInfo(conn, "Data not found on disk", Color.RED, 5);
             return;
         }
         if (!studentCommit.dataExists()) {
-            ConnUtils.sendStatusInfo(conn, "Data not found on disk", Color.RED, 10);
+            ConnUtils.sendStatusInfo(conn, "Data not found on disk", Color.RED, 5);
             return;
         }
         
@@ -317,8 +383,13 @@ public class WebSocketHandler {
             String filePath = a.getString("filename");
             uniqueFiles.add(filePath);
         }
+        
+        // Discover the downloadable files in the output directory
+        List<String> downloadablePaths = studentCommit.getDownloadablePaths();
+        // Add these downloadable paths to this user's allowed downloads
+        userState.addDownloadable(downloadablePaths);
 
-        sendAnnotatedMsg(uniqueFiles, submissionFeedbackMap, conn, exerciseType, mark);
+        sendAnnotatedMsg(uniqueFiles, submissionFeedbackMap, conn, exerciseType, mark, downloadablePaths);
 
     }
 
@@ -332,19 +403,19 @@ public class WebSocketHandler {
         // get exercises of this student
         UserSession session = sessionManager.getSession(parser);
         if (session == null) {
-            ConnUtils.sendStatusInfo(conn, "Error, could not find user session", Color.RED, 10);
+            ConnUtils.sendStatusInfo(conn, "Error, could not find user session", Color.RED, 5);
             return;
         }
         
         UserAccount account = session.getAccount();
         if (account == null) {
-            ConnUtils.sendStatusInfo(conn, "Error, no account linked to session", Color.RED, 10);
+            ConnUtils.sendStatusInfo(conn, "Error, no account linked to session", Color.RED, 5);
             return;
         }
         
         List<StudentCommit> jobs = allJobs.getJobsOfStudent(account);
         if (jobs == null) {
-            ConnUtils.sendStatusInfo(conn, "Error, no jobs found", Color.RED, 10);
+            ConnUtils.sendStatusInfo(conn, "Error, no jobs found", Color.RED, 5);
         }
         
         System.out.println("handleStdRefreshList: found " + jobs.size() + " jobs");
@@ -432,19 +503,19 @@ public class WebSocketHandler {
             try {
                 mark = Mark.fromString(markString);
             } catch (Exception e) {
-                ConnUtils.sendStatusInfo(conn, "Mark Feedback Loop: Unrecognized desired mark: " + markString, Color.RED, 10);
+                ConnUtils.sendStatusInfo(conn, "Mark Feedback Loop: Unrecognized desired mark: " + markString, Color.RED, 5);
                 return;
             }
             
             SourceDocument source = amendMark(filename, token, mark);
             if (source == null) {
-                ConnUtils.sendStatusInfo(conn, "No source document found for this exercise on disk", Color.RED, 10);
+                ConnUtils.sendStatusInfo(conn, "No source document found for this exercise on disk", Color.RED, 5);
                 return;
             }
             
             updaters.updateMark(source, exerciseType, mark);
         } catch (Exception e) {
-            ConnUtils.sendStatusInfo(conn, e.getMessage(), Color.RED, 10);
+            ConnUtils.sendStatusInfo(conn, e.getMessage(), Color.RED, 5);
             e.printStackTrace();
         }
     }
@@ -482,7 +553,7 @@ public class WebSocketHandler {
                 lineno = parser.getInt("lineno");
             } catch (Exception e) {
                 e.printStackTrace();
-                ConnUtils.sendStatusInfo(conn, "Invalid line number", Color.RED, 10);
+                ConnUtils.sendStatusInfo(conn, "Invalid line number", Color.RED, 5);
                 return;
             }
             
@@ -498,14 +569,14 @@ public class WebSocketHandler {
             
             SourceDocument doc = amendFile(fileName, lineno, annType, annotation, token);
             if (doc == null) {
-                ConnUtils.sendStatusInfo(conn, "Source document not found, cannot amend the annotation", Color.RED, 10);
+                ConnUtils.sendStatusInfo(conn, "Source document not found, cannot amend the annotation", Color.RED, 5);
                 return;
             }
             
             updaters.update(doc, lineno, annType, annotation);
         } catch (Exception e) {
             e.printStackTrace();
-            ConnUtils.sendStatusInfo(conn, e.getMessage(), Color.RED, 10);
+            ConnUtils.sendStatusInfo(conn, e.getMessage(), Color.RED, 5);
         }
     }
 
@@ -562,7 +633,7 @@ public class WebSocketHandler {
 
         StudentCommit studentCommit = allJobs.findJobLatest(title, student);
         if (studentCommit == null || !studentCommit.dataExists()) {
-            ConnUtils.sendStatusInfo(conn, "Student commit exercise files not found", Color.RED, 10);
+            ConnUtils.sendStatusInfo(conn, "Student commit exercise files not found", Color.RED, 5);
             return;
         }
 
@@ -584,13 +655,18 @@ public class WebSocketHandler {
             String filePath = a.getString("filename");
             uniqueFiles.add(filePath);
         }
+        
+        // Discover the downloadable files in the output directory
+        List<String> downloadablePaths = studentCommit.getDownloadablePaths();
+        // Add these downloadable paths to this user's allowed downloads
+        userState.addDownloadable(downloadablePaths);
 
         switch (subtype) {
           case "postprocessor":
             sendPostprocessorMsg(title, student, fileContent, conn, exerciseType);
             break;
           case "annotated":
-            sendAnnotatedMsg(uniqueFiles, submissionFeedbackMap, conn, exerciseType, mark);
+            sendAnnotatedMsg(uniqueFiles, submissionFeedbackMap, conn, exerciseType, mark, downloadablePaths);
             break;
           default:
             System.out.println("Unrecognized result message subtype");
@@ -610,7 +686,7 @@ public class WebSocketHandler {
     }
 
     @SuppressWarnings("unchecked")
-    private void sendAnnotatedMsg(Set<String> uniqueFiles, Map<String, List<AnnotationWrapper>> submissionFeedbackMap, WebSocket conn, String exerciseType, String mark) {
+    private void sendAnnotatedMsg(Set<String> uniqueFiles, Map<String, List<AnnotationWrapper>> submissionFeedbackMap, WebSocket conn, String exerciseType, String mark, List<String> downloadablePaths) {
         // Generate a JSON message with an array containing JSON objects - each is made of the file name,
         // its contents and if a line has an annotation, its corresponding error.
         JSONObject annotatedFilesMsg = new JSONObject();
@@ -619,6 +695,16 @@ public class WebSocketHandler {
         annotatedFilesMsg.put("files", files);
         annotatedFilesMsg.put("exercise_type", exerciseType);
         annotatedFilesMsg.put("mark", mark);
+        
+        JSONArray downloads = new JSONArray();
+        for (String path : downloadablePaths) {
+            JSONObject pathobj = new JSONObject();
+            pathobj.put("path", path);
+            pathobj.put("name", FileUtils.filenameOf(path));
+            downloads.add(pathobj);
+        }
+        annotatedFilesMsg.put("downloads", downloads);
+        
         conn.send(annotatedFilesMsg.toJSONString());
     }
 
@@ -762,7 +848,7 @@ public class WebSocketHandler {
         
         List<StudentCommit> commits = allJobs.getStudentsByTitle(title);
         if (commits == null) {
-            ConnUtils.sendStatusInfo(conn, "Could not retrieve student jobs", Color.RED, 10);
+            ConnUtils.sendStatusInfo(conn, "Could not retrieve student jobs", Color.RED, 5);
             throw new RuntimeException("Could not retrieve student jobs for exercise " + title);
         }
 
@@ -808,18 +894,18 @@ public class WebSocketHandler {
             String title = parser.getString("title");
 
             if (title == null || title.isEmpty()) {
-                ConnUtils.sendStatusInfo(conn, "Title is required", Color.RED, 10);
+                ConnUtils.sendStatusInfo(conn, "Title is required", Color.RED, 5);
                 return;
             }
 
             UserSession session = sessionManager.getSession(parser);
             if (session == null) {
-                ConnUtils.sendStatusInfo(conn, "Could not find user session", Color.RED, 10);
+                ConnUtils.sendStatusInfo(conn, "Could not find user session", Color.RED, 5);
                 throw new RuntimeException("session is null");
             }
             UserAccount account = session.getAccount();
             if (account == null) {
-                ConnUtils.sendStatusInfo(conn, "Could not find user account", Color.RED, 10);
+                ConnUtils.sendStatusInfo(conn, "Could not find user account", Color.RED, 5);
                 throw new RuntimeException("account is null");
             }
             String username = account.getUsername();
@@ -834,14 +920,14 @@ public class WebSocketHandler {
                 throw new RuntimeException("Model Solution git is " + modelgit);
             }
             if (!modelgit.startsWith("https://")) {
-                ConnUtils.sendStatusInfo(conn, "Invalid git URL: " + modelgit, Color.RED, 10);
+                ConnUtils.sendStatusInfo(conn, "Invalid git URL: " + modelgit, Color.RED, 5);
                 throw new RuntimeException("invalid model solution git link");
             }
             
             // Check student gits and usernames
             JsonArrayParser studentsGitsArray = parser.getArrayParser("students_git");
             if (studentsGitsArray == null) {
-                ConnUtils.sendStatusInfo(conn, "Please provide student git links and student usernames", Color.RED, 10);
+                ConnUtils.sendStatusInfo(conn, "Please provide student git links and student usernames", Color.RED, 5);
                 throw new RuntimeException("no student gits array");
             }
             // Analyze each of the students links and usernames
@@ -859,11 +945,11 @@ public class WebSocketHandler {
                     continue;
                 }
                 if (!git.startsWith("https://")) {
-                    ConnUtils.sendStatusInfo(conn, "Invalid git https link: " + git, Color.RED, 10);
+                    ConnUtils.sendStatusInfo(conn, "Invalid git https link: " + git, Color.RED, 5);
                     throw new RuntimeException("invalid git " + git);
                 }
                 if (uname == null || uname.isEmpty()) {
-                    ConnUtils.sendStatusInfo(conn, "Username for link " + git + " is required", Color.RED, 10);
+                    ConnUtils.sendStatusInfo(conn, "Username for link " + git + " is required", Color.RED, 5);
                     throw new RuntimeException("no username" );
                 }
                 cleanedArray.add(studentdata.getObject());

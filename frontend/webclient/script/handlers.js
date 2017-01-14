@@ -101,7 +101,8 @@ $handlers.handle_job_list = function(msgobj) {
   }
 
   // Write to model
-  $globals.professor_scope.all_jobs = [];
+  var all_jobs = [];
+  all_jobs = [];
 
   for (var i = 0; i < jobs.length; i++) {
     var in_job = jobs[i];
@@ -110,12 +111,16 @@ $handlers.handle_job_list = function(msgobj) {
     var local = in_job.local;
     
     var color = "green";
+    var glyphicon = "ok";
     if (in_job_status == "pending") {
-      color = "orange";
+      color = "blue";
+      glyphicon = "time";
     } else if (in_job_status == "error") {
       color = "red";
+      glyphicon = "warning-sign";
     } else if (in_job_status == "processing") {
-      color = "yellow";
+      color = "orange";
+      glyphicon = "cog";
     }
 
     var a_job = {};
@@ -123,13 +128,14 @@ $handlers.handle_job_list = function(msgobj) {
     a_job.status = in_job_status;
     a_job.local = local;
     a_job.color = color;
+    a_job.glyphicon = glyphicon;
     a_job.displayed = false;
     a_job.display = function(title) {
+      // TODO : HIDING NOT WORKING PROPERLY
       a_job.displayed = !a_job.displayed;
       if (!a_job.displayed) {
         a_job.students = []
       } else {
-        console.log("Clicked display on job " + title);
         var msgobj = {};
         msgobj.type = "get_job";
         msgobj.id = $globals.token;
@@ -139,10 +145,14 @@ $handlers.handle_job_list = function(msgobj) {
     };
     a_job.students = [];
 
-    $globals.professor_scope.all_jobs.push(a_job);
+    all_jobs.push(a_job);
   }
 
+  $globals.professor_scope.all_jobs = all_jobs;
   $globals.professor_scope.$apply();
+  
+
+  $globals.all_jobs = all_jobs;
 };
 
 $handlers.handle_job_group = function(msgobj) {
@@ -244,6 +254,8 @@ $handlers.handle_annotated_file = function(msgobj) {
         file.data = data_list;
         $globals.professor_scope.annotated_files.push(file);
         }
+        
+        $globals.professor_scope.downloads = msgobj.downloads;
 
         // change view
         $globals.professor_scope.show_section('show_annotated_file');
@@ -285,8 +297,25 @@ $handlers.handle_commits = function(msgobj) {
 };
 
 $handlers.handle_status_info = function(msgobj) {
+    color = msgobj.color;
+
+    // set msg alert type
+    if (color === 'black') {
+      msgobj.alert_type = 'info';
+    } else if (color === 'green') {
+      msgobj.alert_type ='success';
+    } else if (color === 'yellow') {
+      msgobj.alert_type = 'warning';
+    } else if (color === 'red') {
+      msgobj.alert_type = 'danger';
+    }
+
     var checker = msgobj;
+
     $globals.top_scope.statusinformation.unshift(msgobj);
+    // only keep latest 3 messages
+    $globals.top_scope.statusinformation = $globals.top_scope.statusinformation.slice(0,3);
+
     setTimeout(function(){
         for (var i = 0; i < $globals.top_scope.statusinformation.length; i++) {
             if (checker === $globals.top_scope.statusinformation[i]) {
@@ -295,5 +324,17 @@ $handlers.handle_status_info = function(msgobj) {
         }
         $globals.top_scope.$apply();
     }, msgobj.timeout*1000);
+
     $globals.top_scope.$apply();
+};
+
+function openInNewTab(url) {
+    location.href = url;
+};
+
+$handlers.handle_start_download = function(msgobj) {
+    var token = msgobj.token;
+    var downUrl = location.protocol + '//' + location.host + '/result/' + token;
+    console.log("Downloading... " + downUrl);
+    openInNewTab(downUrl);
 };
