@@ -7,6 +7,8 @@ repo:
 # This assumes the presence of numpy and scipy  
 scikit:
 	pip -q install --user -U scikit-learn
+	pip -q install --user numpy
+	pip -q install --user scipy
 
 clean:
 	- rm -rf repo
