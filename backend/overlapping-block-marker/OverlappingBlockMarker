@@ -53,6 +53,7 @@ output_json_path = os.path.abspath(sys.argv[2])
 input_json_file = open(input_json_path, 'r')
 input_json_string = input_json_file.read()
 input_json_obj = None
+   
 try:
     input_json_obj = json.loads(input_json_string)
 except:
@@ -96,13 +97,17 @@ except:
     print(traceback.format_exc())
     exit_with_error('Error when loading the manifest file for the Overlapping Block Marker training data', output_json_path)
 
+# to trainXXXXX
+training_stem_p = exec_dir + os.sep + 'training' + os.sep + training_path 
+
 # alabno/overlapping-block-marker/training/trainXXXXX.train
-training_path = os.path.abspath(exec_dir + os.sep + 'training' + os.sep + training_path + '.train')
+training_path = os.path.abspath(training_stem_p + '.train')
+
 # Check that it exists
 if not os.path.isfile(training_path):
     exit_with_error('The training file {} does not exist'.format(training_path), output_json_path)
 
 # Initialise Marker and mark
-marker = Marker(training_path, haskell_file_paths)
+marker = Marker(training_path, haskell_file_paths, training_stem_p + '.csv')
 marker.mark()
 marker.write_output(output_json_path)
