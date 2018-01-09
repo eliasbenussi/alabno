@@ -8,7 +8,7 @@ import scala.io.Source
 class DatabaseConnector(dbName: String) {
   private val driver = "com.mysql.cj.jdbc.Driver"
   private val username = "python"
-  private val url = "jdbc:mysql://tc.jstudios.ovh:3306/Automarker"
+  private val url = "jdbc:mysql://alabno.jstudios.ovh:3306/Automarker"
   private val locurl = "jdbc:mysql://localhost:3306/Automarker"
   private val psw = findPsw("dbpass.txt")
   private var connection: Connection = _

@@ -36,7 +36,7 @@ class MysqlConn:
             if os.environ['ALABNOLOCAL'] == '1':
                 hostname = 'localhost'
             else:
-                hostname = 'tc.jstudios.ovh'
+                hostname = 'alabno.jstudios.ovh'
             connection = pymysql.connect(host=hostname,
                                 user='python',
                                 password=the_password,

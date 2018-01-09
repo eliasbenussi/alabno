@@ -70,7 +70,7 @@ http://localhost:8000/result/token
 ```
 or
 ```
-http://tc.jstudios.ovh:8000/result/token
+http://alabno.jstudios.ovh:8000/result/token
 ```
 replacing token with the token, and replacing https and ports with the correct combination.
 

@@ -32,7 +32,7 @@ public class MySqlDatabaseConnection implements DatabaseConnection {
         if (System.getenv("ALABNOLOCAL").equals("1")) {
             DB_URL = "jdbc:mysql://localhost:3306/Automarker";
         } else {
-            DB_URL = "jdbc:mysql://tc.jstudios.ovh:3306/Automarker";
+            DB_URL = "jdbc:mysql://alabno.jstudios.ovh:3306/Automarker";
         }
         
         setupPassword();
