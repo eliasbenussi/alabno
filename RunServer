@@ -73,8 +73,10 @@ def start_server(https):
     else:
         print("Starting in normal mode")
         start_server_command = './infrastructure/runservers.sh'
-    cmd = 'screen -A -m -d -S {} {}'.format(screen_name, start_server_command)
-    subprocess.call(cmd, shell=True)
+    # cmd = 'screen -A -m -d -S {} {}'.format(screen_name, start_server_command)
+    cmd = start_server_command
+    print("Running {}".format(cmd))
+    subprocess.call(start_server_command, shell=True)
 
 def kill_server():
     cmd = 'screen -X -S {} quit'.format(screen_name)
